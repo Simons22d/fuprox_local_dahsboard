@@ -1,0 +1,20 @@
+html{
+    font-family: "Muli";
+}
+
+#logo{
+    text-align: center;
+}
+
+@font-face {
+    font-family: Muli;
+    src: url("../static/fonts/Muli/static/Muli-Regular.ttf") format("truetype");
+}
+
+
+
+@font-face {
+    font-family: Muli;
+    font-weight: bold;
+    src: url("../static/fonts/Muli/static/Muli-Bold.ttf") format("truetype");
+}

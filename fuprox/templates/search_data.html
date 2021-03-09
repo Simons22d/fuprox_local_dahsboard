@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+{% block nav%}
+    <div class="navbar-collapse collapse offset-md-5" id="navbarDefault">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('branches') }}">Cntry/Brnch</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('payments') }}">Payments</a>
+          </li>
+
+        <li class="nav-item">
+            <a class="nav-link " href="{{ url_for('extras') }}">Extras</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link active" href="{{ url_for('help') }}">Help</a>
+          </li>
+
+          <li class="nav-item">
+                <a class="nav-link " href="{{ url_for('logout') }}" style="color:red;">Logout</a>
+          </li>
+        </ul>
+      </div>
+{% endblock %}
+{% block status%}
+  <section class="intro-single">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12 col-lg-7">
+          <div class="title-single-box">
+            <h5 style="font-size:15px;">Dashboard / <span style="color:grey;">Help</span> </h5>
+            <span class="color-text-a"></span>
+          </div>
+        </div>
+          <div class="col-md-12 col-lg-5">
+              <form action="" method="post">
+                      {{ form.hidden_tag() }}
+                  <div class="row col-lg-12 float-right">
+                      <div class="col-lg-8">
+                    {% if form.term.errors %}
+                    {{ form.term(class="form-control  form-control-sm is-invalid")}}
+                    <div class="invalid-feedback">
+                        {% for error in form.term.errors %}
+                        <span>{{error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.term(class="form-control form-control-sm ") }}
+                    {% endif %}
+                </div>
+
+                  <div class="col-lg-4 col-md-6 float-right">{{ form.submit(class="btn btn-outline-primary btn-sm") }}</div>
+                  </div>
+              </form>
+          </div>
+      </div>
+    </div>
+  </section>
+{% endblock status %}
+{% block content %}
+<div>
+  <h5 class="text-muted mb-3">Need Any Help?</h5>
+<!--  -->
+  <div class="row" id="searchDiv">
+
+  </div>
+  <div class="row">
+    {% for solution in data %}
+    <div class=" mt-2 col-lg-12"><a href="{{ url_for('search',id=solution.id)}}"><u>
+          <p class="text-muted">{{ solution.title }} ?</p>
+        </u></a></div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock content  %}

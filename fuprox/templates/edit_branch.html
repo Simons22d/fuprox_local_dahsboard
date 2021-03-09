@@ -1,0 +1,287 @@
+{% extends 'layout.html'%}
+{% block nav%}
+    <div class="navbar-collapse collapse offset-md-5" id="navbarDefault">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+          </li>
+
+          <li class="nav-item active">
+            <a class="nav-link" href="{{ url_for('branches') }}">Cntry/Brnch</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('payments') }}">Payments</a>
+          </li>
+
+
+
+        <li class="nav-item">
+            <a class="nav-link " href="{{ url_for('extras') }}">Extras</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link " href="{{ url_for('help') }}">Help</a>
+          </li>
+            <li class="nav-item">
+                <a class="nav-link " href="{{ url_for('logout') }}" style="color:red;">Logout</a>
+          </li>
+        </ul>
+      </div>
+{% endblock %}
+{% block status%}
+
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
+
+  <section class="intro-single">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12 col-lg-8">
+          <div class="title-single-box">
+            <h5 style="font-size:15px;">Dashboard / <span style="color:grey;">Branch</span> </h5>
+            <span class="color-text-a"></span>
+          </div>
+        </div>
+          <div class="col-lg-4 col-md-12 ">
+              <div class="dropdown">
+  <button class="btn btn-secondary btn-sm dropdown-toggle float-right " id="choice" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Choose Action
+  </button>
+<style>
+.dropdown-item{
+    font-size:14px;
+}
+</style>
+<script>
+  $("#choice").html("Branch");
+
+</script>
+  <div class="dropdown-menu " aria-labelledby="dropdownMenuButton">
+    <a class="dropdown-item" href="{{ url_for('branches') }}">Branch</a>
+    <a class="dropdown-item" href="{{ url_for('add_company') }}">Company</a>
+    <a class="dropdown-item" href="{{ url_for('add_category') }}">Category</a>
+  </div>
+</div>
+          </div>
+      </div>
+    </div>
+  </section>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+        <ul class="nav nav-tabs " style="font-size:12px; pading-top:0px;">
+              <li class="nav-item">
+                <a class="nav-link " href="{{ url_for('branches') }}" id="add branch">Add Branch</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('view_branch') }}" id="branches">Branches</a>
+              </li>
+              <li class="nav-item active">
+                    <a class="nav-link active" href="" id="editbranch">Edit Branch</a>
+              </li>
+        </ul>
+        </div>
+    </div>
+</div>
+<br>
+{% endblock%}
+{% block content %}
+     <!--/ Property Grid Star /-->
+
+    <div class="row">
+      <div class="col-lg-6 ">
+<!--        <div class="row container mb-3"><div class="text-muted">Companies</div>-->
+        <br>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="">
+          <div style="height : 500px; border-radius:5px;" id="map"></div>
+        </div>
+      </div>
+        <div class="col-lg-6 container">
+        <form action="" method="POST" >
+                {{ form.hidden_tag() }}
+             {% for field in form.errors %}
+             {% for error in form.errors[field] %}
+                 <div class="alert alert-danger">
+                     <strong>Error!</strong> {{error}}
+                 </div>
+             {% endfor %}
+             {% endfor %}
+            <div class="row container mb-3"><div class="text-muted">Edit Branch Details</div>
+            <small>Here you can enter data about the branches. These detail shall be used to interact with the rest of the system. Please make sure these data is accurate.</small>
+            <br>
+          </div>
+          <div class="row mb-1">
+              <div class="col-lg-12">
+                {{ form.name.label(class='form-control-label') }}
+                {% if form.name.errors %}
+                {{ form.name(class="form-control form-control-sm is-invalid",id="suggestLocation")}}
+                <div class="invalid-feedback">
+                    {% for error in form.name.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    {{ form.name(class="form-control form-control-sm ",id="suggestLocation")}}
+                {% endif %}
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-lg-12">
+                <!-- <div id="suggestLocation" class="small">Location Suggestions</div> -->
+              </div>
+            </div>
+
+                    <div class="row mb-3">
+              <div class="col-lg-6">
+                {{ form.latitude.label(class='form-control-label') }}
+                {% if form.latitude.errors %}
+                {{ form.latitude(class="form-control form-control-sm is-invalid",id="lat")}}
+
+                <div class="invalid-feedback">
+                    {% for error in form.latitude.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    {{ form.latitude(class="form-control form-control-sm ",id="lat")}}
+                {% endif %}
+                <small class="form-text text-muted"></small>
+              </div>
+              <div class="col-lg-6">
+                {{ form.longitude.label(class='form-control-label') }}
+                {% if form.longitude.errors %}
+                {{ form.longitude(class="form-control form-control-sm is-invalid",id="long")}}
+                <div class="invalid-feedback">
+                    {% for error in form.longitude.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    {{ form.longitude(class="form-control form-control-sm ",id="long")}}
+                {% endif %}
+                <small class="form-text text-muted"></small>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-lg-6">
+                {{ form.service.label(class='form-control-label') }}
+                {% if form.service.errors %}
+                {{ form.service(class="form-control form-control-sm is-invalid")}}
+                <div class="invalid-feedback">
+                    {% for error in form.service.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    {{ form.service(class="form-control form-control-sm",list="serviceName", placeholder="Enter the service Type")}}
+                {% endif %}
+                <datalist id="serviceName">
+                    {% for d in services %}
+                        <option value="{{d.id}}">{{ d.name }}</option>
+                    {% endfor %}
+                </datalist>
+                <small class="form-text text-muted"></small>
+              </div>
+              <div class="col-lg-6">
+              {{ form.company.label(class='form-control-label') }}
+                {% if form.company.errors %}
+                {{ form.company(class="form-control form-control-sm is-invalid")}}
+                <div class="invalid-feedback">
+                    {% for error in form.company.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    {{ form.company(class="form-control form-control-sm",list="companyName", placeholder="Enter the Company Name")}}
+                {% endif %}
+                  <datalist id="companyName">
+                    {% for d in companies %}
+                        <option value="{{d.id}}">{{ d.name }}</option>
+                    {% endfor %}
+                </datalist>
+                <small class="form-text text-muted"></small>
+
+            </div>
+            </div>
+
+
+            <div class="row mb-3">
+              <div class="col-lg-6">
+                {{ form.opens.label(class='form-control-label') }}
+                {% if form.opens.errors %}
+                {{ form.opens(class="form-control form-control-sm is-invalid", id="branchOpens")}}
+                <div class="invalid-feedback">
+                    {% for error in form.opens.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    {{ form.opens(class="form-control form-control-sm ", id="branchOpens")}}
+                {% endif %}
+                <small class="form-text text-muted"></small>
+              </div>
+
+              <div class="col-lg-6">
+                {{ form.closes.label(class='form-control-label') }}
+                {% if form.closes.errors %}
+                {{ form.closes(class="form-control form-control-sm is-invalid",id="branchCloses")}}
+                <div class="invalid-feedback">
+                    {% for error in form.closes.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    {{ form.closes(class="form-control form-control-sm ",id="branchCloses")}}
+                {% endif %}
+                <small class="form-text text-muted"></small>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-lg-12">
+                {{ form.email.label(class='form-control-label') }}
+                {% if form.email.errors %}
+                {{ form.email(class="form-control form-control-sm is-invalid")}}
+                <div class="invalid-feedback">
+                    {% for error in form.email.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    {{ form.email(class="form-control form-control-sm ")}}
+                {% endif %}
+                <small class="form-text text-muted"></small>
+              </div>
+            </div>
+
+            <div class="row">
+              {{ form.submit(class="btn btn-primary btn-sm col-lg-6 col col-md-12 offset-lg-3",id="denis") }}
+            </div>
+            </form>
+        </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6">
+          [<span id="latclicked"></span>]
+          [<span id="longclicked"></span>]
+          <!-- [<span id="latmoved"></span>] -->
+          <!-- [<span id="longmoved"></span>] -->
+
+        </div>
+        <div class="col-lg-6">
+        </div>
+      </div>
+    </div>
+    <script src="{{ url_for('static',filename='js/maps.js') }}"></script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLa1ip_JY3cCbq9YU63nZjBKYE8RUcn88&callback=initMap"
+            async defer></script>
+      <!-- end container -->
+{% endblock %}

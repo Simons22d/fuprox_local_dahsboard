@@ -1,0 +1,93 @@
+{% extends 'layout.html'%}
+{% block nav%}
+    <div class="navbar-collapse collapse offset-md-5" id="navbarDefault">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('branches') }}">Cntry/Brnch</a>
+          </li>
+
+          <li class="nav-item active">
+            <a class="nav-link" href="{{ url_for('payments') }}">Payments</a>
+          </li>
+
+        <li class="nav-item">
+            <a class="nav-link " href="{{ url_for('extras') }}">Extras</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link " href="{{ url_for('help') }}">Help</a>
+          </li>
+
+          <li class="nav-item">
+                <a class="nav-link " href="{{ url_for('logout') }}" style="color:red;">Logout</a>
+          </li>
+        </ul>
+      </div>
+{% endblock %}
+{% block status%}
+  <section class="intro-single">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12 col-lg-8">
+          <div class="title-single-box">
+            <h5 style="font-size:15px;">Dashboard / <span style="color:grey;">Payments</span></h5>
+            <span class="color-text-a"></span>
+          </div>
+        </div>
+      </div>
+<!--      body-->
+      <div class="col-lg-12 row mt-4">
+        <div class="btn-group row  col-lg-4" role="group" aria-label="Basic example">
+          <button type="button" class="btn  btn-sm btn-outline-primary" id="mpesa">Mpesa
+              Payments</button>
+          <button type="button" class="btn btn-sm  btn-primary " id="card ">Card Payments</button>
+          <button type="button" class="btn btn-sm  btn-outline-primary " id="reports">Reports</button>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock%}
+{% block content %}
+<table class="table table-striped table-bordered table-hover tables" id="Mpesa" >
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Identifier</th>
+            <th scope="col">Party A</th>
+            <th scope="col">Party B</th>
+            <th scope="col">Status</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Date Requested</th>
+            <th scope="col">Date Finallized</th>
+            <th scope="col" colspan="3">Action</th>
+        </tr>
+        </thead>
+        <tbody id="adminTableBody">
+           <!-- <tr>
+            <td>1</td>
+            <td>NQ32FG453</td>
+            <td>0719573310</td>
+            <td>671234</td>
+            <td><span class="tag-success">Success</span></td>
+            <td>ksh.40</td>
+            <td>24/02 08:43:20</td>
+            <td>24/02 08:43:50</td>
+                 <td><img src="../static/images/eye.svg" alt="Transaction Status" data-toggle="tooltip"
+                     data-placement="top" title="Transaction Status"></td>
+            <td><img src="../static/images/undo.svg" alt="Reverse" data-toggle="tooltip"
+                     data-placement="top" title="Reverse Transaction"></td>
+            <td><img src="../static/images/info.svg" alt="More Info" data-toggle="tooltip"
+                     data-placement="top" title="More info"></td>
+           </tr> -->
+           
+        
+<!--            working  with the actions-->
+
+
+        </tbody>
+    </table>
+
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'layout.html'%}
+{% block nav%}
+    <div class="navbar-collapse collapse offset-md-5" id="navbarDefault">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('branches') }}">Cntry/Brnch</a>
+          </li>
+
+          <li class="nav-item active">
+            <a class="nav-link" href="{{ url_for('payments') }}">Payments</a>
+          </li>
+
+        <li class="nav-item">
+            <a class="nav-link " href="{{ url_for('extras') }}">Extras</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link " href="{{ url_for('help') }}">Help</a>
+          </li>
+
+          <li class="nav-item">
+                <a class="nav-link " href="{{ url_for('logout') }}" style="color:red;">Logout</a>
+          </li>
+        </ul>
+      </div>
+{% endblock %}
+{% block status%}
+  <section class="intro-single">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12 col-lg-8">
+          <div class="title-single-box">
+            <h5 style="font-size:15px;">Dashboard / <span style="color:grey;">Payments</span></h5>
+            <span class="color-text-a"></span>
+          </div>
+        </div>
+      </div>
+<!--      body-->
+        <div class="row col-lg-12 mt-4">
+            <div class="col-lg-10">
+                <h5 class="text-muted">Transactions Info</h5>
+            </div>
+            <div class="col-lg-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary float-right"
+                    id="back_payments">
+              Back to Payments</button>
+          </div>
+        </div>
+      <div class="col-lg-12 row mt-4">
+         <div class="col-lg-10">
+          <div class="row">
+            <div class="col-lg-2">Identifier : </div>
+            <div class="col-lg-8" id="identifier">{{ data.receipt_number }}</div>
+          </div>
+           <div class="row mt-2">
+             <div class="col-lg-2" >Date Requested : </div>
+             <div class="col-lg-8" id="date "> {{ data.date_added }}</div>
+           </div>
+
+           <div class="row mt-2">
+             <div  class="col-lg-2"  >Amount : </div>
+             <div  class="col-lg-8"  id="Amount"> {{ data.amount }} </div>
+           </div>
+
+           <div class="row mt-2">
+             <div  class="col-lg-2"  >Status : </div>
+             <div  class="col-lg-8"  id="status">{% if data.result_code == 0%}<td><span class="tag-success">Success</span></td>  {% else %} <td><span class="tag-error">Error</span></td> {% endif %}</div>
+           </div>
+
+           <div class="row mt-2">
+             <div  class="col-lg-2"  >From : </div>
+             <div  class="col-lg-8"  id="from">{{ data.phone_number }}</div>
+           </div>
+
+           <div class="row mt-2">
+             <div  class="col-lg-2"  >To : </div>
+             <div  class="col-lg-8"  id="to">{{ data.merchant_request_id }}</div>
+           </div>
+
+           <div class="row mt-2">
+             <div  class="col-lg-2"  >Date Completed : </div>
+             <div  class="col-lg-8"  id="date_completed">{{ data.transaction_date }}</div>
+           </div>
+
+           <div class="row mt-2">
+            <div  class="col-lg-2"  >Description : </div>
+            <div  class="col-lg-8"  id="date_completed">{{ data.result_desc }}</div>
+          </div>
+         </div>
+
+      </div>
+
+      {% if data.result_code == 0%}
+      <div class="col-lg-12 row">
+        <div class="col-lg-10">
+          <h5 class="text-muted mb-2 mt-5">Actions</h5>
+          <!-- <small class="mb-2 col-lg-5 row ">.</small> -->
+
+        </div>
+      </div>
+      <div class="row col-lg-8 mt-4">
+        <div class="col-lg-3">
+          <button id={{data.id}} class="btn btn-sm btn-outline-danger col-lg-12 mb-4">Reverse Transaction</button>
+        </div>
+        <!-- <div class="col-lg-3">
+          <button id="report_main" class="btn btn-sm btn-outline-secondary col-lg-12">Transaction Report</button>
+        </div> -->
+      </div>
+      {% else %}
+      {% endif %}
+    </div>
+  </section>
+{% endblock%}
+{% block content %}
+{% endblock %}

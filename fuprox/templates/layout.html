@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title >NoQueue</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="" name="keywords">
+  <meta content="" name="description">
+  <!-- Favicons -->
+  <link href="img/favicon.png" rel="icon">
+  <link href="img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Bootstrap CSS File -->
+  <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+
+<!--    jquery-->
+    <script src="{{ url_for('static',filename='lib/jquery/jquery.min.js') }}"></script>
+
+        <link href="{{ url_for('static',filename='lib/airDatePicker/datepicker.min.css') }}" rel="stylesheet">
+        <script src="{{ url_for('static',filename='lib/airDatePicker/datepicker.js') }}"></script>
+        <script src="{{ url_for('static',filename='lib/airDatePicker/datepicker.en.js') }}"></script>
+  <!-- Libraries CSS Files -->
+    <link href="{{ url_for('static',filename='lib/animate/animate.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static',filename='lib/ionicons/css/ionicons.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static',filename='lib/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
+    <script src="{{ url_for('static',filename='lib/Chartjs/Chart.js') }}"></script>
+  <!-- Main Stylesheet File -->
+  <link href="{{ url_for('static',filename='css/style.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static',filename='lib/clockPicker/clockpicker.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static',filename='lib/clockPicker/standalone.css') }}" rel="stylesheet">
+</head>
+<body>
+  <!--/ Nav Star /-->
+  <nav class="navbar navbar-default navbar-trans navbar-expand-lg fixed-top">
+    <div class="container">
+      <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarDefault"
+        aria-controls="navbarDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <a class="navbar-brand text-brand" id="logo" href="#">
+          <img src="{{ url_for('static',filename='images/logo.png')}}" height="20px"  alt="Fuprox Logo">
+      </a>
+      <button type="button" class="btn btn-link nav-search navbar-toggle-box-collapse d-md-none" data-toggle="collapse"
+        data-target="#navbarTogglerDemo01" aria-expanded="false">
+        <span class="fa fa-search" aria-hidden="true"></span>
+      </button>
+      {% block nav %}{% endblock %}
+    </div>
+  </nav>
+  <!--/ Nav End /-->
+  <!--/ Intro Single star /-->
+  {% block status %}
+  {% endblock %}
+  <!--/ Intro Single End /-->
+<!--container-->
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+            {% for category,message in messages %}
+            <div class="alert alert-{{ category }} col-lg-6">{{message}}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+  {% block content %}{% endblock %}
+</div>
+<!--  end container-->
+    <div id="preloader"></div>
+          <!-- JavaScript Libraries -->
+          <script src="{{ url_for('static',filename='lib/popper/popper.min.js') }}"></script>
+          <script src="{{ url_for('static',filename='lib/bootstrap/js/bootstrap.min.js') }}"></script>
+          <script src="{{ url_for('static',filename='lib/easing/easing.min.js') }}"></script>
+          <script src="{{ url_for('static',filename='lib/owlcarousel/owl.carousel.min.js') }}"></script>
+          <script src="{{ url_for('static',filename='lib/scrollreveal/scrollreveal.min.js') }}"></script>
+          <script src="{{ url_for('static',filename='lib/clockPicker/clockpicker.js') }}"></script>
+
+          <!-- Contact Form JavaScript File -->
+          <script src="{{ url_for('static',filename='contactform/contactform.js') }}"></script>
+
+          <!-- Template Main Javascript File -->
+          <script src="{{ url_for('static',filename='js/main.js') }}"></script>
+          <script src="{{ url_for('static',filename='js/utility.js') }}"></script>
+  <script>
+
+       // $('[data-toggle="tooltip"]').tooltip()
+      	// adding tooltip support
+        $(function () {
+          $('[data-toggle="tooltip"]').tooltip()
+        })
+        let url = window.location.origin;
+
+        $("#mpesa").on("click",()=>{
+	        window.location = (`${url}/payments`)
+        })
+        $("#card").on("click",()=>{
+            window.location = (`${url}/card`)
+        })
+        $("#reports").on("click",()=>{
+            window.location = (`${url}/reports`)
+        })
+
+        const info =(me)=>{
+            console.log(me.id)
+            let current_location = window.location.href;
+            sessionStorage.setItem("prev",current_location)
+            let id = me.id;
+            window.location = `${url}/info/${id}`
+        };
+
+        const prefillForm = (data, title = "") => {
+            // get the table handle
+            let handle = $("#report");
+            if (title !== "") {
+                handle.append(`<tr><td>${title}</td></tr>`)
+            }
+            // working with the report data
+            // mappiong begins
+            mapper =["Local","Online","Instant"]
+            data.map((value, key) => {
+                let id = value.id;
+                let branch_id = value.branch_id;
+                let active_ = value.active ? "Active" : "Serviced";
+                let forwarded = value.forwarded ? "Fowarded": "Not Forwarded";
+                let kind = mapper["kind"];
+                let service_name = value.service_name;
+                let serviced = value.serviced;
+                let start = value.start;
+                let teller = value.teller;
+                let user = value.user;
+
+                handle.append(
+                    `<tr class="asset" onclick="" id="${id}">
+                            <th data-id="${id}">${id}</th>
+                            <td data-id="${id}">${branch_id}</td>
+                            <td data-id="${id}">${active_}</td>
+                            <td data-id="${id}">${forwarded}</td>
+                            <td data-id="${id}">${kind}</td>
+                            <td data-id="${id}">${service_name}</td>
+                            <td data-id="${id}">${serviced}</td>
+                            <td data-id="${id}">${start}</td>
+                            <td data-id="${id}">${teller}</td>
+                            <td data-id="${id}">${user}</td>
+                        </tr>`)
+            })
+    }
+
+      $('#back_payments').on("click",()=>{
+        let location = sessionStorage.getItem("prev");
+        window.location = location.length > 1 ? location : "http://localhost:3000/payments"
+      });
+      // genarate reports
+      $("#generate_payments").on("click",()=>{
+
+          /*
+          * <!--
+            {
+                "amount": 5.0,
+                "checkout_request_id": "ws_CO_090720201422507223",
+                "date_added": "2020-07-09T11:27:52",
+                "id": 2,
+                "local_transactional_key": "3a5ec789b6b09619f2dd",
+                "merchant_request_id": "17556-3808479-1",
+                "phone_number": "254719573310",
+                "receipt_number": "OG99LZHERF",
+                "result_code": 0,
+                "result_desc": "The service request is processed successfully.",
+                "transaction_date": "20200709142258"
+            },
+            -->
+            <tr>
+                <th scope="col" id="issueid">Transaction ID</th>
+                <th scope="col" id="from">Reciept Number</th>
+                <th scope="col" id="subject">Phone number</th>
+                <th scope="col" id="dateReceived">Checkout Reqeust ID</th>
+                <th scope="col" id="assignedTo">Result Code</th>
+                <th scope="col" id="dateAssigned">Local Transaction Key</th>
+                <th scope="col" id="resolvedBy">AMount</th>
+                <th scope="col" id="resolveDate">Status</th>
+          * */
+          getData(`http://${lnk}:3000/mpesa/reports`,"POST",{"kind":""},(data)=>{
+              console.log(data)
+              prefillForm(data,"Payment Reports")
+          })
+
+       });
+
+      $("#report_main").on("click",()=>{
+          console.log("single report")
+      });
+      $("#reverse_main").on("click",()=>{
+          console.log("reserve transaction")
+      })
+
+     const getData = (url,method,data,handleData) => {
+            $.ajax({
+                url: url,
+                method: method,
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(data),
+                success: function (result) {
+                    handleData(result);
+                }
+            });
+      }
+
+
+      $("#download_apps").on("click",(e)=>{
+          let application = Number($("#application").val())
+          let platform = Number($("#platform").val())
+
+          if(application == 1004){
+            // android
+            message = "Android App"
+            link = "app"
+          }else if(application === 1001){
+            // teller
+            if(platform === 2001){
+              // windows
+            message = "Windows Teller App"
+            link = "teller/windows"
+            }else if(platform === 2002){
+              // mac
+             link = "teller/windows"
+             message = "Mac Teller App"
+            }else if(platform === 2003){
+              // linux
+              link = "teller/linux"
+              message = "Linux Teller App"
+            }
+          }else if(application === 1002){
+              // display
+              if(platform === 2001){
+                // windows
+                link = "display/windows"
+                message = "Windows Display App"
+              }else if(platform === 2002){
+                // mac
+                link = "display/mac"
+                message = "Mac Display App"
+              }else if(platform === 2003){
+                // linux
+                link = "display/linux"
+                message = "Linux Display App"
+              }
+          }else if(application === 1003){
+              // book
+              if(platform === 2001){
+                // windows
+                link = "book/windows"
+                message = "Windows Book App"
+              }else if(platform === 2002){
+                // mac
+                link = "book/mac"
+                message = "Mac Book App"
+              }else if(platform === 2003){
+                // linux
+                link = "book/linux"
+                message = "Linux Book App"
+              }
+          }
+          let domain = "localhost"
+          domain = "159.65.144.235"
+          window.location.href = `http://${domain}:3000/download/${link}`
+      })
+  </script>
+</body>
+</html>
