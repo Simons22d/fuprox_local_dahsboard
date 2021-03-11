@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect, request, abort, jsonify, send_file, send_from_directory
 from fuprox import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
-from fuprox.forms import (RegisterForm, LoginForm, BranchForm, CompanyForm, ServiceForm, SolutionForm, ReportForm)
+from fuprox.forms import (RegisterForm, LoginForm, TellerForm, CompanyForm, ServiceForm, SolutionForm, ReportForm)
 from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, CompanySchema, ServiceSchema, Mpesa, \
     MpesaSchema, Booking, BookingSchema, ImageCompany, ImageCompanySchema
 from fuprox.utility import reverse
@@ -207,24 +207,22 @@ def payments_report():
     return render_template("payments_reports.html")
 
 
-@app.route("/branch")
-@app.route("/branch/add", methods=["POST", "GET"])
+@app.route("/tellers")
+@app.route("/tellers", methods=["POST", "GET"])
 @login_required
-def branches():
+def tellers():
     # get data from the database
-    company_data = Company.query.all()
-    service_data = Service.query.all()
+    tellers = Teller.query.all()
     # init the form
-    branch = BranchForm()
+    branch = TellerForm()
     if branch.validate_on_submit():
         # get specific compan data
         this_company_data = Company.query.filter_by(name=branch.company.data).first()
         if this_company_data:
             key_ = secrets.token_hex();
             unique_id = ticket_unique()
-            data = Branch(branch.name.data, branch.company.data, branch.longitude.data, branch.latitude.data,
-                          branch.opens.data,branch.closes.data, branch.service.data, branch.email.data, key_,unique_id)
-            if not branch_exits(branch.name.data):
+            data = Branch(branch.number.data,unique_id)
+            if not branch_exits(branch.number.data):
                 data_ = branch_schema.dump(data)
                 # here we are going to push  the branch data to the lacalhost
                 sio.emit("branch", data_)
@@ -349,14 +347,7 @@ def branches():
                 except UnicodeEncodeError:
                     # warn about sending a email and offer a link to sending the email
                     print("Error! error Sending email")
-                branch.name.data = ""
-                branch.company.data = ""
-                branch.longitude.data = ""
-                branch.latitude.data = ""
-                branch.opens.data = ""
-                branch.closes.data = ""
-                branch.service.data = ""
-                branch.email.data = ""
+                branch.number.data = ""
                 flash(f"Branch Successfully Added", "success")
             else:
                 flash("branch by that name exists", "warning")
@@ -478,44 +469,7 @@ def add_company():
     # init the form
     company = CompanyForm()
     if company.validate_on_submit():
-        # getting if the company type exists within the service types
-        service_type = Service.query.get(int(company.service.data))
-        if service_type:
-
-            try:
-                data = Company(company.name.data, company.service.data)
-                db.session.add(data)
-                db.session.commit()
-
-                print("NMNMNMNMN>>>>", company.icon.data)
-
-                if company.icon.data:
-                    # get company by name
-                    company_data = Company.query.filter_by(name=company.name.data).first()
-                    filename = save_picture(company.icon.data)
-                    icon_data = ImageCompany(company_data.id, filename)
-                    db.session.add(icon_data)
-                    db.session.commit()
-
-                else:
-                    flash("Error!Icon Was Not Uploaded.", "error")
-                    redirect(url_for("add_company"))
-            except sqlalchemy.exc.InvalidRequestError:
-                flash("Company By That Name Exists", "warning")
-                # db.session.close()
-
-            except sqlalchemy.exc.IntegrityError:
-                flash("Company By That Name Exists", "warning")
-                # db.session.close()
-
-            # add company
-            sio.emit("company", company_schema.dump(data))
-
-            company.name.data = ""
-            company.service.data = ""
-            flash(f"Company Successfully Added", "success")
-        else:
-            flash("Service type Provided does not exist. Please add it first.", "error")
+        pass
     return render_template("add_company.html", form=company, companies=service_data)
 
 
@@ -525,7 +479,7 @@ def view_company():
     # get the branch data
     company_data = Company.query.all()
     # init the form
-    branch = BranchForm()
+    branch = TellerForm()
     return render_template("view_company.html", form=branch, data=company_data)
 
 
@@ -535,7 +489,7 @@ def view_category():
     # category data
     service_data = Service.query.all()
     # init the form
-    branch = BranchForm()
+    branch = TellerForm()
     return render_template("view_category.html", form=branch, data=service_data)
 
 
@@ -731,7 +685,7 @@ def edit_branch(id):
 
     service_data = Service.query.all()
     # init the form
-    branch = BranchForm()
+    branch = TellerForm()
     if branch.validate_on_submit():
         # update data in the database
         try:
@@ -792,13 +746,13 @@ def delete_branch(id):
         flash("Branch Deleted Sucessfully","success")
     elif request.method == "GET" :
         # init the form
-        branch = BranchForm()
+        branch = TellerForm()
     db.session.delete(branch_data)
     db.session.commit()
     db.session.close()
     flash("Branch Deleted Sucessfully", "success")
     # init the form
-    branch = BranchForm()
+    branch = TellerForm()
     return render_template("delete_branch.html", form=branch, data=branch_data)
 
 

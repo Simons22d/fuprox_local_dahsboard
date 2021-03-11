@@ -31,6 +31,10 @@ ma = Marshmallow(app)
 bcrypt = Bcrypt(app)
 
 # init the login manager
+login_manager = LoginManager(app)
+login_manager.login_view = "login"
+login_manager.login_message_category = "info"
+
 
 # setting the config options for mail
 app.config["MAIL_USERNAME"] = "denniskiruku@gmail.com"

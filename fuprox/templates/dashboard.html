@@ -10,15 +10,15 @@
             <a class="nav-link" href="{{ url_for('home') }}">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('branches') }}">Cntry/Brnch</a>
+            <a class="nav-link" href="{{ url_for('branches') }}">Manage</a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('payments') }}">Payments</a>
+            <a class="nav-link" href="{{ url_for('payments') }}">Bookings</a>
           </li>
 
         <li class="nav-item">
-            <a class="nav-link " href="{{ url_for('extras') }}">Extras</a>
+            <a class="nav-link " href="{{ url_for('extras') }}">Apps</a>
           </li>
 
           <li class="nav-item">
@@ -29,9 +29,7 @@
           </li>
         </ul>
       </div>
-        <script src='{{url_for("static",filename="lib/excelGen/excel-gen.js")}}'></script>
-        <script src='{{url_for("static",filename="lib/excelGenReq/jszip.js")}}'></script>
-        <script src='{{url_for("static",filename="lib/excelGenReq/FileSaver.js")}}'></script>
+
 {% endblock %}
 {% block status%}
   <section class="intro-single">
@@ -39,7 +37,7 @@
       <div class="row">
         <div class="col-md-12 col-lg-8">
           <div class="title-single-box">
-            <h5 style="font-size:15px;">Dashboard / <span style="color:grey;">Home</span> </h5>
+            <h5><small class="text-muted">{{today}}</small></h5>
             <span class="color-text-a"></span>
           </div>
         </div>
@@ -48,220 +46,9 @@
   </section>
 {% endblock%}
 {% block content %}
-<h5><small class="text-muted">{{today}}</small></h5>
-<br>
-    <div class="row col-lg-12">
-    <div class="col-lg-5" id="graphs">
-        	<canvas id="doughnut" width="120" height="75"></canvas>
-            <script>
-                var ctx = document.getElementById('doughnut').getContext('2d');
-                var doughnut = new Chart(ctx, {
-                    type: 'doughnut',
 
-                    data: {
-                        labels: ["Open","Serviced"],
-                        datasets: [
-                            {
-                                label: "Customers",
-                                backgroundColor: ["Red","Green"],
-                                data: [20,10]
-                            }
-                        ]
-                    },
-                    options: {
-                        title: {
-                            display: true,
-                            text: 'Queue Status'
-                        }
-                    }
-                });
-            </script>
-        </div>
-        <div class="col-lg-6 offset-lg-1" id="graphs">
-        <canvas id="myChart" width="110" height="65"></canvas>
-        <script>
-            var ctx = document.getElementById('myChart').getContext('2d');
-            var myChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
-                    datasets: [{
-                        steppedLine : "after",
-                        label:"Tickets Serviced",
-                        data: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(255, 159, 64, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    title: {
-                        display: true,
-                        text: 'Tickets list for The Last 15 Days (Per Day)'
-                    },
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true
-                            }
-                        }]
-                    }
-                }
-            });
-        </script>
-        </div>
-    </div>
-<style>
-    .reports{
-        margin-left : 0px;
-    }
-    #frequency{
-        margin-right : 40px;
-    }
-    .reports{
-        margin-left:-30px;
-    }
-</style>
-<br>
-    <div class=""><br>
-        <h5 id="section">Reports</h5>
-        <div class="text-muted">Please Select Either of the links to generate reports.</div><br>
-        <!-- <div class="alert alert-danger col-lg-5 alert-dismissible" role="alert" id="error" style="display:none;">
-            Sorry, Data For This Kind Of Report Does Not Exists Yet.
-          </div> -->
-          <div class="alert alert-info col-lg-5" style="display:none" role="alert" id="generating">
-            Generating Report.
-          </div>
-          <!-- <div class="alert alert-success col-lg-5" style="display:none" role="alert" id="done">
-            &#128076; Report Successfully Generated.
-          </div> -->
-        <div class="alert alert-success col-lg-5" style="display:none" role="alert" id="error">
-            &#128076; Report Successfully Generated.
-        </div>
-        <div class="reports row col-lg-12">
-        <!-- Report Type -->
-        <div class="col-lg-3">
-                <label for="frequency">Duration</label>
-                <select class="form-control form-control-sm" id="frequency" name="frequency" onchange="getFrequency(this);">
-                    <option id="periodOne"  selected value="null">Select The Frequency</option>
-                    <option class="period" id="daily" value="day">Daily Reports</option>
-<!--                     <option class="period" id="weekly" value="week">Weekly Reports</option>-->
-                    <option class="period" id="monthly" value="month">monthly Reports</option>
-                </select>
-        </div>
-            <div class="col-lg-3" >
-                    <label for="type">Kind</label>
-                    <select class="form-control form-control-sm" id="type" name="type"  disabled>
-                        <option id="statusOne" selected value="null">Issue Type</option>
-                        <option class="status" id="booking" value="0">Booking</option>
-<!--                        <option class="status" id="branch-country" value="1">Branch</option>-->
-                    </select>
-            </div>
-
-            <!-- time -->
-            <div class="col-lg-3" id="dateCont">
-                <label for="dailyCal">Select Date</label>
-                <input type="text" type="text" readonly class="form-control form-control-sm" id="dailyCal" name="daily">
-            </div>
-
-            <div class="col-lg-3" id="monthCont" style="display: none;" >
-                    <label for="month">Select Month</label>
-                    <input readonly type="text" class="form-control form-control-sm" id="month" name="weekNumber">
-            </div>
-
-<!--            week numebers-->
-<!--            <div class="col-lg-3" id="weekCont" style=" display:none"  >-->
-<!--                <label for="weeks">Select Week</label>-->
-<!--                <select class="form-control form-control-sm" id="weeks" name="weeks" onmouseover="updateWeek(this)">-->
-<!--                        <option id="weekNumber" selected value="null">Week Number</option>-->
-<!--                        <option class="week" id="one" value="1">Week One </option>-->
-<!--                        <option class="week" id="two" value="2">Week Two</option>-->
-<!--                        <option class="week" id="three" value="3">Week Three </option>-->
-<!--                        <option class="week" id="four" value="4">Week Four </option>-->
-<!--                        <option class="week" id="five" value="5">Week Five </option>-->
-<!--                    </select>-->
-<!--            </div>-->
-
-        </div><br><br>
-        <button class="btn btn-primary btn-sm col-lg-2" id="generate" >Generate Report</button>
-    </div>
-    <br><br>
-    <div class="reportDiv">
-        <!-- report container -->
-<!--           <th data-id="${id}">${id}</th>
-                    <td data-id="${id}">${branch_id}</td>
-                    <td data-id="${id}">${active}</td>
-                    <td data-id="${id}">${forwarded}</td>
-                    <td data-id="${id}">${kind}</td>
-                    <td data-id="${id}">${service_name}</td>
-                    <td data-id="${id}">${serviced}</td>
-                    <td data-id="${id}">${start}</td>
-                    <td data-id="${id}">${teller}</td>
-                    <td data-id="${id}">${user}</td>
-                    -->
-        <table class="table table-striped table-bordered table-hover" style="display:none" id="report">
-            <thead>
-            <tr>
-                <th scope="col" id="issueid">Issue ID</th>
-                <th scope="col" id="from">Branch Id</th>
-                <th scope="col" id="subject">Active</th>
-                <th scope="col" id="dateReceived">Forwarded</th>
-                <th scope="col" id="assignedTo">Kind</th>
-                <th scope="col" id="dateAssigned">Service Name</th>
-                <th scope="col" id="resolvedBy">Serveced</th>
-                <th scope="col" id="resolveDate">Date Resolved</th>
-                <th scope="col" id="dateClosed">Teller</th>
-                <th scope="col" id="solution">User</th>
-            </tr>
-            </thead>
-            <tbody id="reportBody" >
-            </tbody>
-        </table>
-    </div>
-<script>
-
-//     // function to make ajax: Text calls
-// const getData = (url,method,data,handleData) => {
-//     $.ajax({
-//         url: url,
-//         method: method,
-//         data: data,
-//         success: function (result) {
-//             handleData(result);
-//         }
-//     });
-// }
-let lnk = "localhost"
-// let lnk = "68.183.89.127"
-
-setInterval(()=>{
-    getData(`http://${lnk}:3000/doughnut/data`,"GET",{},(data)=>{
-        doughnut.data.datasets[0].data[0] =  data.open;
-        doughnut.data.datasets[0].data[1] =  data.closed;
-        doughnut.update();
-    })
-
-    getData(`http://${lnk}:3000/bar/data`,"GET",{},(data)=>{
-        data.map((item,index)=>{
-            myChart.data.datasets[0].data[index+1] =  item.issuesCount;
-        })
-         myChart.update();
-    })
-},1000)
-</script>
+<h2><a href="">44 Bookings</a></h2>
+<h2> <a href="">2 Tellers</a></h2>
+<h2><a href="">7 Service Offered </a></h2>
 {% endblock %}
 

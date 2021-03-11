@@ -6,15 +6,15 @@
             <a class="nav-link" href="{{ url_for('home') }}">Home</a>
           </li>
           <li class="nav-item active">
-            <a class="nav-link" href="{{ url_for('branches') }}">Cntry/Brnch</a>
+            <a class="nav-link" href="{{ url_for('branches') }}">Manage</a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('payments') }}">Payments</a>
+            <a class="nav-link" href="{{ url_for('payments') }}">Booking</a>
           </li>
 
         <li class="nav-item">
-            <a class="nav-link " href="{{ url_for('extras') }}">Extras</a>
+            <a class="nav-link " href="{{ url_for('extras') }}">Apps</a>
           </li>
 
           <li class="nav-item">
@@ -32,7 +32,7 @@
       <div class="row">
         <div class="col-md-12 col-lg-8">
           <div class="title-single-box">
-            <h5 style="font-size:15px;">Dashboard / <span style="color:grey;">Company</span> </h5>
+            <h5 style="font-size:15px;">Manage Services </h5>
             <span class="color-text-a"></span>
           </div>
         </div>
@@ -47,12 +47,11 @@
 }
 </style>
 <script>
-  $("#choice").html("Company")
+  $("#choice").html("Service")
 </script>
   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-    <a class="dropdown-item" href="{{ url_for('branches') }}">Branch</a>
-    <a class="dropdown-item" href="{{ url_for('add_company') }}">Company</a>
-    <a class="dropdown-item" href="{{ url_for('add_category') }}">Category</a>
+    <a class="dropdown-item" href="{{ url_for('branches') }}">Teller</a>
+    <a class="dropdown-item" href="{{ url_for('add_company') }}">Service</a>
   </div>
 </div>
           </div>
@@ -93,79 +92,84 @@
 
       </div>
 
-    <div class="col-lg-5">
-            <form action="" method="POST" enctype="multipart/form-data">
-                {{ form.hidden_tag() }}
-            <div class="row container mb-3"><div class="text-muted">Company Details</div>
-                <br>
-            <small>Here you can enter data about the branches. These detail shall be used to interact with the rest of the system. Please make sure these data is accurate.</small>
-            <br>
+
+       <div class="row">
+        <div class="col-md-4">
+          <form action="" method="POST" >
+         {{ form.hidden_tag() }}
+             {% for field in form.errors %}
+             {% for error in form.errors[field] %}
+                 <div class="alert alert-danger">
+                     <strong>Error!</strong> {{error}}
+                 </div>
+             {% endfor %}
+         {% endfor %}
+        <div class="row mb-3">
+          <div class="col-lg-12">
+            {{ form.name.label(class='form-control-label') }}
+            {% if form.name.errors %}
+            {{ form.name(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            <div class="invalid-feedback">
+                {% for error in form.name.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+                {{ form.name(class="form-control form-control-sm ", id="branchOpens",autocomplete="off")}}
+            {% endif %}
+            <small class="form-text text-muted"></small>
           </div>
-
-
-          <div class="row mb-1">
-              <div class="col-lg-12">
-                {{ form.name.label(class='form-control-label') }}
-                {% if form.name.errors %}
-                {{ form.name(class="form-control form-control-sm is-invalid",id="suggestLocation")}}
-                <div class="invalid-feedback">
-                    {% for error in form.name.errors %}
-                    <span>{{ error }}</span>
-                    {% endfor %}
-                </div>
-                {% else %}
-                    {{ form.name(class="form-control form-control-sm ",id="suggestLocation")}}
-                {% endif %}
-              </div>
-            </div>
-
-
-            <div class="row mb-1">
-              <div class="col-lg-12">
-                {{ form.icon.label(class='form-control-label') }}
-                {% if form.icon.errors %}
-                {{ form.icon(class="form-control form-control-sm is-invalid",id="suggestLocation")}}
-                <div class="invalid-feedback">
-                    {% for error in form.icon.errors %}
-                    <span>{{ error }}</span>
-                    {% endfor %}
-                </div>
-                {% else %}
-                    {{ form.icon(class="form-control form-control-sm ",id="suggestLocation")}}
-                {% endif %}
-              </div>
-            </div>
-
-            <div class="row mb-3">
-              <div class="col-lg-12">
-                {{ form.service.label(class='form-control-label') }}
-                {% if form.service.errors %}
-                {{ form.service(class="form-control form-control-sm is-invalid",id="service",list="serviceName", placeholder="Enter the service Type", autocomplete="off")}}
-                <div class="invalid-feedback">
-                    {% for error in form.service.errors %}
-                    <span>{{ error }}</span>
-                    {% endfor %}
-                </div>
-                {% else %}
-                    {{ form.service(class="form-control form-control-sm ",id="service",list="serviceName", placeholder="Enter the service Type")}}
-                {% endif %}
-                <datalist id="serviceName">
-                    {% for d in companies %}
-                        <option value="{{d.id}}">{{ d.name }}</option>
-                    {% endfor %}
-                </datalist>
-                <small class="form-text text-muted"></small>
-              </div>
-            </div>
-
-            <div class="row">
-                <div class="col-lg-12 mt-3">
-                      {{ form.submit(class="btn btn-primary btn-sm col-lg-6 col col-md-12 offset-lg-6",id="denis") }}
-                </div>
-            </div>
-            </div>
-            </form>
         </div>
+
+          <div class="row mb-3">
+          <div class="col-lg-12">
+            {{ form.submit(class="btn btn-primary btn-sm col-lg-6 col col-md-12",id="denis") }}
+          </div>
+        </div>
+
+
+        </form>
+      </div>
+        <div class="col-md-8">
+            <table class="table table-sm table-hover" style="font-size:12px;">
+        <thead>
+          <tr>
+            <th scope="col">id</th>
+            <th scope="col">Name</th>
+            <th scope="col">Company</th>
+            <th scope="col">Longitude</th>
+            <th scope="col">Latitude</th>
+            <th scope="col">Service</th>
+          </tr>
+        </thead>
+        <tbody>
+
+         {% if data %}
+        {% for item in data %}
+          <tr>
+            <th scope="row">{{item.id}}</th>
+            <td>{{item.name}}</td>
+            <td>{{item.company}}</td>
+            <td>{{item.longitude}}</td>
+            <td>{{item.latitude}}</td>
+            <td>{{item.opens}}</td>
+            <td>{{item.closes}}</td>
+            <td>{{item.service}}</td>
+            <td><a href="{{ url_for('edit_branch',id=item.id)}}">edit</a></td>
+            <td><a href="{{ url_for('delete_branch',id=item.id)}}">delete</a></td>
+          </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <th scope="row" colspan="5" color="red"><h3 class="mt-3">Oops!, No Data Here :(</h3> </th>
+          </tr>
+
+        {% endif %}
+
+        </tbody>
+      </table>
+        </div>
+    </div>
 
 
       <!-- end container -->

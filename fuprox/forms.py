@@ -76,30 +76,21 @@ class ResetPassword(FlaskForm):
     submit = SubmitField("Request Email Reset")
 
 
-class BranchForm(FlaskForm):
-    # branch_name : longitude : latitude : company_name : description
-    name = StringField("Name", validators=[DataRequired()])
-    longitude = StringField("Longitude", validators=[DataRequired()])
-    latitude = StringField("Latitude", validators=[DataRequired()])
-    service = StringField("Service Type", validators=[DataRequired()])
-    company = StringField("Company Name", validators=[DataRequired()])
-    opens = StringField("Time Opens", validators=[DataRequired()])
-    closes = StringField("Time Closes", validators=[DataRequired()])
-    email = StringField("Contact Email", validators=[DataRequired(), Email()])
+class TellerForm(FlaskForm):
+    number = StringField("Teller Number", validators=[DataRequired()])
     submit = SubmitField("Add Branch")
 
 
 class CompanyForm(FlaskForm):
-    name = StringField("Name", validators=[DataRequired()])
-    service = StringField("Service Type", validators=[DataRequired()])
-    icon = FileField("Icon", validators=[FileAllowed(["jpg", "png","gif","jpeg"])])
-    submit = SubmitField("Add Organization")
+    name = StringField("Teller Number", validators=[DataRequired()])
+    visible = RadioField('Available Online', choices=[('True', 'Yes'), ('False', 'No')])
+    submit = SubmitField("Add Service")
 
 
 class ServiceForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     service = StringField("Description", validators=[DataRequired()])
-    is_medical = RadioField('Medical', choices=[('True', 'Medical'), ('False', 'Not Medical')])
+    visible = RadioField('Available Online', choices=[('True', 'Yes'), ('False', 'No')])
     submit = SubmitField("Add Service")
 
 

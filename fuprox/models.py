@@ -207,3 +207,30 @@ class ImageCompany(db.Model):
 class ImageCompanySchema(ma.Schema):
     class Meta:
         fields = ("id", "company", "image")
+
+
+
+#  new models
+
+class Teller(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    number = db.Column(db.Integer, nullable=False)
+    date_added = db.Column(db.DateTime, default=datetime.now)
+    branch = db.Column(db.Integer)
+    service = db.Column(db.String(200))
+    unique_id = db.Column(db.String(255), default=ticket_unique, unique=True)
+    is_synced = db.Column(db.Boolean, default=False)
+    # branch_unique_id = db.Column(db.String(length=250),db.ForeignKey("branch.unique_id"),nullable=False)
+    branch_unique_id = db.Column(db.String(length=250),nullable=False, default=1234)
+
+    def __init__(self, number, branch, service,branch_unique_id):
+        self.number = number
+        self.branch = branch
+        self.service = service
+        self.branch_unique_id = branch_unique_id
+
+
+class TellerSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "number", "date_added", "branch", "service","is_synced","unique_id","branch_unique_id")
+
