@@ -210,7 +210,6 @@ class ImageCompanySchema(ma.Schema):
 
 
 #  new models
-
 class Teller(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     number = db.Column(db.Integer, nullable=False)
@@ -219,10 +218,10 @@ class Teller(db.Model):
     service = db.Column(db.String(200))
     unique_id = db.Column(db.String(255), default=ticket_unique, unique=True)
     is_synced = db.Column(db.Boolean, default=False)
-    # branch_unique_id = db.Column(db.String(length=250),db.ForeignKey("branch.unique_id"),nullable=False)
-    branch_unique_id = db.Column(db.String(length=250), nullable=False, default=1234)
+    branch_unique_id = db.Column(db.String(length=250),nullable=False, default=1234)
+    active = db.Column(db.Boolean, default=True)
 
-    def __init__(self, number, branch, service, branch_unique_id):
+    def __init__(self, number, branch, service,branch_unique_id):
         self.number = number
         self.branch = branch
         self.service = service
@@ -231,7 +230,7 @@ class Teller(db.Model):
 
 class TellerSchema(ma.Schema):
     class Meta:
-        fields = ("id", "number", "date_added", "branch", "service", "is_synced", "unique_id", "branch_unique_id")
+        fields = ("id", "number", "date_added", "branch", "service","is_synced","unique_id","branch_unique_id","active")
 
 
 def ticket_unique() -> int:
@@ -250,6 +249,7 @@ class ServiceOffered(db.Model):
     is_synced = db.Column(db.Boolean, default=False)
     unique_id = db.Column(db.String(255), default=ticket_unique, unique=True)
     medical_active = db.Column(db.Boolean, default=False)
+    active = db.Column(db.Boolean, default=True)
 
     def __init__(self, name, branch_id, teller, code, icon):
         self.name = name
@@ -262,7 +262,9 @@ class ServiceOffered(db.Model):
 
 class ServiceOfferedSchema(ma.Schema):
     class Meta:
-        fields = ("id", "branch_id", "name", "teller", "date_added", "code", "icon", "unique_id", "medical_active")
+        fields = ("id", "branch_id", "name", "teller", "date_added", "code", "icon","unique_id","medical_active",
+                  "active")
+
 
 
 class Icon(db.Model):

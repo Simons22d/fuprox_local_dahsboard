@@ -208,13 +208,14 @@
         </form>
       </div>
         <div class="col-md-8">
-            <table class="table table-sm table-hover" style="font-size:12px;">
+            <table class="table table-sm table-hover table-bordered" style="font-size:12px;">
         <thead>
           <tr>
             <th scope="col">Name</th>
             <th scope="col">Teller</th>
             <th scope="col">Code</th>
             <th scope="col">Visible Online</th>
+            <th scope="col">Active</th>
             <th scope="col">Action</th>
           </tr>
         </thead>
@@ -226,6 +227,7 @@
             <td>{{item.name}}</td>
             <td>{{item.teller}}</td>
             <td>{{item.code}}</td>
+            <td>{{item.active}}</td>
             <td>{{item.medical_active}}</td>
             <td><a href="{{ url_for('edit_branch',id=item.id)}}">edit</a></td>
           </tr>

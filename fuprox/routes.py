@@ -39,9 +39,7 @@ def get_part_of_day(hour):
         else
         "afternoon" if 12 <= hour <= 17
         else
-        "evening" if 18 <= hour <= 22
-        else
-        "night"
+        "evening"
     )
 
 
@@ -65,7 +63,7 @@ def home():
         "bookings" : f"{bookings} {'booking' if bookings <= 1 else 'Bookings'}",
         "tellers" : f"{tellers} {'Teller' if tellers <= 1 else 'Tellers'}",
         "services" : f"{service_offered} {'Service' if service_offered <= 1 else 'Services'}",
-        "statement" : get_part_of_day(time),
+        "statement" : get_part_of_day(time).capitalize(),
         "user" : (current_user.username).capitalize()
     }
     log(f"current_user {current_user.username}")
@@ -232,7 +230,7 @@ def payments_report():
 @login_required
 def tellers():
     # get data from the database
-    tellers = Teller.query.all()
+    tellers_ = Teller.query.all()
     # init the form
     teller = TellerForm()
     services = ServiceOffered.query.all()
@@ -240,9 +238,10 @@ def tellers():
         # get specific compan data
         if teller_exists(teller.number.data):
             key_ = secrets.token_hex();
-            teller_number = request.json["teller_number"]
-            branch_id = request.json["branch_id"]
-            service_name = request.json["service_name"]
+            teller_number = teller.number.data
+            branch_id = Branch.query.first().id
+            service_name = teller.service.data
+            status = True if teller.active.data == "True" else False
             try:
                 branch = branch_exists_id(branch_id)
                 final = add_teller(teller_number, branch_id, service_name, branch.unique_id)
@@ -252,7 +251,7 @@ def tellers():
             return final
         else:
             flash("Company Does Not exist. Add company name first.", "danger")
-    return render_template("add_branch.html", form=teller, services=services ,tellers=tellers)
+    return render_template("add_branch.html", form=teller, services=services ,tellers=tellers_)
 
 
 """ not recommemded __check if current branch is in db"""
@@ -606,7 +605,7 @@ def edit_branch(id):
             this_service.code = service.code.data
             this_service.icon = service.icon.data
             this_service.medical_active = True if service.visible.data == "True" else False
-            # this_service.active = True if service.active.data == "True" else False
+            this_service.active = True if service.active.data == "True" else False
             # update date to the database
             db.session.commit()
         except sqlalchemy.exc.IntegrityError:
@@ -664,12 +663,15 @@ def edit_teller(id):
     # init the form
     teller = TellerForm()
     teller_data = Teller.query.get(id)
+    tellers = Teller.query.all()
+    services = ServiceOffered.query.all()
     if teller.validate_on_submit():
         # update data in the database
         try:
+            log(teller.active.data)
             teller_data.number = teller.number.data
             teller_data.service = teller.service.data
-            # this_service.active = True if teller.active.data == "True" else False
+            teller_data.active = True if teller.active.data == "True" else False
             db.session.commit()
         except sqlalchemy.exc.IntegrityError:
             flash("Branch By That Name Exists", "warning")
@@ -677,13 +679,13 @@ def edit_teller(id):
         teller.number.data = ""
         teller.service.data = ""
         flash("Branch Successfully Updated", "success")
-        return redirect(url_for("add_company"))
+        return redirect(url_for("tellers"))
     elif request.method == "GET":
         teller.number.data = teller_data.number
         teller.service.data = teller_data.service
     else:
         flash("Service Does Not exist. Add Service name first.", "danger")
-    return render_template("edit_branch.html", form=teller,services_offered = teller_data)
+    return render_template("edit_branch.html", form=teller,services_offered = teller_data,services=services)
 
 
 @app.route("/email", methods=["POST"])

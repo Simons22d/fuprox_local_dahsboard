@@ -104,6 +104,10 @@ def branch_exists_id(id):
     return Branch.query.get(id)
 
 
+def teller_exists(number):
+    return Teller.query.filter_by(number=number).first()
+
+
 def add_teller(teller_number, branch_id, service_name, branch_unique_id):
     # here we are going to ad teller details
     if len(service_name.split(",")) > 1:
@@ -153,6 +157,8 @@ def add_teller(teller_number, branch_id, service_name, branch_unique_id):
     return final
 
 
+
+
 def service_exists(name, branch_id):
     lookup = ServiceOffered.query.filter_by(name=name).filter_by(branch_id=branch_id).first()
     data = service_schema.dump(lookup)
@@ -196,8 +202,8 @@ def create_service(name, teller, branch_id, code, icon_id, visible):
                 log("code does not exists")
                 # check if icon exists for the branch
                 # if icon_exists(icon_id, branch_id):
-                icon = icon_name_to_id(icon_id)
-                icon = Icon.query.get(icon)
+                icon = icon_name_to_id(icons)
+                icon = Icon.query.get(icon_id)
                 if icon:
                     log("icon exists")
                     try:

@@ -106,7 +106,7 @@
           <div class="col-lg-12">
             {{ form.number.label(class='form-control-label') }}
             {% if form.number.errors %}
-            {{ form.number(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            {{ form.number(class="form-control form-control-sm is-invalid", id="brhOpens",autocomplete="off",readonly=true)}}
             <div class="invalid-feedback">
                 {% for error in form.number.errors %}
                 <span>{{ error }}</span>
@@ -114,7 +114,7 @@
             </div>
             {% else %}
                 {{ form.number(class="form-control form-control-sm ", id="branchOpens",autocomplete="off",
-                list="numbers")}}
+                list="numbers",readonly=true)}}
             {% endif %}
           <datalist id="numbers">
                 {% for d in tellers %}
@@ -130,7 +130,7 @@
           <div class="col-lg-12">
             {{ form.service.label(class='form-control-label') }}
             {% if form.service.errors %}
-            {{ form.service(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            {{ form.service(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off",list="services")}}
             <div class="invalid-feedback">
                 {% for error in form.service.errors %}
                 <span>{{ error }}</span>
@@ -138,13 +138,15 @@
             </div>
             {% else %}
                 {{ form.service(class="form-control form-control-sm ", id="branchOpens",autocomplete="off",
-                list="services")}}
+                list="services",list="services")}}
             {% endif %}
-          <datalist id="services">
-                {% for d in tellers %}
-                    <option value="{{d.service}}">Teller {{ d.number  }} offers the service {{ d.service }}</option>
-                {% endfor %}
-            </datalist>
+           <datalist id="services">
+                    {% for d in services %}
+                        <option value="{{d.name}}">{{ d.name  }} on teller {{ d.teller }} • {{ d.code }}XX • {{
+                                'visible' if d
+                        .medical_active else 'Not Visible' }} online</option>
+                    {% endfor %}
+                </datalist>
             <small class="form-text text-muted"></small>
           </div>
         </div>
@@ -165,6 +167,9 @@
             <small class="form-text text-muted"></small>
           </div>
         </div>
+
+
+
 
             <div class="row">
               {{ form.submit(class="btn btn-primary btn-sm col-lg-6 col col-md-12 offset-lg-3",id="denis") }}
