@@ -80,23 +80,16 @@ class TellerForm(FlaskForm):
     number = StringField("Teller Number", validators=[DataRequired()])
     service = StringField("Service", validators=[DataRequired()])
     active = RadioField('Visible', choices=[('True', 'Yes'), ('False', 'No')])
-    submit = SubmitField("Add Teller")
+    submit = SubmitField("Submit Teller")
 
 
 class ServiceForm(FlaskForm):
-    """
-    name = request.json["name"]
-    teller = request.json["teller"]
-    branch_id = request.json["branch_id"]
-    code = request.json["code"]
-    icon = request.json["icon_id"]
-    visible = request.json["visible"]
-    """
     name = StringField("Service Name", validators=[DataRequired()])
     teller = StringField("Teller Number", validators=[DataRequired()])
     code = StringField("Initials", validators=[DataRequired()])
     icon = StringField('Service Icon', validators=[DataRequired()])
     visible = RadioField('Available Online', choices=[('True', 'Yes'), ('False', 'No')])
+    active = RadioField('Active for booking', choices=[('True', 'Yes'), ('False', 'No')])
     submit = SubmitField("Add Service")
 
 

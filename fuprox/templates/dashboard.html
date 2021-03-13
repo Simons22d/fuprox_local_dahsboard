@@ -37,7 +37,7 @@
       <div class="row">
         <div class="col-md-12 col-lg-8">
           <div class="title-single-box">
-            <h5><small class="text-muted">{{today}}</small></h5>
+            <h5><small class="text-muted">Dashboard</small></h5>
             <span class="color-text-a"></span>
           </div>
         </div>
@@ -46,9 +46,13 @@
   </section>
 {% endblock%}
 {% block content %}
+<h5 class="text-muted">Good {{ dash_data.statement }} {{ dash_data.user }},
 
-<h2><a href="">44 Bookings</a></h2>
-<h2> <a href="">2 Tellers</a></h2>
-<h2><a href="">7 Service Offered </a></h2>
+</h5>
+    <h6 class="text-muted mb-5">{{today}}</h6>
+
+<h2><a href="">{{ dash_data.bookings }} </a></h2>
+<h2> <a href="">{{ dash_data.tellers }} </a></h2>
+<h2><a href="">{{ dash_data.services }}</a></h2>
 {% endblock %}
 

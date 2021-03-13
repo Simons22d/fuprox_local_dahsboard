@@ -1,6 +1,6 @@
 from flask import render_template, url_for, flash, redirect, request, abort, jsonify, send_file, send_from_directory
 from fuprox import app, db, bcrypt
-from flask_login import login_user, current_user, logout_user, login_required
+from flask_login import login_user, current_user, logout_user, login_required,current_user
 from fuprox.forms import (RegisterForm, LoginForm, TellerForm, ServiceForm, SolutionForm, ReportForm)
 from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, CompanySchema, ServiceSchema, Mpesa, \
     MpesaSchema, Booking, BookingSchema, ImageCompany, ImageCompanySchema, Teller, TellerSchema,ServiceOffered,Icon,IconSchema
@@ -33,6 +33,23 @@ bookings_schema = BookingSchema(many=True)
 comapny_image_schema = ImageCompanySchema()
 comapny_image_schemas = ImageCompanySchema(many=True)
 
+def get_part_of_day(hour):
+    return (
+        "morning" if 5 <= hour <= 11
+        else
+        "afternoon" if 12 <= hour <= 17
+        else
+        "evening" if 18 <= hour <= 22
+        else
+        "night"
+    )
+
+
+
+from datetime import datetime
+
+time = int(datetime.now().strftime("%H"))
+
 
 @app.route("/")
 @app.route("/dashboard")
@@ -41,10 +58,18 @@ def home():
     # date
     date = datetime.now().strftime("%A, %d %B %Y")
     # report form
-    # report = ReportForm()
-    # rendering template
-    return render_template("dashboard.html", today=date)
-
+    bookings = len(Booking.query.all())
+    tellers = len(Teller.query.all())
+    service_offered = len(ServiceOffered.query.all())
+    dash_data = {
+        "bookings" : f"{bookings} {'booking' if bookings <= 1 else 'Bookings'}",
+        "tellers" : f"{tellers} {'Teller' if tellers <= 1 else 'Tellers'}",
+        "services" : f"{service_offered} {'Service' if service_offered <= 1 else 'Services'}",
+        "statement" : get_part_of_day(time),
+        "user" : (current_user.username).capitalize()
+    }
+    log(f"current_user {current_user.username}")
+    return render_template("dashboard.html", today=date,dash_data = dash_data)
 
 @app.route("/doughnut/data", methods=["GET"])
 def _doughnut_data():
@@ -149,15 +174,11 @@ def get_issue_count():
 """
 
 
-@app.route("/payments")
+@app.route("/bookings")
 @login_required
 def payments():
-    # work on the payments templates
-    # get date from the database 
-    lookup = Mpesa.query.all()
-    data = mpesas_schema.dump(lookup)
-    print("mpesa", data)
-    return render_template("payment.html", transactions=data)
+    bookings = Booking.query.all()
+    return render_template("payment.html", bookings=bookings)
 
 
 @app.route("/reverse", methods=["POST"])
@@ -212,13 +233,9 @@ def payments_report():
 def tellers():
     # get data from the database
     tellers = Teller.query.all()
-    print(tellers)
-
     # init the form
     teller = TellerForm()
     services = ServiceOffered.query.all()
-    print(services)
-
     if teller.validate_on_submit():
         # get specific compan data
         if teller_exists(teller.number.data):
@@ -235,7 +252,7 @@ def tellers():
             return final
         else:
             flash("Company Does Not exist. Add company name first.", "danger")
-    return render_template("add_branch.html", form=teller, services=services ,tellers = tellers)
+    return render_template("add_branch.html", form=teller, services=services ,tellers=tellers)
 
 
 """ not recommemded __check if current branch is in db"""
@@ -425,7 +442,7 @@ def login():
             flash("Login unsuccessful Please Check Email and Password", "danger")
     return render_template("login.html", form=login)
 
-
+print(current_user)
 @app.route("/register", methods=["GET", "POST"])
 # @login_required
 def register():
@@ -573,19 +590,14 @@ def add_solution():
 @app.route("/service/edit/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit_branch(id):
-
     # init the form
     service = ServiceForm()
     tellers = Teller.query.all()
-    icons = Icon.query.all()
-    company_data = Company.query.all()
-    #  getting the service up for edit
-
+    services = ServiceOffered.query.all()
+    # this teller
     this_service = ServiceOffered.query.get(id)
-
     # setting form inputs to the data in the database
     service_data = Service.query.all()
-
     if service.validate_on_submit():
         # update data in the database
         try:
@@ -594,35 +606,33 @@ def edit_branch(id):
             this_service.code = service.code.data
             this_service.icon = service.icon.data
             this_service.medical_active = True if service.visible.data == "True" else False
-            log("we are here")
+            # this_service.active = True if service.active.data == "True" else False
             # update date to the database
             db.session.commit()
         except sqlalchemy.exc.IntegrityError:
-            flash("Branch By That Name Exists", "warning")
-
+            flash("Service  By That Name Exists", "warning")
         # here we are going to push  the branch data to the lacalhost
-
         # sio.emit("branch_edit", service_schema.dump(this_service))
-
         # prefilling the form with the empty fields
         service.name.data = ""
         service.teller.data = ""
         service.code.data = ""
         service.icon.data = ""
-        service.visible.data = ""
-        flash("Branch Successfully Updated", "success")
+
+        flash("Service Successfully Updated", "success")
         return redirect(url_for("add_company"))
+
     elif request.method == "GET":
+
         service.name.data = this_service.name
         service.teller.data = this_service.teller
         service.code.data = this_service.code
         service.icon.data = this_service.icon
-        # service.visible.data = this_service.visible
+        # teller.active.data = this_service.active
+
     else:
         flash("Service Does Not exist. Add Service name first.", "danger")
-
-    return render_template("edit_branch.html", form=service, companies=service_data, tellers=tellers,icons=icons,
-                           services_offered = this_service)
+    return render_template("edit_company.html", form=service, services=services)
 
 
 @app.route("/branch/delete/<int:id>", methods=["GET", "POST"])
@@ -653,44 +663,27 @@ def delete_branch(id):
 def edit_teller(id):
     # init the form
     teller = TellerForm()
-    tellers = Teller.query.all()
-    services = ServiceOffered.query.all()
-    # this teller
-    this_teller = Teller.query.get(id)
-
-    # setting form inputs to the data in the database
-    service_data = Service.query.all()
-
+    teller_data = Teller.query.get(id)
     if teller.validate_on_submit():
         # update data in the database
         try:
-            this_teller.number = teller.number.data
-            this_teller.service = teller.service.data
-            this_teller.active = True if teller.active.data == "True" else False
-
-            # update date to the database
+            teller_data.number = teller.number.data
+            teller_data.service = teller.service.data
+            # this_service.active = True if teller.active.data == "True" else False
             db.session.commit()
         except sqlalchemy.exc.IntegrityError:
             flash("Branch By That Name Exists", "warning")
-        # here we are going to push  the branch data to the lacalhost
-        # sio.emit("branch_edit", service_schema.dump(this_service))
         # prefilling the form with the empty fields
-        teller.name.data = ""
+        teller.number.data = ""
         teller.service.data = ""
-        teller.active.data = ""
-
         flash("Branch Successfully Updated", "success")
         return redirect(url_for("add_company"))
-
     elif request.method == "GET":
-
-        teller.number.data = this_teller.number
-        teller.service.data = this_teller.service
-        # teller.active.data = this_teller.active
-
+        teller.number.data = teller_data.number
+        teller.service.data = teller_data.service
     else:
         flash("Service Does Not exist. Add Service name first.", "danger")
-    return render_template("edit_company.html", form=teller, services=services)
+    return render_template("edit_branch.html", form=teller,services_offered = teller_data)
 
 
 @app.route("/email", methods=["POST"])

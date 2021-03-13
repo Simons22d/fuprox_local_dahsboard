@@ -32,7 +32,7 @@
         <div class="row">
             <div class="col-md-12 col-lg-8">
                 <div class="title-single-box">
-                    <h5 style="font-size:15px;">Dashboard / <span style="color:grey;">Company</span> </h5>
+                    <h5 style="font-size:15px;">Edit Service</span> </h5>
                     <span class="color-text-a"></span>
                 </div>
             </div>
@@ -96,7 +96,7 @@
 <div class="col-lg-5">
     <form action="" method="POST">
         {{ form.hidden_tag() }}
-        {% for field in form.errors %}
+         {% for field in form.errors %}
              {% for error in form.errors[field] %}
                  <div class="alert alert-danger">
                      <strong>Error!</strong> {{error}}
@@ -105,47 +105,102 @@
          {% endfor %}
         <div class="row mb-3">
           <div class="col-lg-12">
-            {{ form.number.label(class='form-control-label') }}
-            {% if form.number.errors %}
-            {{ form.number(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            {{ form.name.label(class='form-control-label') }}
+            {% if form.name.errors %}
+            {{ form.name(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
             <div class="invalid-feedback">
-                {% for error in form.number.errors %}
+                {% for error in form.name.errors %}
                 <span>{{ error }}</span>
                 {% endfor %}
             </div>
             {% else %}
-                {{ form.number(class="form-control form-control-sm ", id="branchOpens",autocomplete="off")}}
+                {{ form.name(class="form-control form-control-sm ", id="branchOpens",autocomplete="off")}}
             {% endif %}
+            <small class="form-text text-muted"></small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-lg-12">
+            {{ form.teller.label(class='form-control-label') }}
+            {% if form.teller.errors %}
+            {{ form.teller(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            <div class="invalid-feedback">
+                {% for error in form.teller.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+                {{ form.teller(class="form-control form-control-sm ", id="branchOpens",autocomplete="off",
+                list="tellers")}}
+            {% endif %}
+          <datalist id="tellers">
+                {% for d in tellers %}
+                    <option value="{{d.number}}">Teller {{ d.number  }} offers the service {{ d.service }}</option>
+                {% endfor %}
+            </datalist>
             <small class="form-text text-muted"></small>
           </div>
         </div>
 
           <div class="row mb-3">
           <div class="col-lg-12">
-            {{ form.service.label(class='form-control-label') }}
-            {% if form.service.errors %}
-            {{ form.service(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            {{ form.code.label(class='form-control-label') }}
+            {% if form.code.errors %}
+            {{ form.code(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
             <div class="invalid-feedback">
-                {% for error in form.service.errors %}
+                {% for error in form.code.errors %}
                 <span>{{ error }}</span>
                 {% endfor %}
             </div>
             {% else %}
-                {{ form.service(class="form-control form-control-sm ", id="branchOpens",autocomplete="off",
-                        list="companyName",list="services")}}
+                {{ form.code(class="form-control form-control-sm ", id="branchOpens",autocomplete="off")}}
             {% endif %}
-             <datalist id="services">
-                    {% for d in services %}
-                        <option value="{{d.name}}">{{ d.name  }} on teller {{ d.teller }} • {{ d.code }}XX • {{
-                                'visible' if d
-                        .medical_active else 'Not Visible' }} online</option>
-                    {% endfor %}
-                </datalist>
             <small class="form-text text-muted"></small>
           </div>
         </div>
 
-    <div class="row mb-3">
+
+          <div class="row mb-3">
+          <div class="col-lg-12">
+            {{ form.icon.label(class='form-control-label') }}
+            {% if form.icon.errors %}
+            {{ form.icon(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            <div class="invalid-feedback">
+                {% for error in form.icon.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+                {{ form.icon(class="form-control form-control-sm ", id="branchOpens",autocomplete="off",list="icons_")}}
+            {% endif %}
+          <datalist id="icons_">
+                {% for d in icons %}
+                    <option value="{{d.name}}">{{ d.name }}</option>
+                {% endfor %}
+            </datalist>
+            <small class="form-text text-muted"></small>
+          </div>
+        </div>
+
+          <div class="row mb-3">
+          <div class="col-lg-12">
+            {{ form.visible.label(class='form-control-label') }}
+            {% if form.visible.errors %}
+            {{ form.visible(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            <div class="invalid-feedback">
+                {% for error in form.visible.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+                {{ form.visible(class="form-control form-control-sm ", id="branchOpens",autocomplete="off")}}
+            {% endif %}
+            <small class="form-text text-muted"></small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
           <div class="col-lg-12">
             {{ form.active.label(class='form-control-label') }}
             {% if form.active.errors %}
@@ -156,13 +211,14 @@
                 {% endfor %}
             </div>
             {% else %}
-                {{ form.active(class="form-control form-control-sm ", id="branchOpens",autocomplete="off",
-                        list="companyName")}}
+                {{ form.active(class="form-control form-control-sm ", id="branchOpens",autocomplete="off")}}
             {% endif %}
-
             <small class="form-text text-muted"></small>
           </div>
         </div>
+
+{#    ddd#}
+{#    #}
 
         <div class="row">
             <div class="col-lg-12 mt-3">
