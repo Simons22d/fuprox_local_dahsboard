@@ -1,8 +1,20 @@
 import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from fuprox.models import Teller, TellerSchema, Service, ServiceOffered, ServiceOfferedSchema, Branch, BranchSchema, \
+    Icon, IconSchema
+from fuprox import db
 
 # mpesa
+
+teller_schema = TellerSchema()
+tellers_schema = TellerSchema(many=True)
+
+service_schema = ServiceOfferedSchema()
+services_schema = ServiceOfferedSchema(many=True)
+
+branch_schema = BranchSchema()
+branchs_schema = BranchSchema(many=True)
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -80,3 +92,156 @@ def reverse(transaction_id, amount, receiver_party):
     response = requests.post(api_url, json=request, headers=headers)
     print(response.text)
     return response.text
+
+
+def teller_exists(id):
+    lookup = Teller.query.get(id)
+    teller_data = teller_schema.dump(lookup)
+    return teller_data
+
+
+def branch_exists_id(id):
+    return Branch.query.get(id)
+
+
+def add_teller(teller_number, branch_id, service_name, branch_unique_id):
+    # here we are going to ad teller details
+    if len(service_name.split(",")) > 1:
+        if services_exist(service_name, branch_id) and branch_exist(branch_id):
+            # get teller by name
+            if get_teller(teller_number, branch_id):
+                final = dict(), 500
+            else:
+                lookup = Teller(teller_number, branch_id, service_name, branch_unique_id)
+                db.session.add(lookup)
+                db.session.commit()
+
+                # update service_offered
+                service_lookup = ServiceOffered.query.filter_by(name=service_name).filter_by(
+                    branch_id=branch_id).first()
+                service_lookup.teller = teller_number
+                db.session.commit()
+
+                final = teller_schema.dump(lookup)
+
+
+        else:
+            final = dict()
+    else:
+        if branch_exist(branch_id) and service_exists(service_name, branch_id):
+            # get teller by name
+            if get_teller(teller_number, branch_id):
+                final = dict(), 500
+            else:
+                lookup = Teller(teller_number, branch_id, service_name, branch_unique_id)
+                db.session.add(lookup)
+                db.session.commit()
+
+                data = teller_schema.dump(lookup)
+                final = data
+
+                service_lookup = ServiceOffered.query.filter_by(name=service_name).filter_by(
+                    branch_id=branch_id).first()
+                service_lookup.teller = teller_number
+                db.session.commit()
+
+
+
+        else:
+            final = dict(), 500
+
+    return final
+
+
+def service_exists(name, branch_id):
+    lookup = ServiceOffered.query.filter_by(name=name).filter_by(branch_id=branch_id).first()
+    data = service_schema.dump(lookup)
+    return data
+
+
+def get_teller(number, branch_id):
+    lookup = Teller.query.filter_by(number=number).filter_by(branch=branch_id).first()
+    data = teller_schema.dump(lookup)
+    return data
+
+
+def services_exist(services, branch_id):
+    holder = services.split(",")
+    for item in holder:
+        if not service_exists(item, branch_id):
+            return False
+    return True
+
+
+def branch_exist(branch_id):
+    lookup = Branch.query.get(branch_id)
+    branch_data = branch_schema.dump(lookup)
+    return branch_data
+
+
+def create_service(name, teller, branch_id, code, icon_id, visible):
+    branch_data = branch_exist(branch_id)
+    if branch_data:
+        log("branch exists")
+        final = None
+        if service_exists(name, branch_id):
+            final = {"msg": "Error service name already exists", "status": None}
+            log("Error service name already exists")
+        else:
+            log("service does not exist")
+            if get_service_code(code, branch_id):
+                final = {"msg": "Error Code already exists", "status": None}
+                log("code exists")
+            else:
+                log("code does not exists")
+                # check if icon exists for the branch
+                # if icon_exists(icon_id, branch_id):
+                icon = icon_name_to_id(icon_id)
+                icon = Icon.query.get(icon)
+                if icon:
+                    log("icon exists")
+                    try:
+                        service = ServiceOffered(name, branch_id, teller, code, icon.id)
+                        service.medical_active = True
+                        if not visible:
+                            service.medical_active = False
+                        db.session.add(service)
+                        db.session.commit()
+
+                        log(service)
+                        dict_ = dict()
+
+
+                        # adding the ofline key so that we can have consitancy
+                        key = {"key": branch_data["key_"]}
+                        dict_.update(key)
+                        dict_.update(service_schema.dump(service))
+                        final = dict_
+                        log("we are here")
+                    except Exception as e:
+                        final = {"msg": "Error service by that name exists"}
+                        log("service exists")
+    else:
+        final = {"msg": "Service/Branch issue", "status": None}
+    return final
+
+
+def get_service_code(code, branch_id):
+    lookup = ServiceOffered.query.filter_by(name=code).filter_by(branch_id=branch_id).first()
+    data = service_schema.dump(lookup)
+    return data
+
+
+def log(msg):
+    print(f"{datetime.now().strftime('%d:%m:%Y %H:%M:%S')} — {msg}")
+    return True
+
+
+def icon_name_to_id(name):
+    icon = icon_exist_by_name(name)
+    if icon:
+        return icon.id
+    return 1
+
+def icon_exist_by_name(name):
+    return Icon.query.filter_by(name=name).first()

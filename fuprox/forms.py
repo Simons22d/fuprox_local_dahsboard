@@ -78,20 +78,33 @@ class ResetPassword(FlaskForm):
 
 class TellerForm(FlaskForm):
     number = StringField("Teller Number", validators=[DataRequired()])
-    submit = SubmitField("Add Branch")
-
-
-class CompanyForm(FlaskForm):
-    name = StringField("Teller Number", validators=[DataRequired()])
-    visible = RadioField('Available Online', choices=[('True', 'Yes'), ('False', 'No')])
-    submit = SubmitField("Add Service")
+    service = StringField("Service", validators=[DataRequired()])
+    active = RadioField('Visible', choices=[('True', 'Yes'), ('False', 'No')])
+    submit = SubmitField("Add Teller")
 
 
 class ServiceForm(FlaskForm):
-    name = StringField("Name", validators=[DataRequired()])
-    service = StringField("Description", validators=[DataRequired()])
+    """
+    name = request.json["name"]
+    teller = request.json["teller"]
+    branch_id = request.json["branch_id"]
+    code = request.json["code"]
+    icon = request.json["icon_id"]
+    visible = request.json["visible"]
+    """
+    name = StringField("Service Name", validators=[DataRequired()])
+    teller = StringField("Teller Number", validators=[DataRequired()])
+    code = StringField("Initials", validators=[DataRequired()])
+    icon = StringField('Service Icon', validators=[DataRequired()])
     visible = RadioField('Available Online', choices=[('True', 'Yes'), ('False', 'No')])
     submit = SubmitField("Add Service")
+
+
+# class ServiceForm(FlaskForm):
+#     name = StringField("Name", validators=[DataRequired()])
+#     service = StringField("Description", validators=[DataRequired()])
+#     visible = RadioField('Available Online', choices=[('True', 'Yes'), ('False', 'No')])
+#     submit = SubmitField("Add Service")
 
 
 class SolutionForm(FlaskForm):

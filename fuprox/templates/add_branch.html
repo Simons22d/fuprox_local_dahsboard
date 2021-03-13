@@ -6,7 +6,7 @@
             <a class="nav-link" href="{{ url_for('home') }}">Home</a>
           </li>
           <li class="nav-item active">
-            <a class="nav-link" href="{{ url_for('branches') }}">Manage</a>
+            <a class="nav-link" href="{{ url_for('tellers') }}">Manage</a>
           </li>
 
           <li class="nav-item">
@@ -51,7 +51,7 @@
   $("#choice").html("Teller");
 </script>
   <div class="dropdown-menu " aria-labelledby="dropdownMenuButton">
-    <a class="dropdown-item" href="{{ url_for('branches') }}">Teller</a>
+    <a class="dropdown-item" href="{{ url_for('tellers') }}">Teller</a>
     <a class="dropdown-item" href="{{ url_for('add_company') }}">Service</a>
   </div>
 </div>
@@ -64,10 +64,10 @@
         <div class="col-lg-12">
         <ul class="nav nav-tabs " style="font-size:12px; pading-top:0px;">
               <li class="nav-item">
-                <a class="nav-link active" href="{{ url_for('branches') }}" id="add branch">Add Teller</a>
+                <a class="nav-link active" href="{{ url_for('tellers') }}" id="add branch">Add Teller</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('view_branch') }}" id="branches">Tellers</a>
+{#                <a class="nav-link" href="{{ url_for('view_branch') }}" id="branches">Tellers</a>#}
               </li>
         </ul>
         </div>
@@ -107,6 +107,31 @@
 
           <div class="row mb-3">
           <div class="col-lg-12">
+            {{ form.service.label(class='form-control-label') }}
+            {% if form.service.errors %}
+            {{ form.service(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            <div class="invalid-feedback">
+                {% for error in form.service.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+                {{ form.service(class="form-control form-control-sm ", id="branchOpens",autocomplete="off",
+                        list="companyName",list="services")}}
+            {% endif %}
+             <datalist id="services">
+                    {% for d in services %}
+                        <option value="{{d.name}}">{{ d.name  }} on teller {{ d.teller }} • {{ d.code }}XX • {{
+                                'visible' if d
+                        .medical_active else 'Not Visible' }} online</option>
+                    {% endfor %}
+                </datalist>
+            <small class="form-text text-muted"></small>
+          </div>
+        </div>
+
+          <div class="row mb-3">
+          <div class="col-lg-12">
             {{ form.submit(class="btn btn-primary btn-sm col-lg-6 col col-md-12",id="denis") }}
           </div>
         </div>
@@ -118,29 +143,22 @@
             <table class="table table-sm table-hover" style="font-size:12px;">
         <thead>
           <tr>
-            <th scope="col">id</th>
-            <th scope="col">Name</th>
-            <th scope="col">Company</th>
-            <th scope="col">Longitude</th>
-            <th scope="col">Latitude</th>
-            <th scope="col">Service</th>
+            <th scope="col">Number</th>
+            <th scope="col">Service Offered</th>
+            <th scope="col">unique_id</th>
+            <th scope="col">Action</th>
           </tr>
         </thead>
         <tbody>
 
-         {% if data %}
-        {% for item in data %}
+         {% if tellers %}
+        {% for item in tellers %}
           <tr>
             <th scope="row">{{item.id}}</th>
-            <td>{{item.name}}</td>
-            <td>{{item.company}}</td>
-            <td>{{item.longitude}}</td>
-            <td>{{item.latitude}}</td>
-            <td>{{item.opens}}</td>
-            <td>{{item.closes}}</td>
+            <td>{{item.number}}</td>
             <td>{{item.service}}</td>
-            <td><a href="{{ url_for('edit_branch',id=item.id)}}">edit</a></td>
-            <td><a href="{{ url_for('delete_branch',id=item.id)}}">delete</a></td>
+            <td>{{item.unique_id }}</td>
+            <td><a href="{{ url_for('edit_teller',id=item.id)}}">edit</a></td>
           </tr>
         {% endfor %}
         {% else %}

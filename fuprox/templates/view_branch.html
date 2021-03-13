@@ -6,7 +6,7 @@
             <a class="nav-link" href="{{ url_for('home') }}">Home</a>
           </li>
           <li class="nav-item active">
-            <a class="nav-link" href="{{ url_for('branches') }}">Booking</a>
+            <a class="nav-link" href="{{ url_for('tellers') }}">Booking</a>
           </li>
 
           <li class="nav-item">
@@ -50,7 +50,7 @@
   $("#choice").html("Branch")
 </script>
   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-    <a class="dropdown-item" href="{{ url_for('branches') }}">Branch</a>
+    <a class="dropdown-item" href="{{ url_for('tellers') }}">Branch</a>
     <a class="dropdown-item" href="{{ url_for('add_company') }}">Company</a>
     <a class="dropdown-item" href="{{ url_for('add_category') }}">Category</a>
   </div>
@@ -64,7 +64,7 @@
         <div class="col-lg-12">
         <ul class="nav nav-tabs " style="font-size:12px; pading-top:0px;">
               <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('branches') }}" id="add branch">Add Branch</a>
+                <a class="nav-link" href="{{ url_for('tellers') }}" id="add branch">Add Branch</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link active" href="{{ url_for('view_company' )}}" id="branches">Branches</a>

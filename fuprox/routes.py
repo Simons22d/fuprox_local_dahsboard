@@ -1,10 +1,10 @@
 from flask import render_template, url_for, flash, redirect, request, abort, jsonify, send_file, send_from_directory
 from fuprox import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
-from fuprox.forms import (RegisterForm, LoginForm, TellerForm, CompanyForm, ServiceForm, SolutionForm, ReportForm)
+from fuprox.forms import (RegisterForm, LoginForm, TellerForm, ServiceForm, SolutionForm, ReportForm)
 from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, CompanySchema, ServiceSchema, Mpesa, \
-    MpesaSchema, Booking, BookingSchema, ImageCompany, ImageCompanySchema
-from fuprox.utility import reverse
+    MpesaSchema, Booking, BookingSchema, ImageCompany, ImageCompanySchema, Teller, TellerSchema,ServiceOffered,Icon,IconSchema
+from fuprox.utility import reverse,add_teller,services_exist,services_exist,branch_exist,create_service
 import tablib
 from datetime import datetime
 import time
@@ -207,154 +207,35 @@ def payments_report():
     return render_template("payments_reports.html")
 
 
-@app.route("/tellers")
-@app.route("/tellers", methods=["POST", "GET"])
+@app.route("/teller", methods=["POST", "GET"])
 @login_required
 def tellers():
     # get data from the database
     tellers = Teller.query.all()
+    print(tellers)
+
     # init the form
-    branch = TellerForm()
-    if branch.validate_on_submit():
+    teller = TellerForm()
+    services = ServiceOffered.query.all()
+    print(services)
+
+    if teller.validate_on_submit():
         # get specific compan data
-        this_company_data = Company.query.filter_by(name=branch.company.data).first()
-        if this_company_data:
+        if teller_exists(teller.number.data):
             key_ = secrets.token_hex();
-            unique_id = ticket_unique()
-            data = Branch(branch.number.data,unique_id)
-            if not branch_exits(branch.number.data):
-                data_ = branch_schema.dump(data)
-                # here we are going to push  the branch data to the lacalhost
-                sio.emit("branch", data_)
-                # we are going to email the sender
-                db.session.add(data)
-                db.session.commit()
-                # we are going to email.
-                body = f"""
-                                 <div marginheight="0" marginwidth="0" style="background:#fafafa;color:#222222;font-family:'Helvetica','Arial',sans-serif;font-size:14px;font-weight:normal;line-height:19px;margin:0;min-width:100%;padding:0;text-align:left;width:100%!important" bgcolor="#fafafa">
-                                 <table style="background:#fafafa;border-collapse:collapse;border-spacing:0;color:#222222;font-family:'Helvetica','Arial',sans-serif;font-size:14px;font-weight:normal;height:100%;line-height:19px;margin:0;padding:10px;text-align:left;vertical-align:top;width:100%" bgcolor="#fafafa">
-                                   <tbody><tr style="padding:0;text-align:left;vertical-align:top" align="left">
-                                     <td align="center" valign="top" style="border-collapse:collapse!important;color:#222222;font-family:'Helvetica','Arial',sans-serif;font-size:14px;font-weight:normal;line-height:19px;margin:0;padding:0;text-align:center;vertical-align:top;word-break:break-word">
-                                       <center style="min-width:580px;width:100%">
-
-                                         <table style="border-collapse:collapse;border-spacing:0;margin:0 auto;padding:0;text-align:inherit;vertical-align:top;width:580px">
-                                           <tbody><tr style="padding:0;text-align:left;vertical-align:top" align="left">
-                                             <td style="border-collapse:collapse!important;color:#222222;font-family:'Helvetica','Arial',sans-serif;font-size:14px;font-weight:normal;line-height:19px;margin:0;padding:0;text-align:left;vertical-align:top;word-break:break-word" align="left" valign="top">
-
-                                               <table style="border-collapse:collapse;border-spacing:0;margin-top:20px;padding:0;text-align:left;vertical-align:top;width:100%">
-                                                 <tbody><tr style="padding:0;text-align:left;vertical-align:top" align="left">
-                                                   <td align="center" style="border-collapse:collapse!important;color:#222222;font-family:'Helvetica','Arial',sans-serif;font-size:14px;font-weight:normal;line-height:19px;margin:0;padding:0;text-align:center;vertical-align:top;word-break:break-word" valign="top">
-                                                     <center style="min-width:580px;width:100%">
-                                                       <div style="margin-bottom:30px;margin-top:20px;text-align:center!important" align="center !important">
-                             <!--                            <img src="https://drive.google.com/file/d/15a4HIX5Lhgwydm03V_GFVMkUT-vsBJRF/view?usp=sharing" width="50" height="48" style="clear:both;display:block;float:none;height:48px;margin:0 auto;max-height:48px;max-width:50px;outline:none;text-decoration:none;width:50px" align="none" class="CToWUd">-->
-                                                       </div>
-                                                     </center>
-                                                   </td>
-                                                   <td style="border-collapse:collapse!important;color:#222222;font-family:'Helvetica','Arial',sans-serif;font-size:14px;font-weight:normal;line-height:19px;margin:0;padding:0;text-align:left;vertical-align:top;width:0px;word-break:break-word" align="left" valign="top"></td>
-                                                 </tr>
-                                               </tbody></table>
-
-                                               <table style="background:#ffffff;border-collapse:collapse;border-radius:3px!important;border-spacing:0;border:1px solid #dddddd;padding:0;text-align:left;vertical-align:top" bgcolor="#ffffff">
-                                                 <tbody><tr style="padding:0;text-align:left;vertical-align:top" align="left">
-                                                   <td style="border-collapse:collapse!important;color:#222222;font-family:'Helvetica','Arial',sans-serif;font-size:14px;font-weight:normal;line-height:19px;margin:0;padding:0;text-align:left;vertical-align:top;word-break:break-word" align="left" valign="top">
-
-                                                     <div style="color:#333333;font-size:14px;font-weight:normal;line-height:20px;margin:20px">
-                             <table style="background:#fff;border-collapse:separate!important;border-spacing:0;box-sizing:border-box;color:#222222;font-family:'Helvetica','Arial',sans-serif;font-size:14px;font-weight:normal;height:100%;line-height:19px;margin:0;padding:10px;text-align:left;vertical-align:top;width:100%" width="100%" bgcolor="#fff">
-                                 <tbody><tr style="padding:0;text-align:left;vertical-align:top" align="left">
-                                     <td style="border-collapse:collapse!important;box-sizing:border-box;color:#222222;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px;font-weight:normal;line-height:19px;margin:0;padding:0;text-align:left;vertical-align:top;word-break:break-word" valign="top" align="left"></td>
-                                     <td style="border-collapse:collapse!important;box-sizing:border-box;color:#222222;display:block;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px;font-weight:normal;line-height:19px;margin:0 auto;max-width:580px;padding:24px;text-align:left;vertical-align:top;width:580px;word-break:break-word" width="580" valign="top" align="left">
-                                         <div style="box-sizing:border-box;display:block;margin:0 auto;max-width:580px">
-
-
-                             <table cellpadding="0" cellspacing="0" style="border-collapse:separate!important;border-spacing:0;box-sizing:border-box;margin:0 0 30px;padding:0;text-align:left;vertical-align:top;width:100%" width="100%">
-                               <tbody><tr style="padding:0;text-align:left;vertical-align:top" align="left">
-                                 <td align="" style="border-collapse:collapse!important;box-sizing:border-box;color:#222222;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px;font-weight:normal;line-height:19px;margin:0;padding:0;text-align:left;vertical-align:top;word-break:break-word" valign="top">
-                                   <table cellpadding="0" cellspacing="0" style="border-collapse:separate!important;border-spacing:0;box-sizing:border-box;padding:0;text-align:left;vertical-align:top;width:auto">
-                                     <tbody><tr style="padding:0;text-align:left;vertical-align:top" align="left">
-                                       <td style="background:#0366d6;border-collapse:collapse!important;border-radius:5px;box-sizing:border-box;color:#222222;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px;font-weight:normal;line-height:19px;margin:0;padding:0;text-align:center;vertical-align:top;word-break:break-word" valign="top" bgcolor="#0366d6" align="center">
-                                       </td>
-                                     </tr>
-                                   </tbody></table>
-                                 </td>
-                               </tr>
-                             </tbody></table>
-
-                             <p style="color:#222222;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px;font-weight:normal;line-height:1.5;margin:0 0 15px;padding:0;text-align:left" align="left">
-                                  Dear Sir/Madam, <br><br>
-                                                 Please find the key below, this key is required forthe applications to
-                                                 work for the branch <b> {branch.name.data}. </b>
-                                                 <br>Please do not loose this key.
-                                                 <br><br>
-                                                 <pre>{key_}</pre>
-                                                 <br>
-                                                 If your are not sure of how to use the key on the applications. <br><br>
-                                                 Please Follow <a href='http://159.65.144.235:3000/help'>this</a>
-                                                 link to get more infomation and other documents.<br><br>
-
-                                                 Kind Regards,<br>
-                                                 IT Support.<br><br><br>
-
-                             </p>
-                             <p
-                                     style="color:#586069!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:12px!important;font-weight:normal;line-height:1.5;margin:0 0 15px;padding:0;text-align:left" align="left">You are receiving this email because a branch was added with your email on our platform.</p>
-
-
-                                             <div style="box-sizing:border-box;clear:both;width:100%">
-                                                 <hr style="background:#d9d9d9;border-style:solid none none;border-top-color:#e1e4e8;border-width:1px 0 0;color:#959da5;font-size:12px;height:0;line-height:18px;margin:24px 0 30px;overflow:visible">
-                                           <div style="box-sizing:border-box;color:#959da5;font-size:12px;line-height:18px">
-                                             <p style="color:#959da5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:12px;font-weight:normal;line-height:18px;margin:0 0 15px;padding:0;text-align:center" align="center">
-                                                     </p>
-                                           </div>
-                                             </div>
-                                         </div>
-
-                                     </td>
-                                     <td style="border-collapse:collapse!important;box-sizing:border-box;color:#222222;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';font-size:14px;font-weight:normal;line-height:19px;margin:0;padding:0;text-align:left;vertical-align:top;word-break:break-word" valign="top" align="left"></td>
-                                 </tr>
-                             </tbody></table>
-                                 </div>
-                                       </td>
-                                                 </tr>
-                                               </tbody></table>
-
-                                               <table style="border-collapse:collapse;border-spacing:0;margin-bottom:30px;padding:0;text-align:left;vertical-align:top;width:100%">
-                                                 <tbody><tr style="padding:0;text-align:left;vertical-align:top" align="left">
-                                                   <td align="center" style="border-collapse:collapse!important;color:#222222;font-family:'Helvetica','Arial',sans-serif;font-size:14px;font-weight:normal;line-height:19px;margin:0;padding:0;text-align:center;vertical-align:top;word-break:break-word" valign="top">
-                                                   </td>
-                                                   <td style="border-collapse:collapse!important;color:#222222;font-family:'Helvetica','Arial',sans-serif;font-size:14px;font-weight:normal;line-height:19px;margin:0;padding:0;text-align:left;vertical-align:top;width:0px;word-break:break-word" align="left" valign="top"></td>
-                                                 </tr>
-                                               </tbody></table>
-
-                                             </td>
-                                           </tr>
-                                         </tbody></table>
-
-                                       </center>
-                                     </td>
-                                   </tr>
-                                 </tbody></table><div class="yj6qo"></div><div class="adL">
-
-                               </div></div><div class="adL">
-
-                             """
-                try:
-                    # try:
-                    #     pass
-                    # except socket.gaierror:
-                    #     pass
-                    email((branch.email.data).strip(), "Branch Key from Fuprox", body)
-                    
-                except UnicodeEncodeError:
-                    # warn about sending a email and offer a link to sending the email
-                    print("Error! error Sending email")
-                branch.number.data = ""
-                flash(f"Branch Successfully Added", "success")
-            else:
-                flash("branch by that name exists", "warning")
-                redirect(url_for("home"))
+            teller_number = request.json["teller_number"]
+            branch_id = request.json["branch_id"]
+            service_name = request.json["service_name"]
+            try:
+                branch = branch_exists_id(branch_id)
+                final = add_teller(teller_number, branch_id, service_name, branch.unique_id)
+                sio.emit("add_teller", {"teller_data": final})
+            except mysql.connector.errors.IntegrityError:
+                print("error! teller exists")
+            return final
         else:
             flash("Company Does Not exist. Add company name first.", "danger")
-    return render_template("add_branch.html", form=branch, companies=company_data, services=service_data)
+    return render_template("add_branch.html", form=teller, services=services ,tellers = tellers)
 
 
 """ not recommemded __check if current branch is in db"""
@@ -378,7 +259,7 @@ def more_info(key):
 
 
 # view_branch
-@app.route("/branches/view")
+@app.route("/teller/view")
 @login_required
 def view_branch():
     # get data from the database
@@ -461,16 +342,29 @@ def save_picture(picture):
     return final_name
 
 
-@app.route("/branches/company", methods=["GET", "POST"])
-@app.route("/branches/company/add", methods=["POST", "GET"])
+@app.route("/service", methods=["POST", "GET"])
 @login_required
 def add_company():
     service_data = Service.query.all()
     # init the form
-    company = CompanyForm()
-    if company.validate_on_submit():
-        pass
-    return render_template("add_company.html", form=company, companies=service_data)
+    service = ServiceForm()
+    tellers = Teller.query.all()
+    icons = Icon.query.all()
+    branch = Branch.query.first()
+    services_offered = ServiceOffered.query.all()
+
+    if service.validate_on_submit():
+        name = service.name.data
+        teller = service.teller.data
+        branch_id = branch.id
+        code = service.code.data
+        icon = service.icon.data
+        visible = True if service.visible.data == "True" else False
+        # service emit service made
+        final = create_service(name, teller, branch_id, code, icon, visible)
+        sio.emit("sync_service", final)
+    return render_template("add_company.html", form=service, companies=service_data, tellers=tellers,icons=icons,
+                           services_offered = services_offered)
 
 
 @app.route("/branches/company/view")
@@ -676,62 +570,59 @@ def add_solution():
 
 
 # the edit routes
-@app.route("/branch/edit/<int:id>", methods=["GET", "POST"])
+@app.route("/service/edit/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit_branch(id):
-    company_data = Company.query.all()
-    branch_data = Branch.query.get(id)
-    # setting form inputs to the data in the database
 
-    service_data = Service.query.all()
     # init the form
-    branch = TellerForm()
-    if branch.validate_on_submit():
+    service = ServiceForm()
+    tellers = Teller.query.all()
+    icons = Icon.query.all()
+    company_data = Company.query.all()
+    #  getting the service up for edit
+
+    this_service = ServiceOffered.query.get(id)
+
+    # setting form inputs to the data in the database
+    service_data = Service.query.all()
+
+    if service.validate_on_submit():
         # update data in the database
         try:
-            branch_data.name = branch.name.data
-            branch_data.longitude = branch.longitude.data
-            branch_data.latitude = branch.latitude.data
-            branch_data.service = branch.service.data
-            branch_data.opens = branch.opens.data
-            branch_data.closes = branch.closes.data
-            branch_data.company = branch.company.data
-            branch_data.description = branch.description.data
-
+            this_service.name = service.name.data
+            this_service.teller = service.teller.data
+            this_service.code = service.code.data
+            this_service.icon = service.icon.data
+            this_service.medical_active = True if service.visible.data == "True" else False
+            log("we are here")
             # update date to the database
             db.session.commit()
-            db.session.close()
         except sqlalchemy.exc.IntegrityError:
             flash("Branch By That Name Exists", "warning")
 
         # here we are going to push  the branch data to the lacalhost
-        sio.emit("branch_edit", branch_schema.dump(branch_data))
+
+        # sio.emit("branch_edit", service_schema.dump(this_service))
 
         # prefilling the form with the empty fields
-        branch.name.data = ""
-        branch.company.data = ""
-        branch.longitude.data = ""
-        branch.latitude.data = ""
-        branch.opens.data = ""
-        branch.closes.data = ""
-        branch.service.data = ""
-        branch.description.data = ""
+        service.name.data = ""
+        service.teller.data = ""
+        service.code.data = ""
+        service.icon.data = ""
+        service.visible.data = ""
         flash("Branch Successfully Updated", "success")
-        return redirect(url_for("view_branch"))
+        return redirect(url_for("add_company"))
     elif request.method == "GET":
-        branch.name.data = branch_data.name
-        branch.longitude.data = branch_data.longitude
-        branch.latitude.data = branch_data.latitude
-        branch.service.data = branch_data.service
-        branch.opens.data = branch_data.opens
-        branch.closes.data = branch_data.closes
-        branch.company.data = branch_data.company
-        branch.email.data = branch_data.description
-
+        service.name.data = this_service.name
+        service.teller.data = this_service.teller
+        service.code.data = this_service.code
+        service.icon.data = this_service.icon
+        # service.visible.data = this_service.visible
     else:
-        flash("Company Does Not exist. Add company name first.", "danger")
+        flash("Service Does Not exist. Add Service name first.", "danger")
 
-    return render_template("edit_branch.html", form=branch, companies=company_data, services=service_data)
+    return render_template("edit_branch.html", form=service, companies=service_data, tellers=tellers,icons=icons,
+                           services_offered = this_service)
 
 
 @app.route("/branch/delete/<int:id>", methods=["GET", "POST"])
@@ -757,49 +648,49 @@ def delete_branch(id):
 
 
 # edit company
-@app.route("/company/edit/<int:id>", methods=["GET", "POST"])
+@app.route("/teller/edit/<int:id>", methods=["GET", "POST"])
 @login_required
-def edit_company(id):
-    this_company = Company.query.get(id)
+def edit_teller(id):
+    # init the form
+    teller = TellerForm()
+    tellers = Teller.query.all()
+    services = ServiceOffered.query.all()
+    # this teller
+    this_teller = Teller.query.get(id)
+
     # setting form inputs to the data in the database
-    services = Service.query.all()
-    # # init the form
-    company = CompanyForm()
-    if company.validate_on_submit():
+    service_data = Service.query.all()
+
+    if teller.validate_on_submit():
         # update data in the database
-        this_company.name = company.name.data
-        this_company.service = company.service.data
         try:
+            this_teller.number = teller.number.data
+            this_teller.service = teller.service.data
+            this_teller.active = True if teller.active.data == "True" else False
+
             # update date to the database
             db.session.commit()
-            db.session.close()
         except sqlalchemy.exc.IntegrityError:
-            flash("Error! Company By That Name Exists", "warning")
-            return redirect(url_for("edit_company",id=id))
-        try :
-            # update date to the database
-            db.session.commit()
-            db.session.close()
-        except sqlalchemy.exc.IntegrityError:
-            return redirect(url_for("edit_company",id=id))
-            flash("Cannot Edit the Company Name","error")
+            flash("Branch By That Name Exists", "warning")
+        # here we are going to push  the branch data to the lacalhost
+        # sio.emit("branch_edit", service_schema.dump(this_service))
         # prefilling the form with the empty fields
-        company.name.data = ""
-        company.service.data = ""
+        teller.name.data = ""
+        teller.service.data = ""
+        teller.active.data = ""
 
-        flash("Company Successfully Updated", "success")
-
-        return redirect(url_for("view_company"))
+        flash("Branch Successfully Updated", "success")
+        return redirect(url_for("add_company"))
 
     elif request.method == "GET":
-        company.name.data = this_company.name
-        company.service.data = this_company.service
 
+        teller.number.data = this_teller.number
+        teller.service.data = this_teller.service
+        # teller.active.data = this_teller.active
 
     else:
-        flash("Company Does Not exist. Add company name first.", "danger")
-
-    return render_template("edit_company.html", form=company, services=services)
+        flash("Service Does Not exist. Add Service name first.", "danger")
+    return render_template("edit_company.html", form=teller, services=services)
 
 
 @app.route("/email", methods=["POST"])

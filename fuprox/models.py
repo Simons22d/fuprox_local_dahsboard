@@ -162,7 +162,7 @@ class Booking(db.Model):
     active = db.Column(db.Boolean, default=False, nullable=False)
     nxt = db.Column(db.Integer, nullable=False, default=1001)
     serviced = db.Column(db.Boolean, nullable=False, default=False)
-    teller = db.Column(db.String(250), default=0,nullable=False)
+    teller = db.Column(db.String(250), default=0, nullable=False)
     kind = db.Column(db.Integer, nullable=False)
     user = db.Column(db.Integer, default=0, nullable=False)
     is_instant = db.Column(db.Boolean, default=False)
@@ -209,7 +209,6 @@ class ImageCompanySchema(ma.Schema):
         fields = ("id", "company", "image")
 
 
-
 #  new models
 
 class Teller(db.Model):
@@ -221,9 +220,9 @@ class Teller(db.Model):
     unique_id = db.Column(db.String(255), default=ticket_unique, unique=True)
     is_synced = db.Column(db.Boolean, default=False)
     # branch_unique_id = db.Column(db.String(length=250),db.ForeignKey("branch.unique_id"),nullable=False)
-    branch_unique_id = db.Column(db.String(length=250),nullable=False, default=1234)
+    branch_unique_id = db.Column(db.String(length=250), nullable=False, default=1234)
 
-    def __init__(self, number, branch, service,branch_unique_id):
+    def __init__(self, number, branch, service, branch_unique_id):
         self.number = number
         self.branch = branch
         self.service = service
@@ -232,5 +231,53 @@ class Teller(db.Model):
 
 class TellerSchema(ma.Schema):
     class Meta:
-        fields = ("id", "number", "date_added", "branch", "service","is_synced","unique_id","branch_unique_id")
+        fields = ("id", "number", "date_added", "branch", "service", "is_synced", "unique_id", "branch_unique_id")
 
+
+def ticket_unique() -> int:
+    return secrets.token_hex(16)
+
+
+# working with flask migrate
+class ServiceOffered(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    branch_id = db.Column(db.ForeignKey("branch.id"), nullable=False)
+    name = db.Column(db.String(length=250), unique=True)
+    teller = db.Column(db.String(100), nullable=True)
+    date_added = db.Column(db.DateTime, default=datetime.now)
+    code = db.Column(db.String(length=10), nullable=False)
+    icon = db.Column(db.String(length=20))
+    is_synced = db.Column(db.Boolean, default=False)
+    unique_id = db.Column(db.String(255), default=ticket_unique, unique=True)
+    medical_active = db.Column(db.Boolean, default=False)
+
+    def __init__(self, name, branch_id, teller, code, icon):
+        self.name = name
+        self.branch_id = branch_id
+        self.teller = teller
+        self.code = code
+        self.icon = icon
+        self.is_synced = False
+
+
+class ServiceOfferedSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "branch_id", "name", "teller", "date_added", "code", "icon", "unique_id", "medical_active")
+
+
+class Icon(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(length=50), nullable=False, unique=True)
+    date_added = db.Column(db.DateTime, default=datetime.now)
+    branch = db.Column(db.Integer, nullable=False)
+    icon = db.Column(db.Text)
+
+    def __init__(self, name, branch, icon):
+        self.name = name
+        self.branch = branch
+        self.icon = icon
+
+
+class IconSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "name", "date_added", "branch", "icon")

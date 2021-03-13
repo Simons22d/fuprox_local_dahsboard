@@ -6,15 +6,15 @@
             <a class="nav-link" href="{{ url_for('home') }}">Home</a>
         </li>
         <li class="nav-item active">
-            <a class="nav-link" href="{{ url_for('branches') }}">Cntry/Brnch</a>
+            <a class="nav-link" href="{{ url_for('tellers') }}">Manage</a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('payments') }}">Payments</a>
+            <a class="nav-link" href="{{ url_for('payments') }}">Bookings</a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link " href="{{ url_for('extras') }}">Extras</a>
+            <a class="nav-link " href="{{ url_for('extras') }}">Apps</a>
         </li>
 
         <li class="nav-item">
@@ -48,12 +48,11 @@
                         }
                     </style>
                     <script>
-                        $("#choice").html("Company")
+                        $("#choice").html("Service")
                     </script>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="{{ url_for('branches') }}">Branch</a>
-                        <a class="dropdown-item" href="{{ url_for('add_company') }}">Company</a>
-                        <a class="dropdown-item" href="{{ url_for('add_category') }}">Category</a>
+                        <a class="dropdown-item" href="{{ url_for('tellers') }}">Teller</a>
+                        <a class="dropdown-item" href="{{ url_for('add_company') }}">service</a>
                     </div>
                 </div>
             </div>
@@ -65,13 +64,10 @@
         <div class="col-lg-12">
             <ul class="nav nav-tabs " style="font-size:12px; pading-top:0px;">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('branches') }}" id="add branch">Add Company</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('view_company' )}}" id="branches">Companies</a>
+                    <a class="nav-link" href="{{ url_for('tellers') }}" id="add branch">Add Service</a>
                 </li>
                 <li class="nav-item active">
-                    <a class="nav-link active" href="" id="editbranch">Edit Company</a>
+                    <a class="nav-link active" href="" id="editbranch">Edit Service</a>
                 </li>
             </ul>
         </div>
@@ -85,11 +81,11 @@
 <div class="row">
     <div class="col-lg-6 ">
         {% for field in form.errors %}
-        {% for error in form.errors[field] %}
-        <div class="alert alert-danger">
-            <strong>Error!</strong> {{error}}
-        </div>
-        {% endfor %}
+            {% for error in form.errors[field] %}
+            <div class="alert alert-danger">
+                <strong>Error!</strong> {{error}}
+            </div>
+            {% endfor %}
         {% endfor %}
         <!--        <div class="row container mb-3"><div class="text-muted">Companies</div>-->
         <br>
@@ -100,49 +96,72 @@
 <div class="col-lg-5">
     <form action="" method="POST">
         {{ form.hidden_tag() }}
-        <div class="row container mb-3">
-            <div class="text-muted">Edit Company Details</div>
-            <br>
-            <small>Here you can enter data about the branches. These detail shall be used to interact with the rest of the system. Please make sure these data is accurate.</small>
-            <br>
-        </div>
-
-        <div class="row mb-1">
-            <div class="col-lg-12">
-                {{ form.name.label(class='form-control-label') }}
-                {% if form.name.errors %}
-                {{ form.name(class="form-control form-control-sm is-invalid",id="suggestLocation")}}
-                <div class="invalid-feedback">
-                    {% for error in form.name.errors %}
-                    <span>{{ error }}</span>
-                    {% endfor %}
-                </div>
-                {% else %}
-                {{ form.name(class="form-control form-control-sm ",id="suggestLocation")}}
-                {% endif %}
-            </div>
-        </div>
-
+        {% for field in form.errors %}
+             {% for error in form.errors[field] %}
+                 <div class="alert alert-danger">
+                     <strong>Error!</strong> {{error}}
+                 </div>
+             {% endfor %}
+         {% endfor %}
         <div class="row mb-3">
-            <div class="col-lg-12">
-                {{ form.service.label(class='form-control-label') }}
-                {% if form.service.errors %}
-                {{ form.service(class="form-control form-control-sm is-invalid",render_kw={'readonly': True},id="service",list="serviceName", placeholder="Enter the service Type", autocomplete="off")}}
-                <div class="invalid-feedback">
-                    {% for error in form.service.errors %}
-                    <span>{{ error }}</span>
-                    {% endfor %}
-                </div>
-                {% else %}
-                {{ form.service(class="form-control form-control-sm ",id="service",list="serviceName", placeholder="Enter the service Type")}}
-                {% endif %}
-                <datalist id="serviceName">
+          <div class="col-lg-12">
+            {{ form.number.label(class='form-control-label') }}
+            {% if form.number.errors %}
+            {{ form.number(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            <div class="invalid-feedback">
+                {% for error in form.number.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+                {{ form.number(class="form-control form-control-sm ", id="branchOpens",autocomplete="off")}}
+            {% endif %}
+            <small class="form-text text-muted"></small>
+          </div>
+        </div>
+
+          <div class="row mb-3">
+          <div class="col-lg-12">
+            {{ form.service.label(class='form-control-label') }}
+            {% if form.service.errors %}
+            {{ form.service(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            <div class="invalid-feedback">
+                {% for error in form.service.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+                {{ form.service(class="form-control form-control-sm ", id="branchOpens",autocomplete="off",
+                        list="companyName",list="services")}}
+            {% endif %}
+             <datalist id="services">
                     {% for d in services %}
-                    <option value="{{d.id}}">{{ d.name }}</option>
+                        <option value="{{d.name}}">{{ d.name  }} on teller {{ d.teller }} • {{ d.code }}XX • {{
+                                'visible' if d
+                        .medical_active else 'Not Visible' }} online</option>
                     {% endfor %}
                 </datalist>
-                <small class="form-text text-muted"></small>
+            <small class="form-text text-muted"></small>
+          </div>
+        </div>
+
+    <div class="row mb-3">
+          <div class="col-lg-12">
+            {{ form.active.label(class='form-control-label') }}
+            {% if form.active.errors %}
+            {{ form.active(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            <div class="invalid-feedback">
+                {% for error in form.active.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
             </div>
+            {% else %}
+                {{ form.active(class="form-control form-control-sm ", id="branchOpens",autocomplete="off",
+                        list="companyName")}}
+            {% endif %}
+
+            <small class="form-text text-muted"></small>
+          </div>
         </div>
 
         <div class="row">
