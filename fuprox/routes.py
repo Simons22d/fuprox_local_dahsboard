@@ -19,8 +19,10 @@ import os
 import logging
 
 socket_link = "http://localhost:5000/"
+local_socket = "http://localhost:5500/"
 
 sio = socketio.Client()
+local = socketio.Client()
 
 # rendering many route to the same template
 branch_schema = BranchSchema()
@@ -731,12 +733,12 @@ def edit_category(id):
 
 @sio.event
 def connect():
-    print('connection established')
+    print('online connection established')
 
 
 @sio.event
 def disconnect():
-    print('disconnected from server')
+    print('online disconnected from server')
 
 
 
@@ -744,7 +746,24 @@ def disconnect():
 try:
     sio.connect(socket_link)
 except socketio.exceptions.ConnectionError:
-    print("Error! Could not connect to the socket server.")
+    print("Error! Could not connect to online server.")
+    # print("...")
+
+@local.event
+def connect():
+    print('offline connection established')
+
+
+@local.event
+def disconnect():
+    print('offline disconnected from server')
+
+
+'''working with sockets '''
+try:
+    local.connect(local_socket)
+except socketio.exceptions.ConnectionError:
+    print("Error! Could not connect offline server.")
     # print("...")
 
 # TODO : app Issues
