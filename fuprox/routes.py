@@ -434,8 +434,11 @@ def extras():
 
 
     if form.validate_on_submit():
+
         key = form.key.data
-        data = requests.post("http://localhost:4000/branch/activate",json={"key":key})
+        address = form.address.data
+        data = requests.post(f"http://{address}:4000/branch/activate",json={"key":key})
+        log(data.json())
         if not there_are_bookings():
             activate_branch(data.json())
         else:

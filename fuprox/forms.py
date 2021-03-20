@@ -108,8 +108,9 @@ class SolutionForm(FlaskForm):
 
 
 class ActivateForm(FlaskForm):
+    address = StringField("Server Address", validators=[DataRequired()])
     key = StringField("Key", validators=[DataRequired()])
-    submit = SubmitField("Add Solution")
+    submit = SubmitField("Activate Application")
 
 
 class PhraseForm(FlaskForm):

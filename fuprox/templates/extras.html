@@ -62,6 +62,20 @@
     <form action="" method="POST" class="col-lg-8">
                 {{ form.hidden_tag() }}
                 <div class="form-group">
+                    {{ form.address.label(class='form-control-label')}}
+                    {% if form.address.errors %}
+                    {{ form.address(class="form-control  form-control-smis-invalid")}}
+                    <div class="invalid-feedback">
+                        {% for error in form.address.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.address(class="form-control form-control-sm")}}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
                     {{ form.key.label(class='form-control-label')}}
                     {% if form.key.errors %}
                     {{ form.key(class="form-control  form-control-smis-invalid")}}
