@@ -471,9 +471,10 @@ def activate_branch(data):
                     service = data["service"]
                     company = data["company"]
                     prepare_db(branch["key_"])
+
                     add_service(service["name"],service["service"],service["is_medical"])
                     add_company(company["name"],company["service"])
-                    add_branch(branch["name"],branch["company"],branch["logitude"],branch["latitude"],branch["opens"],
+                    add_branch(branch["name"],branch["company"],branch["longitude"],branch["latitude"],branch["opens"],
                                branch["closes"],branch["service"],branch["description"],branch["key_"],branch["unique_id"])
                 except sqlalchemy.exc.InvalidRequestError as e :
                     log(f"Error! {e}")
@@ -523,6 +524,9 @@ def branch_exists(name):
 
 
 def add_branch(name, company, longitude, latitude, opens, closes, service, description, key_, unique_id):
+    if branch_exists_():
+        db.session.execute("DELETE FROM branch")
+
     if not branch_exists(name):
         lookup = Branch(name, company, longitude, latitude, opens, closes, service, description, key_, unique_id)
         try:
@@ -538,7 +542,9 @@ def add_branch(name, company, longitude, latitude, opens, closes, service, descr
 
 
 def add_company(name, service):
-    print("xxXxx")
+    if company_exists():
+        db.session.execute("DELETE FROM company")
+
     lookup = Company(name, service)
     try:
 
@@ -549,14 +555,24 @@ def add_company(name, service):
     lookup_data = company_schema.dump(lookup)
     return lookup_data
 
+def service_exists():
+    return Service.query.first()
+
+def branch_exists_():
+    return Branch.query.first()
+
+def company_exists():
+    return Company.query.first()
 
 def add_service(name, service, is_medical):
+    if service_exists():
+        db.session.execute("DELETE FROM booking")
+        db.session.execute("DELETE FROM service")
+
     lookup = Service(name, service, is_medical)
     try:
         db.session.add(lookup)
         db.session.commit()
-
-
     except sqlalchemy.exc.IntegrityError:
         print("error! record exists")
     return service_schema.dump(lookup)
