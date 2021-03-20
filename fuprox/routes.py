@@ -1,10 +1,11 @@
 from flask import render_template, url_for, flash, redirect, request, abort, jsonify, send_file, send_from_directory
 from fuprox import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required,current_user
-from fuprox.forms import (RegisterForm, LoginForm, TellerForm, ServiceForm, SolutionForm, ReportForm)
+from fuprox.forms import (RegisterForm, LoginForm, TellerForm, ServiceForm, SolutionForm, ReportForm, ActivateForm,PhraseForm)
 from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, CompanySchema, ServiceSchema, Mpesa, \
-    MpesaSchema, Booking, BookingSchema, ImageCompany, ImageCompanySchema, Teller, TellerSchema,ServiceOffered,Icon,IconSchema
-from fuprox.utility import reverse,add_teller,services_exist,services_exist,branch_exist,create_service
+    MpesaSchema, Booking, BookingSchema, ImageCompany, ImageCompanySchema, Teller, TellerSchema,ServiceOffered,Icon,\
+    IconSchema,PhraseSchema,Phrase
+from fuprox.utility import reverse,add_teller,services_exist,services_exist,branch_exist,create_service,upload_video
 import tablib
 from datetime import datetime
 import time
@@ -17,6 +18,7 @@ from fuprox.utility import email
 from flask_sqlalchemy import sqlalchemy
 import os
 import logging
+import requests
 
 socket_link = "http://localhost:5000/"
 local_socket = "http://localhost:5500/"
@@ -68,8 +70,9 @@ def home():
         "statement" : get_part_of_day(time).capitalize(),
         "user" : (current_user.username).capitalize()
     }
-    log(f"current_user {current_user.username}")
-    return render_template("dashboard.html", today=date,dash_data = dash_data)
+    branch = Branch.query.first()
+
+    return render_template("dashboard.html", today=date,dash_data = dash_data,branch=branch)
 
 @app.route("/doughnut/data", methods=["GET"])
 def _doughnut_data():
@@ -276,6 +279,14 @@ def more_info(key):
     return render_template("info.html", data=data)
 
 
+@app.route("/video/upload", methods=["POST"])
+def upload_video_():
+    return upload_video()
+
+@app.route("/upload", methods=["POST", "GET", "PUT"])
+def upload_video__():
+    return render_template("upload.html")
+
 # view_branch
 @app.route("/teller/view")
 @login_required
@@ -411,10 +422,141 @@ def help():
     return render_template("help.html", data=solution_data)
 
 
-@app.route("/extras")
+@app.route("/extras",methods=["GET","POST"])
 @login_required
 def extras():
-    return render_template("extras.html")
+    current = Branch.query.first()
+    form  = ActivateForm()
+    ss = PhraseForm()
+
+    current_phrase = Phrase.query.first()
+
+
+    if form.validate_on_submit():
+        key = form.key.data
+        data = requests.post("http://localhost:4000/branch/activate",json={"key":key})
+        if not there_are_bookings():
+            activate_branch(data.json())
+        else:
+            flash("Error! Database not empty. There are booking there","danger")
+
+    db.session.execute("DELETE FROM phrase")
+    pref  = ss.phrase.data
+    log(ss.type.data)
+    is_teller = True if ss.type.data != "Counter Number" else  False
+    lookup = Phrase(pref,is_teller)
+    db.session.add(lookup)
+    db.session.commit()
+
+    return render_template("extras.html",branch=current,form=form, phrase=ss,current_phrase=current_phrase)
+
+
+# @app.route("/reset/tickets",methods=["POST"])
+# def reset_tickets():
+#     req = request.post("http://159.65.144.235:4000/ticket/reset")
+#
+
+
+
+def activate_branch(data):
+    if data:
+        if data["service"] and data["branch"] and data["company"]:
+            if  not there_are_bookings():
+                try:
+                    branch = data["branch"]
+                    service = data["service"]
+                    company = data["company"]
+                    prepare_db(branch["key_"])
+                    add_service(service["name"],service["service"],service["is_medical"])
+                    add_company(company["name"],company["service"])
+                    add_branch(branch["name"],branch["company"],branch["logitude"],branch["latitude"],branch["opens"],
+                               branch["closes"],branch["service"],branch["description"],branch["key_"],branch["unique_id"])
+                except sqlalchemy.exc.InvalidRequestError as e :
+                    log(f"Error! {e}")
+            else:
+                log("Database ned to cleared. There are bookings there already")
+                return {"msg" : "Database need to cleared. There are booking there already."}
+        else:
+
+            return {'msg' : "Data incomplete"},500
+    else:
+        return {"msg" : "Error! Key is invalid"}
+
+
+def there_are_bookings():
+    bookings = Booking.query.all()
+    return bookings
+def prepare_db(key):
+    bookings = there_are_bookings()
+    if not bookings:
+        try:
+            branch = Branch.query.filter_by(key_=key).first()
+            if branch:
+                company = Company.query.filter_by(name=branch.company).first()
+                if company:
+                    service = Service.query.filter_by(name=branch.service).first()
+                    db.session.delete(branch)
+                    db.session.commit()
+                    db.session.delete(company)
+                    db.session.commit()
+                    db.session.delete(service)
+                else:
+                    log("service issue")
+            else:
+                log("service issue")
+        except sqlalchemy.exc.InvalidRequestError as e:
+            log("your DB Need upkeep. it is not empty")
+        finally:
+            log("errors")
+    else:
+        log("Error, database is not empty still has some bookings")
+
+
+def branch_exists(name):
+    lookup = Branch.query.filter_by(name=name).first()
+    print("branch_data", branch_schema.dump(lookup))
+    return [1] if lookup else []
+
+
+def add_branch(name, company, longitude, latitude, opens, closes, service, description, key_, unique_id):
+    if not branch_exists(name):
+        lookup = Branch(name, company, longitude, latitude, opens, closes, service, description, key_, unique_id)
+        try:
+            db.session.add(lookup)
+            db.session.commit()
+            return dict()
+        except sqlalchemy.exc.IntegrityError as e:
+            print("Error! Could not create Branch.")
+            return dict()
+    else:
+        return dict()
+
+
+
+def add_company(name, service):
+    print("xxXxx")
+    lookup = Company(name, service)
+    try:
+
+        db.session.add(lookup)
+        db.session.commit()
+    except sqlalchemy.exc.IntegrityError:
+        print("error! already copied")
+    lookup_data = company_schema.dump(lookup)
+    return lookup_data
+
+
+def add_service(name, service, is_medical):
+    lookup = Service(name, service, is_medical)
+    try:
+        db.session.add(lookup)
+        db.session.commit()
+
+
+    except sqlalchemy.exc.IntegrityError:
+        print("error! record exists")
+    return service_schema.dump(lookup)
+
 
 
 @app.route("/logout")

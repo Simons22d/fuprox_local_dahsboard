@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-5 mb-3">
+  <div class="upload">
+      <div>
+          <h5 class="text-muted">Upload Video/Add Video Streams</h5>
+        <hr>
+      </div>
+
+      <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" id="customSwitch1" onchange="changeView(this)">
+          <label class="custom-control-label" for="customSwitch1">Change the video type</label>
+      </div>
+       <div class="row col-lg-6 mb-3 mt-2">
+           <small>change the switch above the changge the upload type form video file to streams.<br> <code> Keep in
+               mind that stream and youtube videos should be added as links to which the videos are located.</code>.
+           </small>
+      </div>
+
+    <div id="status" class="btn btn-sm btn-outline-info"></div>
+
+    <p id="loaded_n_total"></p>
+    <div id="uplaod_form">
+        <h5 class="text-muted mt-2"> Upload Video</h5>
+            <form id="upload_form" enctype="multipart/form-data" method="post">
+                <progress id="progressBar" value="0" max="100" style="width:300px;"></progress>
+                <div class="row col-lg-12 mt-4">
+                  <input type="file" name="file1" id="file1"><br>
+                </div>
+                <div class="row col-lg-12 mt-5">
+                      <input type="button" value="Upload File" onclick="uploadFile()"
+                         class="col-lg-2 col-sm-5  custom-file-upload btn btn-sm btn-primary">
+                </div>
+                <style>
+                    .custom-file-upload {
+                      display: inline-block;
+                      padding: 6px 12px;
+                      cursor: pointer;
+                      color:#FFF;
+                  }
+                </style>
+            </form>
+    </div>
+
+  </div>
+  <div class="mt-5">
+      <h5 class="text-muted">Videos Already Uploaded</h5>
+   </div>
+  <hr>
+<!--  uploaded videos -->
+
+</div>
+<div class="container">
+    <div class="row mt-5 " id="videos">
+    </div>
+</div>
+
+</body>
+
+<script src="{{ url_for('static',filename='lib/jquery/jquery.min.js') }}"></script>
+<script src="{{ url_for('static',filename='lib/popper/popper.min.js') }}"></script>
+<script src="{{ url_for('static',filename='lib/bootstrap/js/bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static',filename='js/upload.js') }}"></script>
+</html>

@@ -6,7 +6,7 @@
             <a class="nav-link" href="{{ url_for('home') }}">Home</a>
           </li>
           <li class="nav-item ">
-            <a class="nav-link" href="{{ url_for('branches') }}">Bookings</a>
+            <a class="nav-link" href="{{ url_for('tellers') }}">Bookings</a>
           </li>
 
           <li class="nav-item">
@@ -32,7 +32,7 @@
       <div class="row">
         <div class="col-md-12 col-lg-8">
           <div class="title-single-box">
-                <h5 style="font-size:15px;">Dashboard / <span style="color:grey;">Extras</span> </h5>
+                <h5 style="font-size:15px;">Apps</span> </h5>
             <span class="color-text-a"></span>
           </div>
         </div>
@@ -46,6 +46,98 @@
 {% block content %}
 <div class="col-lg-12">
 <!--    desktop application link -->
+    <div class="row">
+        <div class="row col-lg-12">
+           {% if branch %}
+                <div class="mt-2 h5 text-muted ">{{ branch.name }}</div>
+                <code class="mt-2 h6 text-muted ">{{ branch.key_ }}</code>
+           {% else %}
+               <div class="mt-2 h5 text-muted ">Oops! No Key added</div>
+           {% endif %}
+        </div>
+        <p class="text-muted mt-3">Change branch key</p>
+    </div>
+
+    <div class="row mb-4">
+    <form action="" method="POST" class="col-lg-8">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.key.label(class='form-control-label')}}
+                    {% if form.key.errors %}
+                    {{ form.key(class="form-control  form-control-smis-invalid")}}
+                    <div class="invalid-feedback">
+                        {% for error in form.key.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.key(class="form-control form-control-sm")}}
+                    {% endif %}
+                </div>
+                <div class="form-group mt-3">
+                    {{ form.submit(class="btn btn-sm btn-success btn-block mt-4 col-lg-6")}}
+                </div>
+            </form>
+    </div>
+
+<div class="row">
+        <h5 class="text-muted "><u>Reset Tickets</u></h5>
+        <div class="row col-lg-12 mt-2">
+            <div class="col-lg-4">
+            <h6 style="color:red">
+                <b>Please be sure you intend to reset tickets.</b><br>
+                <b >This is not revesable!!!</b>
+            </h6>
+                <div class="btn btn-sm btn-danger mt-3">Reset Branch Tickets</div>
+            <div id="status_message"></div>
+          <br><br>
+          </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <h5 class="text-muted "><u>Customize Voice over phrase</u></h5>
+        <div class="row col-lg-12 mt-2">
+            <form action="" method="POST" class="col-lg-8">
+                {{ phrase.hidden_tag() }}
+                <div class="form-group">
+                    {{ phrase.phrase.label(class='form-control-label mb-3')}}<br>
+                     <small><b>WHAT EXISTS: </b>Ticket number XXX</small><br>
+                    <small><b>TEXT REQUIRED: </b><mark>PROCEED TO ... | GO TO ...</mark></small><br>
+                    {% if phrase.phrase.errors %}
+                    {{ phrase.phrase(class="form-control  form-control-smis-invalid")}}
+                    <div class="invalid-feedback">
+                        {% for error in phrase.key.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ phrase.phrase(class="form-control form-control-sm")}}
+                    {% endif %}
+                </div>
+
+            <div class="form-group mt-2 mb-4">
+                    {{ phrase.type.label(class='form-control-label')}}
+                    {% if phrase.type.errors %}
+
+                    {{ phrase.type(class="form-control  form-control-smis-invalid")}}
+                    <div class="invalid-feedback">
+                        {% for error in phrase.type.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ phrase.type(class="form-control form-control-sm")}}
+                    {% endif %}
+                </div>
+                <div class="form-group mt-5">
+
+                    {{ form.submit(class="btn btn-sm btn-success btn-block mt-4 col-lg-6")}}
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="row">
         <h5 class="text-muted "><u>Download Applications.</u></h5>
         <div class="row col-lg-12 mt-2">

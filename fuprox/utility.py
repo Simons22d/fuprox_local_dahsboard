@@ -2,8 +2,9 @@ import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from fuprox.models import Teller, TellerSchema, Service, ServiceOffered, ServiceOfferedSchema, Branch, BranchSchema, \
-    Icon, IconSchema
+    Icon, IconSchema, Video,VideoSchema
 from fuprox import db
+from flask import jsonify,request
 
 # mpesa
 
@@ -251,3 +252,153 @@ def icon_name_to_id(name):
 
 def icon_exist_by_name(name):
     return Icon.query.filter_by(name=name).first()
+
+
+
+"""
+:::::::::::::::::::::::::::
+:::::WORKING WITH VIDEO::::
+:::::::::::::::::::::::::::
+
+"""
+
+ALLOWED_EXTENSIONS_ = set(["mp4", "mkv", "flv", "webm"])
+
+
+def allowed_files_(filename):
+    return filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS_
+
+
+# name.rsplit(".",1)[1] in ext
+
+'''
+encoding a base 64 string to mp4
+'''
+
+
+def final_html(message):
+    return jsonify(message)
+
+
+def upload_video():
+    # check if the post request has the file part
+    if 'file' not in request.files:
+        return final_html("'No file part in the request")
+    file = request.files['file']
+    if file.filename == '':
+        return final_html("No file selected for uploading")
+    if file and allowed_files_(file.filename):
+        try:
+            # here wen need the file name
+            filename = secure_filename(file.filename)
+
+            # move the file to an appropiate location for play back
+
+            # saving the video to the database
+            video_lookup = Video(name=filename, type=1)
+            db.session.add(video_lookup)
+            db.session.commit()
+
+            video_data = video_schema.dump(video_lookup)
+
+            # do not save the file if there was an error
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            # move the file to the appropriate location
+            # try:
+            #     time.sleep(10)
+            #     move_video(file.filename)
+            # except FileNotFoundError:
+            #     return final_html("File Desination Error")
+
+            return final_html("File successfully uploaded")
+        except sqlalchemy.exc.IntegrityError:
+            return final_html("Error! File by that name exists")
+    else:
+        return final_html("Allowed file types are mp4,flv,mkv")
+
+
+def upload_link(link, type):
+    """
+    :param link:
+    :param type:
+    :return:
+    """
+    try:
+        video_lookup = Video(name=link.strip(), type=type)
+        # print("local videos type",type)
+        db.session.add(video_lookup)
+        db.session.commit()
+
+        video_data = video_schema.dump(video_lookup)
+        return final_html({"msg": "Link successfully uploaded"})
+    except sqlalchemy.exc.IntegrityError:
+        return final_html({"msg": "Error! File by that name exists"})
+
+
+def validate_link(link):
+    regex = re.compile(
+        r'^(?:http|ftp)s?://'  # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
+        r'localhost|'  # localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+        r'(?::\d+)?'  # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+    return {"valid": (re.match(regex, link) is not None)}
+
+
+def save_mp4(data):
+    random = secrets.token_hex(8)
+    with open(f"{random}.mp4", "wb") as file:
+        file.write(base64.b64encode(data))
+        file.close()
+        return ""
+    return list()
+
+
+def get_all_videos():
+    lookup = Video.query.all()
+    data = videos_schema.dump(lookup)
+    return jsonify(data)
+
+
+def get_single_video(id):
+    lookup = Video.query.get(id)
+    data = video_schema.dump(lookup)
+    return data
+
+
+def make_video_active(id):
+    lookup = Video.query.get(id)
+    lookup.active = 1
+    db.session.commit()
+
+    return video_schema.dump(lookup)
+
+
+def make_video_inactive(id):
+    lookup = Video.query.get(id)
+    lookup.active = 0
+    db.session.commit()
+
+    return video_schema.dump(lookup)
+
+
+def toggle_status(id):
+    # get the video
+    video = get_single_video(id)
+    if video:
+        final = make_video_inactive(video["id"]) if int(video["active"]) == 1 else make_video_active(video["id"])
+    else:
+        final = dict()
+    return final
+
+
+def get_active_videos():
+    lookup = Video.query.filter_by(active=True).all()
+    video_data = videos_schema.dump(lookup)
+    new_list = [i.update({"link": app.config['UPLOAD_FOLDER']}) for i in video_data]
+    return jsonify(video_data)
+
+
+""":::::END:::::"""

@@ -46,9 +46,14 @@
   </section>
 {% endblock%}
 {% block content %}
-<h5 class="text-muted">Good {{ dash_data.statement }} {{ dash_data.user }},
-
-</h5>
+<h6 class="text-muted mb-3">
+    {% if branch %}
+        {{ branch.name }}
+    {% else %}
+        Oops, Application not activated. <a href="{{ url_for('extras') }}">activate here</a>
+    {% endif %}
+</h6>
+<h5 class="text-muted">Good {{ dash_data.statement }} {{ dash_data.user }},</h5>
     <h6 class="text-muted mb-5">{{today}}</h6>
 
 <h2><a href="">{{ dash_data.bookings }} </a></h2>

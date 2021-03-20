@@ -107,6 +107,18 @@ class SolutionForm(FlaskForm):
     submit = SubmitField("Add Solution")
 
 
+class ActivateForm(FlaskForm):
+    key = StringField("Key", validators=[DataRequired()])
+    submit = SubmitField("Add Solution")
+
+
+class PhraseForm(FlaskForm):
+    phrase = StringField("Phrase", validators=[DataRequired()])
+    type = RadioField("Callout final phrase", validators=[DataRequired()], choices=["Service Name",
+                                                                                             "Counter Number"])
+    submit = SubmitField("Add Phrase")
+
+
 class ReportForm(FlaskForm):
     format = RadioField("Format", validators=[DataRequired()], Type=str, choices=["PDF", "Excel"])
     type = SelectField("Type", validators=[DataRequired()], Type=str, choices=["Bookings", "Branch", "Payments", "All"])

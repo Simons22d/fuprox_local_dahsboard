@@ -283,3 +283,38 @@ class Icon(db.Model):
 class IconSchema(ma.Schema):
     class Meta:
         fields = ("id", "name", "date_added", "branch", "icon")
+
+
+
+class Video(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(length=250), unique=True)
+    active = db.Column(db.Integer, default=0)
+    type = db.Column(db.Integer, default=0)
+
+    def __init__(self, name, type):
+        self.name = name
+        self.type = type
+
+
+class VideoSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "name", "active", "type")
+
+
+class Phrase(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    phrase = db.Column(db.String(length=250), unique=True)
+    use_teller = db.Column(db.Boolean, default=True)
+    date_added = db.Column(db.DateTime, default=datetime.now)
+    active = db.Column(db.Boolean, default=True)
+
+    def __init__(self, phrase,use_teller):
+        self.phrase = phrase
+        self.use_teller = use_teller
+
+
+class PhraseSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "name", "phrase", "date_added","active","use_teller")
+
