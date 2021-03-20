@@ -440,6 +440,7 @@ def extras():
         log(data.json())
         if not there_are_bookings():
             activate_branch(data.json())
+            return redirect(url_for("home"))
         else:
             flash("Error! Database not empty. There are booking there","danger")
 
