@@ -203,10 +203,23 @@
             {{ form.submit(class="btn btn-primary btn-sm col-lg-6 col col-md-12",id="denis") }}
           </div>
         </div>
-
-
         </form>
       </div>
+
+       <div class="col-lg-6 mt-4">
+            <form action="" enctype="multipart/form-data" name="upload_icon" id="form_upload_icon">
+                <h5 class="header text-muted">Add Icon</h5>
+                <div id="message_icon"></div>
+                <label for="icon_name">Icon Name</label>
+                <input type="text" id="icon_name" name ="icon_name" class="form-control form-control-sm">
+
+                <label for="icon_file_icon" class="mt-2">Icon File</label>
+                <input type="file" id="icon_file_icon" name ="icon" class="form-control form-control-sm " accept="image/* ">
+                <input class="btn btn-primary btn-sm col-lg-12 mt-4"   name="submit" id="upload_icon" onclick="upload_icon_()" value="upload Icon">
+            </form>
+        </div>
+
+
         <div class="col-md-8">
             <table class="table table-sm table-hover table-bordered" style="font-size:12px;">
         <thead>
@@ -243,7 +256,72 @@
       </table>
         </div>
     </div>
+    <script>
 
+    {#const getData = (url,methods,data,handle) => {#}
+    {#    fetch(url,{#}
+    {#      method: methods,#}
+    {#      headers: {#}
+    {#        'Accept': 'application/json',#}
+    {#        'Content-Type': 'application/json'#}
+    {#      },#}
+    {#      body: JSON.stringify(data)#}
+    {#    })#}
+    {#    .then(res=>res.json())#}
+    {#    .then(res => handle(res));#}
+
+
+    var icon_data;
+
+        const upload_icon_ = (e)=>{
+            let icon = icon_data
+            console.log(icon)
+            let icon_name = $("#icon_name").val()
+            let link_ = "localhost";
+            if (icon && icon_name){
+                getData(`${link_}/service/icon`,"POST",{"icon" : icon, "name" : icon_name,"branch_id":branch_id},
+                    (data)=>{
+                    updateIcons();
+                    updateServices();
+                    console.log(data);
+                    if(data.status === 201){
+                        $("#message_icon").html(`<div class="alert alert-success" role="alert">${data.msg}</div>`)
+                    }else{
+                        $("#message_icon").html(`<div class="alert alert-danger" role="alert">${data.msg}</div>`)
+                    }
+                })
+            }else{
+                $("#message_icon").html(`<div class="alert alert-danger" role="alert">Error All Fields Data Required.</div>`)
+            }
+        }
+        const updateIcons = () =>{
+            getData(`${link_}/service/icons/get`,"POST",{"branch_id":branch_id} ,(data)=>{
+                if(data){
+                    let handle = $("#icon_id")
+                    let final  = ""
+                    data.map((item,index)=>{
+                        let spl = item.name.split(" ");
+                        let king = item.name.split(" ").length > 1 ? `${spl[0]}_${spl[1]}` : item.name ;
+                        final += `<option id="option_${king}" attr-id="${item.id}">${item.name}</option>`
+                    })
+                    handle.html(final)
+                }
+            })
+        }
+
+        const updateServices =() =>{
+            getData(`${link_}/services/branch/get`,"POST",{"branch_id":branch_id},(data)=>{
+            let handle = $("#service_to_offer");
+            let final  = "";
+                data.map((item,index)=>{
+                    final += `<option id="${item.id}">${item.name}-${item.code}</option>`
+                });
+                handle.html(final);
+            handle.html(final)
+            })
+        }
+
+    </script>
 
       <!-- end container -->
 {% endblock %}

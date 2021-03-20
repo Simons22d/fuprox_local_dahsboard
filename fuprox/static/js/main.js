@@ -299,4 +299,9 @@ updatePage()
 		});
     },2000)
 
+
+
+
+
 })(jQuery);
+	console.log("xxxcxcxcxcxcxx")

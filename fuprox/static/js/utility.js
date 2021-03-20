@@ -269,6 +269,6 @@ $('#generate').on("click",()=>{
         }
     }
 });
-
+	console.log("xxxcxcxcxcxcxx")
 // Here we are going to update the graphs
 
