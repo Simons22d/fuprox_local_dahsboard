@@ -21,6 +21,7 @@ import logging
 import requests
 
 socket_link = "http://localhost:5000/"
+socket_link = "http://159.65.144.235:5000/"
 local_socket = "http://localhost:5500/"
 
 sio = socketio.Client()
@@ -875,12 +876,12 @@ def edit_category(id):
 
 @sio.event
 def connect():
-    print('online connection established')
+    log('online connection established')
 
 
 @sio.event
 def disconnect():
-    print('online disconnected from server')
+    log('online disconnected from server')
 
 
 
@@ -888,12 +889,12 @@ def disconnect():
 try:
     sio.connect(socket_link)
 except socketio.exceptions.ConnectionError:
-    print("Error! Could not connect to online server.")
-    # print("...")
+    log("Error! Could not connect to online server.")
+    # log("...")
 
 @local.event
 def connect():
-    print('offline connection established')
+    log('offline connection established')
 
 
 @local.event
