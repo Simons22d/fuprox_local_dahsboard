@@ -79,7 +79,7 @@ class ResetPassword(FlaskForm):
 class TellerForm(FlaskForm):
     number = StringField("Teller Number", validators=[DataRequired()])
     service = StringField("Service", validators=[DataRequired()])
-    active = RadioField('Visible', choices=[('True', 'Yes'), ('False', 'No')])
+    # active = RadioField('Visible', choices=[('True', 'Yes'), ('False', 'No')])
     submit = SubmitField("Submit Teller")
 
 
@@ -89,7 +89,7 @@ class ServiceForm(FlaskForm):
     code = StringField("Initials", validators=[DataRequired()])
     icon = StringField('Service Icon', validators=[DataRequired()])
     visible = RadioField('Available Online', choices=[('True', 'Yes'), ('False', 'No')])
-    active = RadioField('Active for booking', choices=[('True', 'Yes'), ('False', 'No')])
+    # active = RadioField('Active for booking', choices=[('True', 'Yes'), ('False', 'No')])
     submit = SubmitField("Add Service")
 
 

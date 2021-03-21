@@ -218,10 +218,10 @@ class Teller(db.Model):
     service = db.Column(db.String(200))
     unique_id = db.Column(db.String(255), default=ticket_unique, unique=True)
     is_synced = db.Column(db.Boolean, default=False)
-    branch_unique_id = db.Column(db.String(length=250),nullable=False, default=1234)
+    branch_unique_id = db.Column(db.String(length=250), nullable=False, default=1234)
     active = db.Column(db.Boolean, default=True)
 
-    def __init__(self, number, branch, service,branch_unique_id):
+    def __init__(self, number, branch, service, branch_unique_id):
         self.number = number
         self.branch = branch
         self.service = service
@@ -230,7 +230,8 @@ class Teller(db.Model):
 
 class TellerSchema(ma.Schema):
     class Meta:
-        fields = ("id", "number", "date_added", "branch", "service","is_synced","unique_id","branch_unique_id","active")
+        fields = (
+        "id", "number", "date_added", "branch", "service", "is_synced", "unique_id", "branch_unique_id", "active")
 
 
 def ticket_unique() -> int:
@@ -262,9 +263,8 @@ class ServiceOffered(db.Model):
 
 class ServiceOfferedSchema(ma.Schema):
     class Meta:
-        fields = ("id", "branch_id", "name", "teller", "date_added", "code", "icon","unique_id","medical_active",
+        fields = ("id", "branch_id", "name", "teller", "date_added", "code", "icon", "unique_id", "medical_active",
                   "active")
-
 
 
 class Icon(db.Model):
@@ -283,7 +283,6 @@ class Icon(db.Model):
 class IconSchema(ma.Schema):
     class Meta:
         fields = ("id", "name", "date_added", "branch", "icon")
-
 
 
 class Video(db.Model):
@@ -309,12 +308,11 @@ class Phrase(db.Model):
     date_added = db.Column(db.DateTime, default=datetime.now)
     active = db.Column(db.Boolean, default=True)
 
-    def __init__(self, phrase,use_teller):
+    def __init__(self, phrase, use_teller):
         self.phrase = phrase
         self.use_teller = use_teller
 
 
 class PhraseSchema(ma.Schema):
     class Meta:
-        fields = ("id", "name", "phrase", "date_added","active","use_teller")
-
+        fields = ("id", "name", "phrase", "date_added", "active", "use_teller")

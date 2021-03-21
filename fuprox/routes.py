@@ -19,6 +19,9 @@ from flask_sqlalchemy import sqlalchemy
 import os
 import logging
 import requests
+teller_schema = TellerSchema()
+tellers_schema = TellerSchema(many=True)
+
 
 socket_link = "http://localhost:5000/"
 socket_link = "http://159.65.144.235:5000/"
@@ -65,9 +68,10 @@ def home():
     tellers = len(Teller.query.all())
     service_offered = len(ServiceOffered.query.all())
     dash_data = {
-        "bookings" : f"{bookings} {'booking' if bookings <= 1 else 'Bookings'}",
-        "tellers" : f"{tellers} {'Teller' if tellers <= 1 else 'Tellers'}",
-        "services" : f"{service_offered} {'Service' if service_offered <= 1 else 'Services'}",
+        "bookings" : f"{bookings} {'booking' if bookings == 1 else 'Bookings'}" if bookings else "No Bookings" ,
+        "tellers" : f"{tellers} {'Teller' if tellers <= 1 else 'Tellers'}" if tellers else "No Tellers",
+        "services" : f"{service_offered} {'Service' if service_offered <= 1 else 'Services'}" if service_offered else
+        "No Services",
         "statement" : get_part_of_day(time).capitalize(),
         "user" : (current_user.username).capitalize()
     }
@@ -242,22 +246,32 @@ def tellers():
     services = ServiceOffered.query.all()
     if teller.validate_on_submit():
         # get specific compan data
-        if teller_exists(teller.number.data):
+        if not teller_exists(teller.number.data):
             key_ = secrets.token_hex();
             teller_number = teller.number.data
             branch_id = Branch.query.first().id
             service_name = teller.service.data
-            status = True if teller.active.data == "True" else False
+            # status = True if teller.active.data == "True" else False
             try:
                 branch = branch_exists_id(branch_id)
                 final = add_teller(teller_number, branch_id, service_name, branch.unique_id)
                 sio.emit("add_teller", {"teller_data": final})
-            except mysql.connector.errors.IntegrityError:
+            except Exception:
                 print("error! teller exists")
-            return final
+            return redirect(url_for("tellers"))
         else:
-            flash("Company Does Not exist. Add company name first.", "danger")
+            flash("Teller Already exists.", "danger")
     return render_template("add_branch.html", form=teller, services=services ,tellers=tellers_)
+
+
+def branch_exists_id(id):
+    return Branch.query.get(id)
+
+
+def teller_exists(teller_number):
+    lookup = Teller.query.filter_by(number=teller_number).first()
+    teller_data = teller_schema.dump(lookup)
+    return teller_data
 
 
 """ not recommemded __check if current branch is in db"""
@@ -383,16 +397,20 @@ def add_company():
     branch = Branch.query.first()
     services_offered = ServiceOffered.query.all()
 
-    if service.validate_on_submit():
-        name = service.name.data
-        teller = service.teller.data
-        branch_id = branch.id
-        code = service.code.data
-        icon = service.icon.data
-        visible = True if service.visible.data == "True" else False
-        # service emit service made
-        final = create_service(name, teller, branch_id, code, icon, visible)
-        sio.emit("sync_service", final)
+    if request.method == "POST":
+        if service.validate_on_submit():
+            name = service.name.data
+            teller = service.teller.data
+            branch_id = branch.id
+            code = service.code.data
+            icon = service.icon.data
+            visible = True if service.visible.data == "True" else False
+            # service emit service made
+            final = create_service(name, teller, branch_id, code, icon, visible)
+            sio.emit("sync_service", final)
+            print(service.name.data,service.teller.data,service.code.data,service.icon.data, service.visible.data)
+        else:
+            flash("Make sure all data is correct", "error")
     return render_template("add_company.html", form=service, companies=service_data, tellers=tellers,icons=icons,
                            services_offered = services_offered)
 
@@ -429,20 +447,16 @@ def extras():
     current = Branch.query.first()
     form  = ActivateForm()
     ss = PhraseForm()
-
     current_phrase = Phrase.query.first()
-
-
     if form.validate_on_submit():
-
         key = form.key.data
-        data = requests.post(f"http://159.65.144.235:4000/branch/activate",json={"key":key})
-        log(data.json())
-        if not there_are_bookings():
+        if len(key) > 20:
+            data = requests.post(f"http://159.65.144.235:4000/branch/activate",json={"key":key})
             activate_branch(data.json())
             return redirect(url_for("home"))
         else:
-            flash("Error! Database not empty. There are booking there","danger")
+            # flash("Error! Database not empty. Data was cleared", "warning")
+            flash("Error! Key too short", "danger")
 
     db.session.execute("DELETE FROM phrase")
     pref  = ss.phrase.data
@@ -566,9 +580,13 @@ def company_exists():
 
 def add_service(name, service, is_medical):
     if service_exists():
+        db.session.execute("truncate icon")
+        db.session.execute("truncate teller")
+        db.session.execute("DELETE from service_offered")
+        db.session.execute("DELETE from branch")
+        db.session.execute("DELETE from company")
         db.session.execute("DELETE FROM booking")
         db.session.execute("DELETE FROM service")
-
     lookup = Service(name, service, is_medical)
     try:
         db.session.add(lookup)
@@ -769,7 +787,7 @@ def edit_branch(id):
             this_service.code = service.code.data
             this_service.icon = service.icon.data
             this_service.medical_active = True if service.visible.data == "True" else False
-            this_service.active = True if service.active.data == "True" else False
+            # this_service.active = True if service.active.data == "True" else False
             # update date to the database
             db.session.commit()
         except sqlalchemy.exc.IntegrityError:

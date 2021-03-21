@@ -94,25 +94,25 @@
         <div class="col-md-4">
           <form action="" method="POST" >
          {{ form.hidden_tag() }}
-             {% for field in form.errors %}
-             {% for error in form.errors[field] %}
-                 <div class="alert alert-danger">
-                     <strong>Error!</strong> {{error}}
-                 </div>
-             {% endfor %}
-         {% endfor %}
+{#             {% for field in form.errors %}#}
+{#             {% for error in form.errors[field] %}#}
+{#                 <div class="alert alert-danger">#}
+{#                     <strong>Error!</strong> {{error}}#}
+{#                 </div>#}
+{#             {% endfor %}#}
+{#         {% endfor %}#}
         <div class="row mb-3">
           <div class="col-lg-12">
             {{ form.name.label(class='form-control-label') }}
             {% if form.name.errors %}
-            {{ form.name(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            {{ form.name(class="form-control form-control-sm is-invalid", id="branchs",autocomplete="off")}}
             <div class="invalid-feedback">
                 {% for error in form.name.errors %}
                 <span>{{ error }}</span>
                 {% endfor %}
             </div>
             {% else %}
-                {{ form.name(class="form-control form-control-sm ", id="branchOpens",autocomplete="off")}}
+                {{ form.name(class="form-control form-control-sm ", id="branchOps",autocomplete="off")}}
             {% endif %}
             <small class="form-text text-muted"></small>
           </div>
@@ -122,14 +122,14 @@
           <div class="col-lg-12">
             {{ form.teller.label(class='form-control-label') }}
             {% if form.teller.errors %}
-            {{ form.teller(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            {{ form.teller(class="form-control form-control-sm is-invalid", id="brns",autocomplete="off")}}
             <div class="invalid-feedback">
                 {% for error in form.teller.errors %}
                 <span>{{ error }}</span>
                 {% endfor %}
             </div>
             {% else %}
-                {{ form.teller(class="form-control form-control-sm ", id="branchOpens",autocomplete="off",
+                {{ form.teller(class="form-control form-control-sm ", id="brns",autocomplete="off",
                 list="tellers")}}
             {% endif %}
           <datalist id="tellers">
@@ -145,14 +145,14 @@
           <div class="col-lg-12">
             {{ form.code.label(class='form-control-label') }}
             {% if form.code.errors %}
-            {{ form.code(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            {{ form.code(class="form-control form-control-sm is-invalid", id="branchns",autocomplete="off")}}
             <div class="invalid-feedback">
                 {% for error in form.code.errors %}
                 <span>{{ error }}</span>
                 {% endfor %}
             </div>
             {% else %}
-                {{ form.code(class="form-control form-control-sm ", id="branchOpens",autocomplete="off")}}
+                {{ form.code(class="form-control form-control-sm ", id="branpens",autocomplete="off")}}
             {% endif %}
             <small class="form-text text-muted"></small>
           </div>
@@ -163,14 +163,14 @@
           <div class="col-lg-12">
             {{ form.icon.label(class='form-control-label') }}
             {% if form.icon.errors %}
-            {{ form.icon(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            {{ form.icon(class="form-control form-control-sm is-invalid", id="brOpens",autocomplete="off")}}
             <div class="invalid-feedback">
                 {% for error in form.icon.errors %}
                 <span>{{ error }}</span>
                 {% endfor %}
             </div>
             {% else %}
-                {{ form.icon(class="form-control form-control-sm ", id="branchOpens",autocomplete="off",list="icons_")}}
+                {{ form.icon(class="form-control form-control-sm ", id="brOpens",autocomplete="off",list="icons_")}}
             {% endif %}
           <datalist id="icons_">
                 {% for d in icons %}
@@ -185,18 +185,19 @@
           <div class="col-lg-12">
             {{ form.visible.label(class='form-control-label') }}
             {% if form.visible.errors %}
-            {{ form.visible(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            {{ form.visible(class="form-control form-control-sm is-invalid", id="brpens",autocomplete="off")}}
             <div class="invalid-feedback">
                 {% for error in form.visible.errors %}
                 <span>{{ error }}</span>
                 {% endfor %}
             </div>
             {% else %}
-                {{ form.visible(class="form-control form-control-sm ", id="branchOpens",autocomplete="off")}}
+                {{ form.visible(class="form-control form-control-sm ", id="bpens",autocomplete="off")}}
             {% endif %}
             <small class="form-text text-muted"></small>
           </div>
         </div>
+
 
           <div class="row mb-3">
           <div class="col-lg-12">
@@ -206,18 +207,18 @@
         </form>
       </div>
 
-       <div class="col-lg-6 mt-4">
-            <form action="" enctype="multipart/form-data" name="upload_icon" id="form_upload_icon">
-                <h5 class="header text-muted">Add Icon</h5>
-                <div id="message_icon"></div>
-                <label for="icon_name">Icon Name</label>
-                <input type="text" id="icon_name" name ="icon_name" class="form-control form-control-sm">
-
-                <label for="icon_file_icon" class="mt-2">Icon File</label>
-                <input type="file" id="icon_file_icon" name ="icon" class="form-control form-control-sm " accept="image/* ">
-                <input class="btn btn-primary btn-sm col-lg-12 mt-4"   name="submit" id="upload_icon" onclick="upload_icon_()" value="upload Icon">
-            </form>
-        </div>
+{#       <div class="col-lg-6 mt-4">#}
+{#            <form action="" enctype="multipart/form-data" name="upload_icon" id="form_upload_icon">#}
+{#                <h5 class="header text-muted">Add Icon</h5>#}
+{#                <div id="message_icon"></div>#}
+{#                <label for="icon_name">Icon Name</label>#}
+{#                <input type="text" id="icon_name" name ="icon_name" class="form-control form-control-sm">#}
+{##}
+{#                <label for="icon_file_icon" class="mt-2">Icon File</label>#}
+{#                <input type="file" id="icon_file_icon" name ="icon" class="form-control form-control-sm " accept="image/* ">#}
+{#                <input class="btn btn-primary btn-sm col-lg-12 mt-4"   name="submit" id="upload_icon" onclick="upload_icon_()" value="upload Icon">#}
+{#            </form>#}
+{#        </div>#}
 
 
         <div class="col-md-8">

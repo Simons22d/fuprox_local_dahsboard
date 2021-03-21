@@ -92,14 +92,14 @@
           <div class="col-lg-12">
             {{ form.number.label(class='form-control-label') }}
             {% if form.number.errors %}
-            {{ form.number(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            {{ form.number(class="form-control form-control-sm is-invalid", id="number",autocomplete="off")}}
             <div class="invalid-feedback">
                 {% for error in form.number.errors %}
                 <span>{{ error }}</span>
                 {% endfor %}
             </div>
             {% else %}
-                {{ form.number(class="form-control form-control-sm ", id="branchOpens",autocomplete="off")}}
+                {{ form.number(class="form-control form-control-sm ", id="brpens",autocomplete="off")}}
             {% endif %}
             <small class="form-text text-muted"></small>
           </div>
@@ -109,14 +109,14 @@
           <div class="col-lg-12">
             {{ form.service.label(class='form-control-label') }}
             {% if form.service.errors %}
-            {{ form.service(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
+            {{ form.service(class="form-control form-control-sm is-invalid", id="brancns",autocomplete="off")}}
             <div class="invalid-feedback">
                 {% for error in form.service.errors %}
                 <span>{{ error }}</span>
                 {% endfor %}
             </div>
             {% else %}
-                {{ form.service(class="form-control form-control-sm ", id="branchOpens",autocomplete="off",
+                {{ form.service(class="form-control form-control-sm ", id="brancns",autocomplete="off",
                         list="companyName",list="services")}}
             {% endif %}
              <datalist id="services">

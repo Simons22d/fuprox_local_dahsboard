@@ -2,9 +2,9 @@ import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from fuprox.models import Teller, TellerSchema, Service, ServiceOffered, ServiceOfferedSchema, Branch, BranchSchema, \
-    Icon, IconSchema, Video,VideoSchema
+    Icon, IconSchema, Video, VideoSchema
 from fuprox import db
-from flask import jsonify,request
+from flask import jsonify, request
 
 # mpesa
 
@@ -158,8 +158,6 @@ def add_teller(teller_number, branch_id, service_name, branch_unique_id):
     return final
 
 
-
-
 def service_exists(name, branch_id):
     lookup = ServiceOffered.query.filter_by(name=name).filter_by(branch_id=branch_id).first()
     data = service_schema.dump(lookup)
@@ -203,8 +201,10 @@ def create_service(name, teller, branch_id, code, icon_id, visible):
                 log("code does not exists")
                 # check if icon exists for the branch
                 # if icon_exists(icon_id, branch_id):
-                icon = icon_name_to_id(icons)
-                icon = Icon.query.get(icon_id)
+                icon = icon_name_to_id(icon_id)
+                log(icon)
+                icon = Icon.query.get(int(icon))
+                log(icon)
                 if icon:
                     log("icon exists")
                     try:
@@ -217,7 +217,6 @@ def create_service(name, teller, branch_id, code, icon_id, visible):
 
                         log(service)
                         dict_ = dict()
-
 
                         # adding the ofline key so that we can have consitancy
                         key = {"key": branch_data["key_"]}
@@ -246,13 +245,11 @@ def log(msg):
 
 def icon_name_to_id(name):
     icon = icon_exist_by_name(name)
-    if icon:
-        return icon.id
-    return 1
+    return icon.id
+
 
 def icon_exist_by_name(name):
     return Icon.query.filter_by(name=name).first()
-
 
 
 """

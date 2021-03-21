@@ -113,7 +113,7 @@
                 {% endfor %}
             </div>
             {% else %}
-                {{ form.number(class="form-control form-control-sm ", id="branchOpens",autocomplete="off",
+                {{ form.number(class="form-control form-control-sm ", id="brOpens",autocomplete="off",
                 list="numbers",readonly=true)}}
             {% endif %}
           <datalist id="numbers">
@@ -130,14 +130,15 @@
           <div class="col-lg-12">
             {{ form.service.label(class='form-control-label') }}
             {% if form.service.errors %}
-            {{ form.service(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off",list="services")}}
+            {{ form.service(class="form-control form-control-sm is-invalid", id="s",autocomplete="off",
+            list="services")}}
             <div class="invalid-feedback">
                 {% for error in form.service.errors %}
                 <span>{{ error }}</span>
                 {% endfor %}
             </div>
             {% else %}
-                {{ form.service(class="form-control form-control-sm ", id="branchOpens",autocomplete="off",
+                {{ form.service(class="form-control form-control-sm ", id="s",autocomplete="off",
                 list="services",list="services")}}
             {% endif %}
            <datalist id="services">
@@ -151,22 +152,22 @@
           </div>
         </div>
 
-          <div class="row mb-3">
-          <div class="col-lg-12">
-            {{ form.active.label(class='form-control-label') }}
-            {% if form.active.errors %}
-            {{ form.active(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}
-            <div class="invalid-feedback">
-                {% for error in form.active.errors %}
-                <span>{{ error }}</span>
-                {% endfor %}
-            </div>
-            {% else %}
-                {{ form.active(class="form-control form-control-sm ", id="branchOpens",autocomplete="off")}}
-            {% endif %}
-            <small class="form-text text-muted"></small>
-          </div>
-        </div>
+{#          <div class="row mb-3">#}
+{#          <div class="col-lg-12">#}
+{#            {{ form.active.label(class='form-control-label') }}#}
+{#            {% if form.active.errors %}#}
+{#            {{ form.active(class="form-control form-control-sm is-invalid", id="branchOpens",autocomplete="off")}}#}
+{#            <div class="invalid-feedback">#}
+{#                {% for error in form.active.errors %}#}
+{#                <span>{{ error }}</span>#}
+{#                {% endfor %}#}
+{#            </div>#}
+{#            {% else %}#}
+{#                {{ form.active(class="form-control form-control-sm ", id="branchOpens",autocomplete="off")}}#}
+{#            {% endif %}#}
+{#            <small class="form-text text-muted"></small>#}
+{#          </div>#}
+{#        </div>#}
 
 
 
