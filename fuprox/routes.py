@@ -452,8 +452,14 @@ def extras():
         key = form.key.data
         if len(key) > 20:
             data = requests.post(f"http://159.65.144.235:4000/branch/activate",json={"key":key})
-            activate_branch(data.json())
-            return redirect(url_for("home"))
+            if(data.json["msg"]):
+                activate_branch(data.json())
+                flash("Success! Applcations Activated", "success")
+                return redirect(url_for("home"))
+            else:
+                flash("Error! Please confirm the key", "Warning")
+                return redirect(url_for("extras"))
+
         else:
             # flash("Error! Database not empty. Data was cleared", "warning")
             flash("Error! Key too short", "danger")

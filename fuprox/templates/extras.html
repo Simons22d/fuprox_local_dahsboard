@@ -44,76 +44,72 @@
   </section>
 {% endblock status %}
 {% block content %}
-<div class="col-lg-12">
 <!--    desktop application link -->
-    <div class="row">
-        <div class="row col-lg-12">
+        <div class="col-lg-12">
            {% if branch %}
-                <div class="mt-2 h5 text-muted ">{{ branch.name }}</div>
-                <code class="mt-2 h6 text-muted ">{{ branch.key_ }}</code>
+                <div class="mt-2 h6 text-muted row ">{{ branch.name }}</div>
+                <div class="mt-2 h6 text-muted row"><code class="small">{{ branch.key_ }}</code></div>
            {% else %}
-               <div class="mt-2 h5 text-muted ">Oops! No Key added</div>
+               <div class="mt-2 h6 text-muted ">Oops! No Key added</div>
            {% endif %}
         </div>
-        <p class="text-muted mt-3">Change branch key</p>
-    </div>
 
-    <div class="row mb-4">
-    <form action="" method="POST" class="col-lg-8">
-                {{ form.hidden_tag() }}
 
-                <div class="form-group">
-                    {{ form.key.label(class='form-control-label')}}
-                    {% if form.key.errors %}
-                    {{ form.key(class="form-control  form-control-smis-invalid")}}
-                    <div class="invalid-feedback">
-                        {% for error in form.key.errors %}
-                        <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    {{ form.key(class="form-control form-control-sm")}}
-                    {% endif %}
-                </div>
-                <div class="form-group mt-3">
-                    {{ form.submit(class="btn btn-sm btn-success btn-block mt-4 col-lg-6")}}
-                </div>
-            </form>
-    </div>
 
-<div class="row">
-        <h5 class="text-muted "><u>Reset Tickets</u></h5>
-        <div class="row col-lg-12 mt-2">
-            <div class="col-lg-4">
-            <h6 style="color:red">
+    <form action="" method="POST" class="mt-5 mb-5">
+            <p class="text-muted mt-3  bold mt-2 mb-4 font-weight-bold h5 mb-4"><u>Change branch key</u></p>
+
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.key.label(class='form-control-label')}}
+            {% if form.key.errors %}
+            {{ form.key(class="form-control form-control-sm is-invalid col-lg-7")}}
+            <div class="invalid-feedback">
+                {% for error in form.key.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            {{ form.key(class="form-control form-control-sm col-lg-7")}}
+            {% endif %}
+        </div>
+        <div class="form-group mt-3">
+            {{ form.submit(class="btn btn-sm btn-success btn-block mt-4 col-lg-3")}}
+        </div>
+    </form>
+        <div class="row col-lg-12 mt-3">
+                <div class="text-muted  font-weight-bold h5 mb-4"><u>Reset Tickets</u></div>
+
+        </div>
+        <div class="row col-lg-12 mt-3">
+         <h6 style="color:red">
                 <b>Please be sure you intend to reset tickets.</b><br>
                 <b >This is not revesable!!!</b>
             </h6>
-                <div class="btn btn-sm btn-danger mt-3">Reset Branch Tickets</div>
-            <div id="status_message"></div>
           <br><br>
           </div>
-        </div>
-    </div>
+        <div class="btn btn-sm btn-danger mt-3 font-weight-bold  mb-4">Reset Branch Tickets</div>
 
-    <div class="row">
-        <h5 class="text-muted "><u>Customize Voice over phrase</u></h5>
-        <div class="row col-lg-12 mt-2">
-            <form action="" method="POST" class="col-lg-8">
+
+
+        <form action="" method="POST" class=" mt-5 mb-5">
+            <h5 class="text-muted  font-weight-bold h5 mb-4"><u>Customize Voice over phrase</u></h5>
+
                 {{ phrase.hidden_tag() }}
                 <div class="form-group">
+                     <small class="font-weight-bold h6 mb-4"><b>WHAT EXISTS: </b>TICKET NUMBER XXX</small><br>
+                    <small class="font-weight-bold h6 mb-4"><b>TEXT REQUIRED: </b><mark>PROCEED TO ... | GO TO ..
+                        .</mark></small> <br><br>
                     {{ phrase.phrase.label(class='form-control-label mb-3')}}<br>
-                     <small><b>WHAT EXISTS: </b>Ticket number XXX</small><br>
-                    <small><b>TEXT REQUIRED: </b><mark>PROCEED TO ... | GO TO ...</mark></small><br>
                     {% if phrase.phrase.errors %}
-                    {{ phrase.phrase(class="form-control  form-control-smis-invalid")}}
+                    {{ phrase.phrase(class="form-control  form-control-sm is-invalid col-lg-8")}}
                     <div class="invalid-feedback">
                         {% for error in phrase.key.errors %}
                         <span>{{ error }}</span>
                         {% endfor %}
                     </div>
                     {% else %}
-                    {{ phrase.phrase(class="form-control form-control-sm")}}
+                    {{ phrase.phrase(class="form-control form-control-sm col-lg-8")}}
                     {% endif %}
                 </div>
 
@@ -121,95 +117,98 @@
                     {{ phrase.type.label(class='form-control-label')}}
                     {% if phrase.type.errors %}
 
-                    {{ phrase.type(class="form-control  form-control-smis-invalid")}}
+                    {{ phrase.type(class="form-check-input is-invalid")}}
                     <div class="invalid-feedback">
                         {% for error in phrase.type.errors %}
                         <span>{{ error }}</span>
                         {% endfor %}
                     </div>
                     {% else %}
-                    {{ phrase.type(class="form-control form-control-sm")}}
+                    {{ phrase.type(class="form-check-input")}}
                     {% endif %}
                 </div>
+                <br>
                 <div class="form-group mt-5">
 
                     {{ form.submit(class="btn btn-sm btn-success btn-block mt-4 col-lg-6")}}
                 </div>
             </form>
-        </div>
-    </div>
 
-    <div class="row">
-        <h5 class="text-muted "><u>Download Applications.</u></h5>
-        <div class="row col-lg-12 mt-2">
-            <div class="col-lg-4">
-<!--                desktop application-->
-            <div class="icon mt-2">
-            <img src="{{url_for('static',filename='images/personal-computer.svg')}}" alt="Desktop app" height="80px">
-            </div>
-            <h5 class="text-muted text-small mt-2"> Applications.</h5>
+        <h5 class="text-muted font-weight-bold h5 mb-4"><u>Download Applications.</u></h5>
+      <div class="row">
+            <div class="row col-lg-12 mt-2">
 
-            <div class="mt-2">Download dekstop and the mobile application from the link below. The latest of the
-                available
-                apps
-            will be provided below.</div>
-            <div>
-            <div id="status_message"></div>
-
-            <div class="btn-group mt-4" role="group">
-                <select  class="form-control form-control-sm mr-3" id="application">
-                <option class="dropdown-item btn-sm " id="1001" value="1001">Desktop Teller App</option>
-                <option class="dropdown-item btn-sm " id="1002" value="1002">Desktop Display App</option>
-                <option class="dropdown-item btn-sm " id="1003" value="1003">Desktop Book  App</option>
-                <option class="dropdown-item btn-sm " id="1004" value="1004">Mobile App </option>
-                </select>
-            </div>
-            
-            <div class="btn-group mt-4" role="group">
-              <select class="form-control form-control-sm" id="platform">
-                <option class="dropdown-item btn-sm " id="2001" value="2001">Windows x64</option>
-                <option class="dropdown-item btn-sm " id="2002" value="2002">Mac x64</option>
-                <option class="dropdown-item btn-sm " id="2003" value="2003">Linux</option>
-              </select>
-          </div>
-          <br><br>
-          <button target="_blank" class="btn btn-outline-primary btn-sm col-lg-6" id="download_apps">Download</button>
-          </div>
-        </div>
-    </div>
-
-<!--    more info about a div-->
-    <div class="row mt-5 mb-5">
-        <h5 class="text-muted mt-2 mb-3 ml-3"><u>Manage Users.</u></h5><br>
-        <div class="row  col-lg-12 mt-1">
-            <div class="col-lg-4">
-<!--                desktop application-->
-            <div class="icon mb-3 mt-3">
-                <img src="{{url_for('static',filename='images/user.png')}}" alt="Desktop app" height="60px">
-            </div>
-            <h5 class="text-muted text-small">Add users.</h5>
-
-            <div>Add and manage user information. These users will be able to login to the backend.</div>
-            <div>
-                <a
-                        href="{{url_for('add_users')}}"><button class="btn-sm btn-primary btn col-lg-12 mt-3">Add
-                    Users</button></a>
-            </div>
-            </div>
-            <div class="col-lg-6">
-<!--                mobile application-->
-                <div class="icon mb-3 mt-3">
-                    <img src="{{url_for('static',filename='images/solution.png')}}" alt="Desktop app" height="60px">
+                <div class="col-lg-4">
+    <!--                desktop application-->
+                <div class="icon mt-2">
+                <img src="{{url_for('static',filename='images/personal-computer.svg')}}" alt="Desktop app" height="80px">
                 </div>
-                <h5 class="text-muted">Add Solution.</h5>
+                <h5 class="text-muted text-small mt-2"> Applications.</h5>
 
-                <div>Add a solution to a common problem here. The solutions will be visible to you clients.</div>
+                <div class="mt-2">Download dekstop and the mobile application from the link below. The latest of the
+                    available
+                    apps
+                will be provided below.</div>
                 <div>
-                    <a href="{{url_for('add_solution')}}"><button class="btn-sm btn  col-lg-12 btn-primary  mt-3">Add
+                <div id="status_message"></div>
+
+                <div class="row col-lg-12">
+                    <div class="btn-group mt-4" role="group">
+                    <select  class="form-control form-control-sm mr-3" id="application">
+                    <option class="dropdown-item btn-sm " id="1001" value="1001">Desktop Teller App</option>
+                    <option class="dropdown-item btn-sm " id="1002" value="1002">Desktop Display App</option>
+                    <option class="dropdown-item btn-sm " id="1003" value="1003">Desktop Book  App</option>
+                    <option class="dropdown-item btn-sm " id="1004" value="1004">Mobile App </option>
+                    </select>
+                </div>
+
+                <div class="btn-group mt-4" role="group">
+                      <select class="form-control form-control-sm" id="platform">
+                        <option class="dropdown-item btn-sm " id="2001" value="2001">Windows x64</option>
+                        <option class="dropdown-item btn-sm " id="2002" value="2002">Mac x64</option>
+                        <option class="dropdown-item btn-sm " id="2003" value="2003">Linux</option>
+                      </select>
+                </div>
+                </div>
+              <br><br>
+              <button target="_blank" class="btn btn-primary btn-sm col-lg-6" id="download_apps">Download</button>
+              </div>
+            </div>
+        </div>
+
+    <!--    more info about a div-->
+            <h5 class="text-muted mt-2 mb-3 ml-3 mt-5 font-weight-bold h5 mb-4 h5"><u>Manage Users.</u></h5><br>
+            <div class="row  col-lg-12 mt-1">
+                <div class="col-lg-4">
+    <!--                desktop application-->
+                <div class="icon mb-3 mt-3">
+                    <img src="{{url_for('static',filename='images/user.png')}}" alt="Desktop app" height="60px">
+                </div>
+                <h5 class="text-muted text-small">Add users.</h5>
+
+                <div>Add and manage user information. These users will be able to login to the backend.</div>
+                <div>
+                    <a href="{{url_for('add_users')}}"><button class="btn-sm btn-primary btn col-lg-6 mt-3">Add
                         Users</button></a>
                 </div>
+                </div>
+{#                <div class="col-lg-5">#}
+{#    <!--                mobile application-->#}
+{#                    <div class="icon mb-3 mt-3">#}
+{#                        <img src="{{url_for('static',filename='images/solution.png')}}" alt="Desktop app" height="60px">#}
+{#                    </div>#}
+{#                    <h5 class="text-muted">Add Solution.</h5>#}
+{##}
+{#                    <div>Add a solution to a common problem here. The solutions will be visible to you clients.</div>#}
+{#                    <div>#}
+{#                        <a href="{{url_for('add_solution')}}"><button class="btn-sm btn  col-lg-6 btn-primary  mt-3">Add#}
+{#                            Users</button></a>#}
+{#                    </div>#}
+{#                </div>#}
             </div>
-        </div>
     </div>
-</div>
+
+
+        </div> <!-- END DIV-->
+    <br><br><br><br>
 {% endblock content  %}
