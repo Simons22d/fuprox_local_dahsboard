@@ -1,14 +1,16 @@
+let local_link = `http://localhost:9000`;
+
 const get_videos = () =>{
     $.ajax({
-    url: "http://localhost:1000/video/get/all",
+    url: "http://localhost:9000/video/get/all",
     method: "POST",
     data: {
     },
     beforeSend: ()=>{
     },
     success: function (result) {
-        let handle = $("#videos")
-        let final = ""
+        let handle = $("#videos");
+        let final = "";
         if (result){
             result.map((video,index)=>{
                 let button =  Number(video.active) ? `<div class="col-lg-2 col-sm-2 btn btn-sm btn-warning" onclick="videoStatus(this)" id="${video.id}">Deactivate</div>` : `<div class="col-lg-2 col-sm-2 btn btn-sm btn-outline-secondary" onclick="videoStatus(this)" id="${video.id}">Activate</div>` ;
@@ -35,22 +37,22 @@ const get_videos = () =>{
 
 get_videos();
 
-const getData = (url,methods,data,handle) => {
-	fetch(url,{
-	  method: methods,
-	  headers: {
-	    'Accept': 'application/json',
-	    'Content-Type': 'application/json'
-	  },
-	  body: JSON.stringify(data)
-	})
-	.then(res=>res.json())
-	.then(res => handle(res));
-};
+// const getData = (url,methods,data,handle) => {
+// 	fetch(url,{
+// 	  method: methods,
+// 	  headers: {
+// 	    'Accept': 'application/json',
+// 	    'Content-Type': 'application/json'
+// 	  },
+// 	  body: JSON.stringify(data)
+// 	})
+// 	.then(res=>res.json())
+// 	.then(res => handle(res));
+// };
 
 const videoStatus = (me) => {
     console.log("id<>>>",me.id)
-    getData("http://localhost:1000/video/toggle","POST",{"id":me.id},(data)=>{
+    getData("http://localhost:9000/video/toggle","POST",{"id":me.id},(data)=>{
         get_videos();
     })
 }
@@ -59,7 +61,7 @@ const videoStatus = (me) => {
 
 const delete_video = (me) => {
     console.log(me.id)
-    getData("http://localhost:1000/video/delete","POST",{"id" : me.id},(data)=>{
+    getData("http://localhost:9000/video/delete","POST",{"id" : me.id},(data)=>{
         get_videos()
     })
 }
@@ -70,7 +72,7 @@ let current_category;
 const uploadLink = () => {
     console.log(">>",sessionStorage.getItem("vid_type"),$("#link").val())
     if (sessionStorage.getItem("vid_type") && $("#link").val().length){
-        getData("http://localhost:1000/video/link","POST",{
+        getData("http://localhost:9000/video/link","POST",{
                type : sessionStorage.getItem("vid_type"),
                link : $("#link").val()
             },(data)=>{
@@ -155,7 +157,7 @@ function uploadFile(){
 	ajax.addEventListener("load", completeHandler, false);
 	ajax.addEventListener("error", errorHandler, false);
 	ajax.addEventListener("abort", abortHandler, false);
-	ajax.open("POST", "http://localhost:1000/video/upload");
+	ajax.open("POST", "http://localhost:9000/video/upload");
 	ajax.send(formdata);
 }
 function progressHandler(event){
@@ -175,7 +177,104 @@ function errorHandler(event){
 function abortHandler(event){
 	_("status").innerHTML = "Upload Aborted";
 }
+
 let video_handle = _("videos")
 
 
+$("#file").change(function() {
+	vidUrl(this);
+});
 
+
+
+var icon_data;
+
+const upload_icon_ = (e)=>{
+    console.log(e);
+	let icon = icon_data;
+	console.log(icon);
+	let icon_name = $("#icon_name").val();
+    console.log(icon_name);
+	if (icon && icon_name){
+		getData(`${local_link}/service/icon`,"POST",{"icon" : icon, "name" : icon_name},(data)=>{
+			// updateIcons()
+			// updateServices()
+			console.log(data)
+
+			if(data.status === 201){
+			    // window.location.href = ("http://localhost:9000/icons")
+				$("#message_icon").html(`< sdiv class="alert alert-success" role="alert">${data.msg}</div>`)
+			}else{
+				$("#message_icon").html(`<div class="alert alert-danger" role="alert">${data.msg}</div>`)
+			}
+		})
+	}else{
+		$("#message_icon").html(`<div class="alert alert-danger" role="alert">Error All Fields Data Required.</div>`)
+	}
+}
+
+var video_data;
+function vidUrl(input) {
+	if (input.files && input.files[0]) {
+		var reader = new FileReader();
+		reader.onload = function(e) {
+			video_data = reader.result
+		}
+		reader.readAsDataURL(input.files[0]); // convert to base64 string
+		}
+}
+
+$("#icon_file_icon").change(function() {
+	readURL(this);
+});
+
+
+
+var video_data;
+function vidUrl(input) {
+	if (input.files && input.files[0]) {
+		var reader = new FileReader();
+		reader.onload = function(e) {
+			video_data = reader.result
+		}
+		reader.readAsDataURL(input.files[0]); // convert to base64 string
+		}
+}
+
+
+
+$("#file").change(function() {
+	vidUrl(this);
+});
+
+
+
+
+function readURL(input) {
+if (input.files && input.files[0]) {
+	var reader = new FileReader();
+	reader.onload = function(e) {
+		icon_data = reader.result
+	}
+	reader.readAsDataURL(input.files[0]); // convert to base64 string
+	}
+}
+
+const phrase_ = () => {
+    let options =  $("#options_").val();
+    let phrase  = $("#new_phrase").val();
+    console.log(phrase);
+    console.log(options);
+    // $.ajax({
+    //     "url" : "http://localhost:9000/phrase",
+    //     "method" : "POST",
+    //     "data" : {"phrase" : phrase,"options" : options},
+    //     "success" : (data)=>{
+    //         console.log(data)
+    //     }
+    // })
+    getData("http://localhost:9000/phrase","POST",{"phrase" : phrase,"options" : options},(data)=>{
+        console.log(data)
+        window.location.href = "http://localhost:9000/extras"
+    })
+}

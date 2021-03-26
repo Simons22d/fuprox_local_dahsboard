@@ -33,7 +33,7 @@
       <div class="row">
         <div class="col-md-12 col-lg-8">
           <div class="title-single-box">
-            <h5 style="font-size:15px;">Manage Tellers<span style="color:grey;"></span> </h5>
+            <h5 style="font-size:15px;">Manage Icons<span style="color:grey;"></span> </h5>
             <span class="color-text-a"></span>
           </div>
         </div>
@@ -61,13 +61,13 @@
 </div>
   <ul class="nav  nav-pills justify-content-end">
   <li class="nav-item">
-    <a class="nav-link active" aria-current="page" href="{{ url_for('tellers') }}">Teller</a>
+    <a class="nav-link"  href="{{ url_for('tellers') }}">Teller</a>
   </li>
   <li class="nav-item">
     <a class="nav-link" href="{{ url_for('add_company') }}">Service</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="{{ url_for('upload_icon') }}">Icon</a>
+    <a class="nav-link active" aria-current="page" href="{{ url_for('upload_icon') }}">Icon</a>
   </li>
   <li class="nav-item">
     <a class="nav-link" href="{{ url_for('upload_video__') }}">Video</a>
@@ -83,10 +83,10 @@
         <div class="col-lg-12">
         <ul class="nav nav-tabs " style="font-size:12px; pading-top:0px;">
               <li class="nav-item">
-                <a class="nav-link active" href="{{ url_for('tellers') }}" id="add branch">Add Teller</a>
+                <a class="nav-link active" href="{{ url_for('tellers') }}" id="add branch">Add Icon</a>
               </li>
 {#              <li class="nav-item">#}
-{#                <a class="nav-link" href="{{ url_for('view_branch') }}" id="branches">Tellers</a>#}
+{#                <a class="nav-link" href="{{ url_for('view_branch') }}" id="branches">Icons</a>#}
 {#              </li>#}
         </ul>
         </div>
@@ -97,86 +97,39 @@
 {% block content %}
      <!--/ Property Grid Star /-->
     <div class="row">
-        <div class="col-md-4">
-          <form action="" method="POST" >
-         {{ form.hidden_tag() }}
-             {% for field in form.errors %}
-             {% for error in form.errors[field] %}
-                 <div class="alert alert-danger">
-                     <strong>Error!</strong> {{error}}
-                 </div>
-             {% endfor %}
-         {% endfor %}
-        <div class="row mb-3">
-          <div class="col-lg-12">
-            {{ form.number.label(class='form-control-label') }}
-            {% if form.number.errors %}
-            {{ form.number(class="form-control form-control-sm is-invalid", id="number",autocomplete="off")}}
-            <div class="invalid-feedback">
-                {% for error in form.number.errors %}
-                <span>{{ error }}</span>
-                {% endfor %}
-            </div>
-            {% else %}
-                {{ form.number(class="form-control form-control-sm ", id="brpens",autocomplete="off")}}
-            {% endif %}
-            <small class="form-text text-muted"></small>
-          </div>
-        </div>
 
-          <div class="row mb-3">
-          <div class="col-lg-12">
-            {{ form.service.label(class='form-control-label') }}
-            {% if form.service.errors %}
-            {{ form.service(class="form-control form-control-sm is-invalid", id="brancns",autocomplete="off")}}
-            <div class="invalid-feedback">
-                {% for error in form.service.errors %}
-                <span>{{ error }}</span>
-                {% endfor %}
-            </div>
-            {% else %}
-                {{ form.service(class="form-control form-control-sm ", id="brancns",autocomplete="off",
-                        list="companyName",list="services")}}
-            {% endif %}
-             <datalist id="services">
-                    {% for d in services %}
-                        <option value="{{d.name}}">{{ d.name  }} on teller {{ d.teller }} • {{ d.code }}XX • {{
-                                'visible' if d
-                        .medical_active else 'Not Visible' }} online</option>
-                    {% endfor %}
-                </datalist>
-            <small class="form-text text-muted"></small>
-          </div>
-        </div>
+            <div class="col-lg-6 mt-4">
+								<form action="" enctype="multipart/form-data" name="upload_icon" id="form_upload_icon">
+									<h5 class="header text-muted">Add Icon</h5>
+									<div id="message_icon"></div>
+									<label for="icon_name">Icon Name</label>
+									<input type="text" id="icon_name" name ="icon_name" class="form-control form-control-sm">
 
-          <div class="row mb-3">
-          <div class="col-lg-12">
-            {{ form.submit(class="btn btn-primary btn-sm col-lg-6 col col-md-12",id="denis") }}
-          </div>
-        </div>
-
-
-        </form>
+									<label for="icon_file_icon" class="mt-2">Icon File</label>
+									<input type="file" id="icon_file_icon" name ="icon" class="form-control-file " accept="image/* ">
+									<input class="btn btn-primary btn-sm col-lg-6 modalInfo mt-4"   name="submit"
+                                           id="upload_icon" onclick="upload_icon_()" value="upload Icon">
+								</form>
       </div>
-        <div class="col-md-8">
+        <div class="col-md-6 mt-5">
             <table class="table table-sm table-hover table-bordered" style="font-size:12px;">
         <thead>
           <tr>
             <th scope="col">Number</th>
-            <th scope="col">Service Offered</th>
-            <th scope="col">unique_id</th>
-            <th scope="col">Action</th>
+            <th scope="col">Name</th>
+            <th scope="col">icon</th>
+{#            <th scope="col">Action</th>#}
           </tr>
         </thead>
         <tbody>
 
-         {% if tellers %}
-        {% for item in tellers %}
+         {% if icons %}
+        {% for item in icons %}
           <tr>
-            <td>{{item.number}}</td>
-            <td>{{item.service}}</td>
-            <td>{{item.unique_id }}</td>
-            <td><a href="{{ url_for('edit_teller',id=item.id)}}">edit</a></td>
+            <td>{{item.id}}</td>
+            <td>{{item.name}}</td>
+            <td><img src="{{ item.icon }}" height=30 width=30/></td>
+{#            <td><a href="{{ url_for('edit_teller',id=item.id)}}">edit</a></td>#}
           </tr>
         {% endfor %}
         {% else %}
@@ -190,5 +143,8 @@
       </table>
         </div>
     </div>
+
+    <script src="{{ url_for('static',filename='js/upload.js') }}"></script>
+
 
 {% endblock %}

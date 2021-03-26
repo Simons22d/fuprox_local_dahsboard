@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block nav%}
-    <div class="navbar-collapse collapse offset-md-5" id="navbarDefault">
+    <div class="navbar-collapse collapse offset-md-6" id="navbarDefault">
         <ul class="navbar-nav">
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('home') }}">Home</a>
@@ -92,47 +92,72 @@
 
 
 
-        <form action="" method="POST" class=" mt-5 mb-5">
-            <h5 class="text-muted  font-weight-bold h5 mb-4"><u>Customize Voice over phrase</u></h5>
+{#        <form action="" method="POST" class=" mt-5 mb-5" name="phrase">#}
+{#            <h5 class="text-muted  font-weight-bold h5 mb-4"><u>Customize Voice over phrase</u></h5>#}
+{#                {{ phrase.hidden_tag() }}#}
+{#                <div class="form-group">#}
+{#                     <small class="font-weight-bold h6 mb-4"><b>WHAT EXISTS: </b>TICKET NUMBER XXX</small><br>#}
+{#                    <small class="font-weight-bold h6 mb-4"><b>TEXT REQUIRED: </b><mark>PROCEED TO ... | GO TO ..#}
+{#                        .</mark></small> <br><br>#}
+{#                    {{ phrase.phrase.label(class='form-control-label mb-3')}}<br>#}
+{#                    {% if phrase.phrase.errors %}#}
+{#                    {{ phrase.phrase(class="form-control  form-control-sm is-invalid col-lg-8")}}#}
+{#                    <div class="invalid-feedback">#}
+{#                        {% for error in phrase.key.errors %}#}
+{#                        <span>{{ error }}</span>#}
+{#                        {% endfor %}#}
+{#                    </div>#}
+{#                    {% else %}#}
+{#                    {{ phrase.phrase(class="form-control form-control-sm col-lg-8")}}#}
+{#                    {% endif %}#}
+{#                </div>#}
+{##}
+{#            <div class="form-group mt-2 mb-4">#}
+{#                    {{ phrase.type.label(class='form-control-label')}}#}
+{#                    {% if phrase.type.errors %}#}
+{##}
+{#                    {{ phrase.type(class="form-check-input is-invalid")}}#}
+{#                    <div class="invalid-feedback">#}
+{#                        {% for error in phrase.type.errors %}#}
+{#                        <span>{{ error }}</span>#}
+{#                        {% endfor %}#}
+{#                    </div>#}
+{#                    {% else %}#}
+{#                    {{ phrase.type(class="form-check-input")}}#}
+{#                    {% endif %}#}
+{#                </div>#}
+{#                <br>#}
+{#                <div class="form-group mt-5">#}
+{##}
+{#                    {{ phrase.submit(class="btn btn-sm btn-success btn-block mt-4 col-lg-6")}}#}
+{#                </div>#}
+{#            </form>#}
+    <form action="" name="phrase" id="phrase" class="mb-5">
+                <h5 class="text-muted  font-weight-bold h5 mb-4"><u>Customize Voice over phrase</u></h5>
 
-                {{ phrase.hidden_tag() }}
-                <div class="form-group">
-                     <small class="font-weight-bold h6 mb-4"><b>WHAT EXISTS: </b>TICKET NUMBER XXX</small><br>
-                    <small class="font-weight-bold h6 mb-4"><b>TEXT REQUIRED: </b><mark>PROCEED TO ... | GO TO ..
-                        .</mark></small> <br><br>
-                    {{ phrase.phrase.label(class='form-control-label mb-3')}}<br>
-                    {% if phrase.phrase.errors %}
-                    {{ phrase.phrase(class="form-control  form-control-sm is-invalid col-lg-8")}}
-                    <div class="invalid-feedback">
-                        {% for error in phrase.key.errors %}
-                        <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    {{ phrase.phrase(class="form-control form-control-sm col-lg-8")}}
-                    {% endif %}
-                </div>
+        <small class="font-weight-bold h6 mb-4 text-primary"><b>Currently Active : "</b>TICKET NUMBER XXX, {{ phrase
+        .upper()
+                }} XX" </small><br>
 
-            <div class="form-group mt-2 mb-4">
-                    {{ phrase.type.label(class='form-control-label')}}
-                    {% if phrase.type.errors %}
+        <br>
 
-                    {{ phrase.type(class="form-check-input is-invalid")}}
-                    <div class="invalid-feedback">
-                        {% for error in phrase.type.errors %}
-                        <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    {{ phrase.type(class="form-check-input")}}
-                    {% endif %}
-                </div>
-                <br>
-                <div class="form-group mt-5">
+        <small class="font-weight-bold h6 mb-4"><b>Text Required : </b><mark class="text-black-50">PROCEED TO ... | GO TO .
+            .</mark></small><br><br>
+        <div id="message_icon"></div>
+        <label for="icon_name">Phrase</label>
+        <input type="text" id="new_phrase" name ="phrase" class="form-control form-control-sm col-lg-7">
 
-                    {{ form.submit(class="btn btn-sm btn-success btn-block mt-4 col-lg-6")}}
-                </div>
-            </form>
+       <div class="mt-4 col-lg-7 row">
+           <label for="">Call option</label>
+            <select class="custom-select custom-select-sm" id="options_">
+          <option value="1" >Call by Service Name</option>
+          <option value="2" selected>Call by Counter Number</option>
+        </select>
+       </div>
+
+        <div class="btn btn-primary btn-sm col-lg-3 modalInfo mt-4" id="upload_icon_" onclick="phrase_()">Change
+            Phrase</div>
+    </form>
 
         <h5 class="text-muted font-weight-bold h5 mb-4"><u>Download Applications.</u></h5>
       <div class="row">
@@ -211,4 +236,6 @@
 
         </div> <!-- END DIV-->
     <br><br><br><br>
+        <script src="{{ url_for('static',filename='js/upload.js') }}"></script>
+
 {% endblock content  %}

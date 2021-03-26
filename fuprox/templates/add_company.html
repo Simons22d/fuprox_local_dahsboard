@@ -1,6 +1,6 @@
 {% extends 'layout.html'%}
 {% block nav%}
-    <div class="navbar-collapse collapse offset-md-5" id="navbarDefault">
+    <div class="navbar-collapse collapse offset-md-6" id="navbarDefault">
         <ul class="navbar-nav">
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('home') }}">Home</a>
@@ -38,21 +38,37 @@
         </div>
           <div class="col-lg-4 col-md-12 ">
               <div class="dropdown">
-  <button class="btn btn-secondary btn-sm dropdown-toggle float-right" id="choice" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Choose Action
-  </button>
+{#  <button class="btn btn-secondary btn-sm dropdown-toggle float-right" id="choice" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">#}
+{#    Choose Action#}
+{#  </button>#}
 <style>
 .dropdown-item{
     font-size:14px;
 }
 </style>
 <script>
-  $("#choice").html("Service")
+  {#$("#choice").html("Service")#}
 </script>
-  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-    <a class="dropdown-item" href="{{ url_for('tellers') }}">Teller</a>
-    <a class="dropdown-item" href="{{ url_for('add_company') }}">Service</a>
-  </div>
+{#  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">#}
+{#    <a class="dropdown-item" href="{{ url_for('tellers') }}">Teller</a>#}
+{#    <a class="dropdown-item" href="{{ url_for('add_company') }}">Service</a>#}
+{#  </div>#}
+
+                    <ul class="nav  nav-pills justify-content-end">
+  <li class="nav-item">
+    <a class="nav-link" href="{{ url_for('tellers') }}">Teller</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link active"  aria-current="page"  href="{{ url_for('add_company') }}">Service</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{{ url_for('upload_icon') }}">Icon</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{{ url_for('upload_video__') }}">Video</a>
+  </li>
+
+</ul>
 </div>
           </div>
       </div>
@@ -66,7 +82,7 @@
                 <a class="nav-link active" href="{{ url_for('add_company') }}" id="add branch">Add Service</a>
               </li>
 {#              <li class="nav-item">#}
-{#                <a class="nav-link" href="{{ url_for('view_company' )}}" id="branches">S</a>#}
+{#                <a class="nav-link" href="{{ url_for('view_company' )}}" id="branches">Services</a>#}
 {#              </li>#}
         </ul>
         </div>

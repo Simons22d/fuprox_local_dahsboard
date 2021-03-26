@@ -4,8 +4,10 @@ from flask_login import login_user, current_user, logout_user, login_required,cu
 from fuprox.forms import (RegisterForm, LoginForm, TellerForm, ServiceForm, SolutionForm, ReportForm, ActivateForm,PhraseForm)
 from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, CompanySchema, ServiceSchema, Mpesa, \
     MpesaSchema, Booking, BookingSchema, ImageCompany, ImageCompanySchema, Teller, TellerSchema,ServiceOffered,Icon,\
-    IconSchema,PhraseSchema,Phrase
-from fuprox.utility import reverse,add_teller,services_exist,services_exist,branch_exist,create_service,upload_video
+    IconSchema,PhraseSchema,Phrase,ServiceOfferedSchema, VideoSchema,Video
+from fuprox.utility import reverse,add_teller,services_exist,services_exist,branch_exist,create_service,upload_video,\
+    get_single_video,get_all_videos, get_active_videos, save_mp4, make_video_active,make_video_inactive,\
+    toggle_status,validate_link,upload_link,delete_video,save_icon_to_service
 import tablib
 from datetime import datetime
 import time
@@ -24,7 +26,7 @@ tellers_schema = TellerSchema(many=True)
 
 
 socket_link = "http://localhost:5000/"
-socket_link = "http://159.65.144.235:5000/"
+# socket_link = "http://159.65.144.235:5000/"
 local_socket = "http://localhost:5500/"
 
 sio = socketio.Client()
@@ -32,14 +34,26 @@ local = socketio.Client()
 
 # rendering many route to the same template
 branch_schema = BranchSchema()
+
 service_schema = ServiceSchema()
 services_schema = ServiceSchema(many=True)
+
+service_offered_schema = ServiceOfferedSchema()
+services_offered_schema = ServiceOfferedSchema(many=True)
+
 company_schema = CompanySchema()
+
 mpesa_schema = MpesaSchema()
 mpesas_schema = MpesaSchema(many=True)
+
 bookings_schema = BookingSchema(many=True)
+
 comapny_image_schema = ImageCompanySchema()
 comapny_image_schemas = ImageCompanySchema(many=True)
+
+videos_schema =VideoSchema(many=True)
+
+phrase_schema = PhraseSchema()
 
 def get_part_of_day(hour):
     return (
@@ -67,16 +81,18 @@ def home():
     bookings = len(Booking.query.all())
     tellers = len(Teller.query.all())
     service_offered = len(ServiceOffered.query.all())
+    videos  = len(videos_schema.dump(Video.query.all()))
     dash_data = {
         "bookings" : f"{bookings} {'booking' if bookings == 1 else 'Bookings'}" if bookings else "No Bookings" ,
         "tellers" : f"{tellers} {'Teller' if tellers <= 1 else 'Tellers'}" if tellers else "No Tellers",
         "services" : f"{service_offered} {'Service' if service_offered <= 1 else 'Services'}" if service_offered else
         "No Services",
         "statement" : get_part_of_day(time).capitalize(),
-        "user" : (current_user.username).capitalize()
+        "user" : (current_user.username).capitalize(),
+        "video" : f"{videos} {'Video' if tellers <= 1 else 'Videos'}" if tellers else "No Videos"
     }
     branch = Branch.query.first()
-
+    log(dash_data)
     return render_template("dashboard.html", today=date,dash_data = dash_data,branch=branch)
 
 @app.route("/doughnut/data", methods=["GET"])
@@ -97,6 +113,13 @@ def last_fifteen_data():
 
 file_name = str()
 dir = str()
+
+
+@app.route("/video/link", methods=["POST"])
+def upload_link_():
+    link_ = request.json["link"]
+    type_ = request.json["type"]
+    return upload_link(link_, type_)
 
 
 @app.route("/dashboard/reports", methods=["POST"])
@@ -217,6 +240,23 @@ def get_transaction(id):
     return mpesa_schema.dump(lookup)
 
 
+
+@app.route('/service/icon/upload', methods=['POST'])
+def upload_file():
+    # print(request.data)
+    return upload()
+
+@app.route('/service/icon', methods=['POST'])
+def upload_file_():
+    icon = request.json["icon"]
+    name = request.json["name"]
+    # branch_id = request.json["branch_id"]
+    branch_id = Branch.query.first().id
+    current = save_icon_to_service(icon, name, branch_id)
+    return current
+
+
+
 @app.route("/card")
 @login_required
 def payments_card():
@@ -236,7 +276,7 @@ def payments_report():
     return render_template("payments_reports.html")
 
 
-@app.route("/teller", methods=["POST", "GET"])
+@app.route("/tellers", methods=["POST", "GET"])
 @login_required
 def tellers():
     # get data from the database
@@ -275,6 +315,7 @@ def teller_exists(teller_number):
 
 
 """ not recommemded __check if current branch is in db"""
+
 def log(msg):
     print(f"{datetime.now().strftime('%d:%m:%Y %H:%M:%S')} — {msg}")
     return True
@@ -298,9 +339,54 @@ def more_info(key):
 def upload_video_():
     return upload_video()
 
+
+
+# @app.route("/video/link", methods=["POST"])
+# def upload_link_():
+#     link_ = request.json["link"]
+#     type_ = request.json["type"]
+#     return upload_link(link_, type_)
+#
+
+# get single video
+@app.route("/video/get/one", methods=["POST"])
+def get_one_video_():
+    id = request.json["id"]
+    return get_single_video(id)
+
+
+@app.route("/video/active", methods=["POST"])
+def get_active():
+    return get_active_videos()
+
+
+@app.route("/video/get/all", methods=["POST"])
+def get_all_videos_():
+    return get_all_videos()
+
+
+@app.route("/video/toggle", methods=["POST"])
+def activate_video():
+    id = request.json["id"]
+    return toggle_status(id)
+
+
+@app.route("/video/delete", methods=["POST"])
+def video_delete():
+    vid_id = request.json["id"]
+    return jsonify(delete_video(vid_id))
+
+
+
 @app.route("/upload", methods=["POST", "GET", "PUT"])
 def upload_video__():
     return render_template("upload.html")
+
+
+@app.route("/icons", methods=["POST", "GET", "PUT"])
+def upload_icon():
+    icons = Icon.query.all()
+    return render_template("icon.html",icons=icons)
 
 # view_branch
 @app.route("/teller/view")
@@ -407,15 +493,21 @@ def add_company():
             visible = True if service.visible.data == "True" else False
             # service emit service made
             final = create_service(name, teller, branch_id, code, icon, visible)
-            sio.emit("sync_service", final)
-            print(service.name.data,service.teller.data,service.code.data,service.icon.data, service.visible.data)
+            if final:
+                try:
+                    key = final["key"]
+                    flash("Service Added Successfully", "success")
+                    sio.emit("sync_service", final)
+                    local.emit("update_services", final)
+                except KeyError :
+                    flash(final['msg'],"danger")
         else:
             flash("Make sure all data is correct", "error")
     return render_template("add_company.html", form=service, companies=service_data, tellers=tellers,icons=icons,
                            services_offered = services_offered)
 
 
-@app.route("/branches/company/view")
+@app.route("/services/view")
 @login_required
 def view_company():
     # get the branch data
@@ -446,40 +538,51 @@ def help():
 def extras():
     current = Branch.query.first()
     form  = ActivateForm()
-    ss = PhraseForm()
+    phrase = Phrase.query.first()
+    default = "Proceed to counte number"
+    phrase = ( phrase.phrase if phrase.phrase else default) if  phrase else default
+    # ss = PhraseForm()
     current_phrase = Phrase.query.first()
-    if form.validate_on_submit():
-        key = form.key.data
-        if len(key) > 20:
-            data = requests.post(f"http://159.65.144.235:4000/branch/activate",json={"key":key})
-            if(data.json["msg"]):
-                activate_branch(data.json())
-                flash("Success! Applcations Activated", "success")
-                return redirect(url_for("home"))
+    if request.method == "POST":
+        if form.validate_on_submit() and form.submit.data:
+            key = form.key.data
+            if len(key) > 20:
+                try:
+                    data = requests.post(f"http://159.65.144.235:4000/branch/activate", json={"key": key})
+                    if (data.json["msg"]):
+                        activate_branch(data.json())
+                        flash("Success! Applcations Activated", "success")
+                        return redirect(url_for("home"))
+                    else:
+                        flash("Error! Please confirm the key", "Warning")
+                        return redirect(url_for("extras"))
+                except requests.exceptions.ConnectionError:
+                    flash("Error! Activatation Server Not Reachable", "danger")
             else:
-                flash("Error! Please confirm the key", "Warning")
-                return redirect(url_for("extras"))
+                # flash("Error! Database not empty. Data was cleared", "warning")
+                flash("Error! Key too short", "danger")
+    return render_template("extras.html",branch=current,form=form,current_phrase=current_phrase, phrase=phrase)
 
-        else:
-            # flash("Error! Database not empty. Data was cleared", "warning")
-            flash("Error! Key too short", "danger")
 
+@app.route("/reset/tickets",methods=["POST"])
+def reset_tickets():
+    req = request.post("http://159.65.144.235:4000/ticket/reset")
+
+@app.route("/phrase", methods=["POST"])
+def re():
+    phrase = request.json["phrase"]
+    option = request.json["options"]
     db.session.execute("DELETE FROM phrase")
-    pref  = ss.phrase.data
-    log(ss.type.data)
-    is_teller = True if ss.type.data != "Counter Number" else  False
-    lookup = Phrase(pref,is_teller)
+    is_teller = True if int(option) == 1 else False
+    lookup = Phrase(phrase, is_teller)
     db.session.add(lookup)
     db.session.commit()
+    return jsonify(phrase_schema.dump(lookup))
 
-    return render_template("extras.html",branch=current,form=form, phrase=ss,current_phrase=current_phrase)
 
-
-# @app.route("/reset/tickets",methods=["POST"])
-# def reset_tickets():
-#     req = request.post("http://159.65.144.235:4000/ticket/reset")
-#
-
+@app.route("/this/branch",methods=["POST"])
+def this_branch():
+    return jsonify(branch_schema.dump(Branch.query.first()))
 
 
 def activate_branch(data):
@@ -781,45 +884,40 @@ def edit_branch(id):
     service = ServiceForm()
     tellers = Teller.query.all()
     services = ServiceOffered.query.all()
+    icons = Icon.query.all()
+    services_offered = ServiceOffered.query.all()
+
     # this teller
     this_service = ServiceOffered.query.get(id)
     # setting form inputs to the data in the database
     service_data = Service.query.all()
     if service.validate_on_submit():
         # update data in the database
-        try:
-            this_service.name = service.name.data
-            this_service.teller = service.teller.data
-            this_service.code = service.code.data
-            this_service.icon = service.icon.data
-            this_service.medical_active = True if service.visible.data == "True" else False
-            # this_service.active = True if service.active.data == "True" else False
-            # update date to the database
-            db.session.commit()
-        except sqlalchemy.exc.IntegrityError:
-            flash("Service  By That Name Exists", "warning")
-        # here we are going to push  the branch data to the lacalhost
-        # sio.emit("branch_edit", service_schema.dump(this_service))
+        # this_service.name = service.name.data
+        this_service.teller = service.teller.data
+        this_service.code = service.code.data
+        this_service.icon = service.icon.data
+        this_service.medical_active = True if service.visible.data == "True" else False
+        db.session.commit()
+
         # prefilling the form with the empty fields
         service.name.data = ""
         service.teller.data = ""
         service.code.data = ""
         service.icon.data = ""
-
+        sio.emit("sync_edit_service" , service_offered_schema.dump(this_service))
         flash("Service Successfully Updated", "success")
         return redirect(url_for("add_company"))
 
     elif request.method == "GET":
-
         service.name.data = this_service.name
         service.teller.data = this_service.teller
         service.code.data = this_service.code
         service.icon.data = this_service.icon
-        # teller.active.data = this_service.active
-
     else:
         flash("Service Does Not exist. Add Service name first.", "danger")
-    return render_template("edit_company.html", form=service, services=services)
+    return render_template("edit_company.html", form=service, services=services,tellers=tellers,icons=icons,
+                           services_offered = services_offered)
 
 
 @app.route("/branch/delete/<int:id>", methods=["GET", "POST"])
@@ -856,10 +954,9 @@ def edit_teller(id):
     if teller.validate_on_submit():
         # update data in the database
         try:
-            log(teller.active.data)
             teller_data.number = teller.number.data
             teller_data.service = teller.service.data
-            teller_data.active = True if teller.active.data == "True" else False
+            # teller_data.active = True if teller.active.data == "True" else False
             db.session.commit()
         except sqlalchemy.exc.IntegrityError:
             flash("Branch By That Name Exists", "warning")

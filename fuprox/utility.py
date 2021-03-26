@@ -5,6 +5,9 @@ from fuprox.models import Teller, TellerSchema, Service, ServiceOffered, Service
     Icon, IconSchema, Video, VideoSchema
 from fuprox import db
 from flask import jsonify, request
+import sqlalchemy
+from werkzeug.utils import secure_filename
+
 
 # mpesa
 
@@ -16,6 +19,10 @@ services_schema = ServiceOfferedSchema(many=True)
 
 branch_schema = BranchSchema()
 branchs_schema = BranchSchema(many=True)
+
+video_schema = VideoSchema()
+videos_schema = VideoSchema(many=True)
+
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -313,6 +320,80 @@ def upload_video():
             return final_html("Error! File by that name exists")
     else:
         return final_html("Allowed file types are mp4,flv,mkv")
+
+
+def delete_video(video_id):
+    vid = Video.query.get(int(video_id))
+    db.session.delete(vid)
+    db.session.commit()
+
+    return video_schema.dump(vid)
+
+
+
+def save_icon_to_service(icon, name, branch):
+    try:
+        try:
+            icon_ = bytes(icon, encoding='utf8')
+            lookup = Icon(name, branch, icon_)
+            db.session.add(lookup)
+            db.session.commit()
+
+            final = {"msg": "Icon added succesfully", "status": 201}
+        except sqlalchemy.exc.DataError:
+            final = {"msg": "Icon size too large", "status": 500}
+    except sqlalchemy.exc.IntegrityError:
+        final = {"msg": f"Icon \"{name}\" Already Exists", "status": 500}
+    return final
+
+
+
+def upload():
+    # check if the post request has the file part
+    if 'file' not in request.files:
+        resp = jsonify({'message': 'No file part in the request'})
+        resp.status_code = 400
+        return resp
+    file = request.files['file']
+    if file.filename == '':
+        resp = jsonify({'message': 'No file selected for uploading'})
+        resp.status_code = 400
+        return resp
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        try:
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        except FileNotFoundError:
+            flash("file Not Found. Path Issue.", "warning")
+        # adding to the database
+        lookup = Icon(filename, 1)
+        db.session.add(lookup)
+        db.session.commit()
+
+        resp = jsonify({'message': 'File successfully uploaded'})
+        resp.status_code = 201
+        return resp
+    else:
+        resp = jsonify({'message': 'Allowed file types are txt, pdf, png, jpg, jpeg, gif'})
+        resp.status_code = 400
+        return resp
+
+
+def save_icon_to_service(icon, name, branch):
+    try:
+        try:
+            icon_ = bytes(icon, encoding='utf8')
+            lookup = Icon(name, branch, icon_)
+            db.session.add(lookup)
+            db.session.commit()
+
+            final = {"msg": "Icon added succesfully", "status": 201}
+        except sqlalchemy.exc.DataError:
+            final = {"msg": "Icon size too large", "status": 500}
+    except sqlalchemy.exc.IntegrityError:
+        final = {"msg": f"Icon \"{name}\" Already Exists", "status": 500}
+    return final
+
 
 
 def upload_link(link, type):
