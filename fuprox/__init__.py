@@ -10,6 +10,32 @@ import os
 
 load_dotenv()
 
+# home directory
+from pathlib import Path
+
+home = str(Path.home())
+current_dir = os.getcwd()
+
+# making the directory for the files
+os.chdir(home)
+
+
+# mkdir
+# check if home dir exists
+if not os.path.exists(f"{home}/noqueue/uploads"):
+    try:
+        upload_path = os.path.join(home, "noqueue", "uploads")
+        new_dir = Path(upload_path)
+        new_dir.mkdir(parents=True)
+    except OSError:
+        logging.info("error Creating dir")
+
+# move back to the current working DIR
+os.chdir(current_dir)
+
+# adding JWT other app
+
+
 db_pass = os.getenv('DBPASS')
 db_user = os.getenv("DBUSER")
 
@@ -19,6 +45,8 @@ app.config["SECRET_KEY"] = '2345'
 # basedir  = os.path.abspath(os.path.dirname(__file__))
 app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+mysqlconnector://{db_user}:{db_pass}@localhost:3306/fuprox"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config['UPLOAD_FOLDER'] = f"{home}/noqueue/uploads"
+
 
 try:
     db = SQLAlchemy(app)
@@ -43,5 +71,7 @@ app.config["MAIL_USE_TLS"] = True
 app.config["MAIL_PORT"] = 587
 
 mail = Mail()
+
+
 
 from fuprox import routes

@@ -7,8 +7,8 @@ from fuprox import db
 from flask import jsonify, request
 import sqlalchemy
 from werkzeug.utils import secure_filename
-
-
+import os
+from fuprox import app
 # mpesa
 
 teller_schema = TellerSchema()

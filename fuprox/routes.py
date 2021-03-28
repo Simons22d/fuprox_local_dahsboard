@@ -25,8 +25,8 @@ teller_schema = TellerSchema()
 tellers_schema = TellerSchema(many=True)
 
 
-socket_link = "http://localhost:5000/"
-# socket_link = "http://159.65.144.235:5000/"
+# socket_link = "http://localhost:5000/"
+socket_link = "http://159.65.144.235:5000/"
 local_socket = "http://localhost:5500/"
 
 sio = socketio.Client()
@@ -493,6 +493,7 @@ def add_company():
             visible = True if service.visible.data == "True" else False
             # service emit service made
             final = create_service(name, teller, branch_id, code, icon, visible)
+            log(final)
             if final:
                 try:
                     key = final["key"]
@@ -549,12 +550,12 @@ def extras():
             if len(key) > 20:
                 try:
                     data = requests.post(f"http://159.65.144.235:4000/branch/activate", json={"key": key})
-                    if (data.json["msg"]):
+                    if (data.ok):
                         activate_branch(data.json())
                         flash("Success! Applcations Activated", "success")
                         return redirect(url_for("home"))
                     else:
-                        flash("Error! Please confirm the key", "Warning")
+                        flash("Error! Please confirm the key", "warning")
                         return redirect(url_for("extras"))
                 except requests.exceptions.ConnectionError:
                     flash("Error! Activatation Server Not Reachable", "danger")
@@ -588,22 +589,23 @@ def this_branch():
 def activate_branch(data):
     if data:
         if data["service"] and data["branch"] and data["company"]:
-            if  not there_are_bookings():
-                try:
-                    branch = data["branch"]
-                    service = data["service"]
-                    company = data["company"]
-                    prepare_db(branch["key_"])
+            # if  not there_are_bookings():
+            try:
+                branch = data["branch"]
+                service = data["service"]
+                company = data["company"]
+                clean_db()
+                prepare_db(branch["key_"])
 
-                    add_service(service["name"],service["service"],service["is_medical"])
-                    add_company(company["name"],company["service"])
-                    add_branch(branch["name"],branch["company"],branch["longitude"],branch["latitude"],branch["opens"],
-                               branch["closes"],branch["service"],branch["description"],branch["key_"],branch["unique_id"])
-                except sqlalchemy.exc.InvalidRequestError as e :
-                    log(f"Error! {e}")
-            else:
-                log("Database ned to cleared. There are bookings there already")
-                return {"msg" : "Database need to cleared. There are booking there already."}
+                add_service(service["name"],service["service"],service["is_medical"])
+                add_company(company["name"],company["service"])
+                add_branch(branch["name"],branch["company"],branch["longitude"],branch["latitude"],branch["opens"],
+                           branch["closes"],branch["service"],branch["description"],branch["key_"],branch["unique_id"])
+            except sqlalchemy.exc.InvalidRequestError as e :
+                log(f"Error! {e}")
+            # else:
+            #     log("Database ned to cleared. There are bookings there already")
+            #     return {"msg" : "Database need to cleared. There are booking there already."}
         else:
 
             return {'msg' : "Data incomplete"},500
@@ -687,15 +689,24 @@ def branch_exists_():
 def company_exists():
     return Company.query.first()
 
+
+def clean_db():
+    db.session.execute("delete from video;")
+    db.session.execute("delete from teller_booking;")
+    db.session.execute("delete from booking_times;")
+    db.session.execute("delete from service_offered;")
+    db.session.execute("delete from teller;")
+    db.session.execute("delete from icon;")
+    db.session.execute("delete from booking;")
+    db.session.execute("delete from branch;")
+    db.session.execute("delete from service;")
+    db.session.execute("delete from image_company;")
+    db.session.execute("delete from company;")
+    db.session.execute("delete from company;")
+    return True
+
+
 def add_service(name, service, is_medical):
-    if service_exists():
-        db.session.execute("truncate icon")
-        db.session.execute("truncate teller")
-        db.session.execute("DELETE from service_offered")
-        db.session.execute("DELETE from branch")
-        db.session.execute("DELETE from company")
-        db.session.execute("DELETE FROM booking")
-        db.session.execute("DELETE FROM service")
     lookup = Service(name, service, is_medical)
     try:
         db.session.add(lookup)

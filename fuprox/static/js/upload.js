@@ -1,8 +1,8 @@
-let local_link = `http://localhost:9000`;
+let loc = window.location.hostname
 
 const get_videos = () =>{
     $.ajax({
-    url: "http://localhost:9000/video/get/all",
+    url: `http://${loc}:9000/video/get/all`,
     method: "POST",
     data: {
     },
@@ -52,7 +52,7 @@ get_videos();
 
 const videoStatus = (me) => {
     console.log("id<>>>",me.id)
-    getData("http://localhost:9000/video/toggle","POST",{"id":me.id},(data)=>{
+    getData(`http://${loc}:9000/video/toggle`,"POST",{"id":me.id},(data)=>{
         get_videos();
     })
 }
@@ -61,7 +61,7 @@ const videoStatus = (me) => {
 
 const delete_video = (me) => {
     console.log(me.id)
-    getData("http://localhost:9000/video/delete","POST",{"id" : me.id},(data)=>{
+    getData(`http://${loc}:9000/video/delete`,"POST",{"id" : me.id},(data)=>{
         get_videos()
     })
 }
@@ -72,7 +72,7 @@ let current_category;
 const uploadLink = () => {
     console.log(">>",sessionStorage.getItem("vid_type"),$("#link").val())
     if (sessionStorage.getItem("vid_type") && $("#link").val().length){
-        getData("http://localhost:9000/video/link","POST",{
+        getData(`http://${loc}:9000/video/link`,"POST",{
                type : sessionStorage.getItem("vid_type"),
                link : $("#link").val()
             },(data)=>{
@@ -157,7 +157,7 @@ function uploadFile(){
 	ajax.addEventListener("load", completeHandler, false);
 	ajax.addEventListener("error", errorHandler, false);
 	ajax.addEventListener("abort", abortHandler, false);
-	ajax.open("POST", "http://localhost:9000/video/upload");
+	ajax.open("POST", `http://${loc}:9000/video/upload`);
 	ajax.send(formdata);
 }
 function progressHandler(event){
@@ -196,14 +196,16 @@ const upload_icon_ = (e)=>{
 	let icon_name = $("#icon_name").val();
     console.log(icon_name);
 	if (icon && icon_name){
-		getData(`${local_link}/service/icon`,"POST",{"icon" : icon, "name" : icon_name},(data)=>{
+		getData(`http://${loc}:9000/service/icon`,"POST",{"icon" : icon, "name" : icon_name},(data)=>{
 			// updateIcons()
+
 			// updateServices()
-			console.log(data)
+			console.log("!!!!!!!!!!!!",data)
 
 			if(data.status === 201){
-			    // window.location.href = ("http://localhost:9000/icons")
-				$("#message_icon").html(`< sdiv class="alert alert-success" role="alert">${data.msg}</div>`)
+			    // window.loc.href = (`http://${loc}:9000/icons`)
+				$("#message_icon").html(`<div class="alert alert-success" role="alert">${data.msg}</div>`)
+                window.location.href = `http://${loc}:9000/icons`
 			}else{
 				$("#message_icon").html(`<div class="alert alert-danger" role="alert">${data.msg}</div>`)
 			}
@@ -266,15 +268,15 @@ const phrase_ = () => {
     console.log(phrase);
     console.log(options);
     // $.ajax({
-    //     "url" : "http://localhost:9000/phrase",
+    //     "url" : `http://${loc}:9000/phrase`,
     //     "method" : "POST",
     //     "data" : {"phrase" : phrase,"options" : options},
     //     "success" : (data)=>{
     //         console.log(data)
     //     }
     // })
-    getData("http://localhost:9000/phrase","POST",{"phrase" : phrase,"options" : options},(data)=>{
+    getData(`http://${loc}:9000/phrase`,"POST",{"phrase" : phrase,"options" : options},(data)=>{
         console.log(data)
-        window.location.href = "http://localhost:9000/extras"
+        window.loc.href = `http://${loc}:9000/extras`
     })
 }
