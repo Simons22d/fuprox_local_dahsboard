@@ -296,6 +296,7 @@ def tellers():
                 branch = branch_exists_id(branch_id)
                 final = add_teller(teller_number, branch_id, service_name, branch.unique_id)
                 sio.emit("add_teller", {"teller_data": final})
+                local.emit("update_services", final)
             except Exception:
                 print("error! teller exists")
             return redirect(url_for("tellers"))
