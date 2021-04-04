@@ -294,7 +294,9 @@ def tellers():
             # status = True if teller.active.data == "True" else False
             try:
                 branch = branch_exists_id(branch_id)
+
                 final = add_teller(teller_number, branch_id, service_name, branch.unique_id)
+                final.append("key_", branch.key_)
                 sio.emit("add_teller", {"teller_data": final})
                 local.emit("update_services", final)
             except Exception:
@@ -483,7 +485,6 @@ def add_company():
     icons = Icon.query.all()
     branch = Branch.query.first()
     services_offered = ServiceOffered.query.all()
-
     if request.method == "POST":
         if service.validate_on_submit():
             name = service.name.data
@@ -500,6 +501,7 @@ def add_company():
                     key = final["key"]
                     flash("Service Added Successfully", "success")
                     sio.emit("sync_service", final)
+                    log(f">>>>>>>>>{final}")
                     local.emit("update_services", final)
                 except KeyError :
                     flash(final['msg'],"danger")
@@ -692,18 +694,18 @@ def company_exists():
 
 
 def clean_db():
-    db.session.execute("delete from video;")
-    db.session.execute("delete from teller_booking;")
-    db.session.execute("delete from booking_times;")
-    db.session.execute("delete from service_offered;")
-    db.session.execute("delete from teller;")
-    db.session.execute("delete from icon;")
-    db.session.execute("delete from booking;")
-    db.session.execute("delete from branch;")
-    db.session.execute("delete from service;")
-    db.session.execute("delete from image_company;")
-    db.session.execute("delete from company;")
-    db.session.execute("delete from company;")
+    db.session.execute("DELETE FROM video;")
+    db.session.execute("DELETE FROM teller_booking;")
+    db.session.execute("DELETE FROM booking_times;")
+    db.session.execute("DELETE FROM service_offered;")
+    db.session.execute("DELETE FROM teller;")
+    db.session.execute("DELETE FROM icon;")
+    db.session.execute("DELETE FROM booking;")
+    db.session.execute("DELETE FROM branch;")
+    db.session.execute("DELETE FROM service;")
+    db.session.execute("DELETE FROM image_company;")
+    db.session.execute("DELETE FROM company;")
+    db.session.execute("DELETE FROM company;")
     return True
 
 
@@ -883,7 +885,6 @@ def add_solution():
         db.session.commit()
         db.session.close()
         flash("Solution Added Successfully", "success")
-
         # render a html && add the data to the page
     return render_template("add_solution.html", form=solution_form)
 
@@ -917,7 +918,10 @@ def edit_branch(id):
         service.teller.data = ""
         service.code.data = ""
         service.icon.data = ""
-        sio.emit("sync_edit_service" , service_offered_schema.dump(this_service))
+        final = service_offered_schema.dump(this_service)
+        this_branch= Branch.query.first()
+        sio.emit("sync_edit_service" ,final )
+        log(f">>>>>>>>>{final}")
         flash("Service Successfully Updated", "success")
         return redirect(url_for("add_company"))
 
