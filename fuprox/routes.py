@@ -296,7 +296,6 @@ def tellers():
                 branch = branch_exists_id(branch_id)
 
                 final = add_teller(teller_number, branch_id, service_name, branch.unique_id)
-                final.append("key_", branch.key_)
                 sio.emit("add_teller", {"teller_data": final})
                 local.emit("update_services", final)
             except Exception:
@@ -746,7 +745,6 @@ def login():
             flash("Login unsuccessful Please Check Email and Password", "danger")
     return render_template("login.html", form=login)
 
-print(current_user)
 @app.route("/register", methods=["GET", "POST"])
 # @login_required
 def register():

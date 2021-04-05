@@ -117,6 +117,7 @@ def teller_exists(number):
 
 
 def add_teller(teller_number, branch_id, service_name, branch_unique_id):
+    branch = Branch.query.first()
     # here we are going to ad teller details
     if len(service_name.split(",")) > 1:
         if services_exist(service_name, branch_id) and branch_exist(branch_id):
@@ -134,9 +135,9 @@ def add_teller(teller_number, branch_id, service_name, branch_unique_id):
                 service_lookup.teller = teller_number
                 db.session.commit()
 
+                 #adding the key
                 final = teller_schema.dump(lookup)
-
-
+                final.update({"key_" : branch.key_})
         else:
             final = dict()
     else:
@@ -157,7 +158,9 @@ def add_teller(teller_number, branch_id, service_name, branch_unique_id):
                 service_lookup.teller = teller_number
                 db.session.commit()
 
-
+                # adding the key
+                final = teller_schema.dump(lookup)
+                final.update({"key_": branch.key_})
 
         else:
             final = dict(), 500
