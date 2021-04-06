@@ -189,14 +189,14 @@
           <div class="col-lg-12">
             {{ form.visible.label(class='form-control-label') }}
             {% if form.visible.errors %}
-            {{ form.visible(class="form-check-input is-invalid", id="brpens",autocomplete="off")}}
+            {{ form.visible(class="form-control form-control-sm is-invalid", id="brpens",autocomplete="off")}}
             <div class="invalid-feedback">
                 {% for error in form.visible.errors %}
                 <span>{{ error }}</span>
                 {% endfor %}
             </div>
             {% else %}
-                {{ form.visible(class="form-check-input", id="bpens",autocomplete="off")}}
+                {{ form.visible(class="form-control form-control-sm ", id="bpens",autocomplete="off")}}
             {% endif %}
             <small class="form-text text-muted"></small>
           </div>
@@ -207,14 +207,14 @@
           <div class="col-lg-12">
             {{ form.active.label(class='form-control-label') }}
             {% if form.active.errors %}
-            {{ form.active(class="form-check-input is-invalid", id="brpens",autocomplete="off")}}
+            {{ form.active(class="form-control form-control-sm is-invalid", id="brpens",autocomplete="off")}}
             <div class="invalid-feedback">
                 {% for error in form.active.errors %}
                 <span>{{ error }}</span>
                 {% endfor %}
             </div>
             {% else %}
-                {{ form.active(class="form-check-input", id="bpens",autocomplete="off")}}
+                {{ form.active(class="form-control form-control-sm ", id="bpens",autocomplete="off")}}
             {% endif %}
             <small class="form-text text-muted"></small>
           </div>

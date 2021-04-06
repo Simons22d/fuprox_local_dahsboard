@@ -194,7 +194,7 @@ def branch_exist(branch_id):
     return branch_data
 
 
-def create_service(name, teller, branch_id, code, icon_id, visible):
+def create_service(name, teller, branch_id, code, icon_id, visible,active):
     branch_data = branch_exist(branch_id)
     if branch_data:
         log("branch exists")
@@ -222,6 +222,9 @@ def create_service(name, teller, branch_id, code, icon_id, visible):
                         service.medical_active = True
                         if not visible:
                             service.medical_active = False
+                        if not active:
+                            service.active = False
+
                         db.session.add(service)
                         db.session.commit()
 
@@ -233,7 +236,6 @@ def create_service(name, teller, branch_id, code, icon_id, visible):
                         dict_.update(key)
                         dict_.update(service_schema.dump(service))
                         final = dict_
-                        log("we are here")
                     except Exception as e:
                         final = {"msg": "Error service by that name exists"}
                         log("service exists")

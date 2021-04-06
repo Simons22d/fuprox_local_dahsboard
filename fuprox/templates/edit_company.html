@@ -215,25 +215,22 @@
           </div>
         </div>
 
-{#        <div class="row mb-3">#}
-{#          <div class="col-lg-12">#}
-{#            {{ form.active.label(class='form-control-label') }}#}
-{#            {% if form.active.errors %}#}
-{#            {{ form.active(class="form-control form-control-sm is-invalid", id="_",autocomplete="off")}}#}
-{#            <div class="invalid-feedback">#}
-{#                {% for error in form.active.errors %}#}
-{#                <span>{{ error }}</span>#}
-{#                {% endfor %}#}
-{#            </div>#}
-{#            {% else %}#}
-{#                {{ form.active(class="form-control form-control-sm ", id="_",autocomplete="off")}}#}
-{#            {% endif %}#}
-{#            <small class="form-text text-muted"></small>#}
-{#          </div>#}
-{#        </div>#}
-
-{#    ddd#}
-{#    #}
+        <div class="row mb-3">
+          <div class="col-lg-12">
+            {{ form.active.label(class='form-control-label') }}
+            {% if form.active.errors %}
+            {{ form.active(class="form-control form-control-sm is-invalid", id="_",autocomplete="off")}}
+            <div class="invalid-feedback">
+                {% for error in form.active.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+                {{ form.active(class="form-control form-control-sm ", id="_",autocomplete="off")}}
+            {% endif %}
+            <small class="form-text text-muted"></small>
+          </div>
+        </div>
 
         <div class="row">
             <div class="col-lg-12 mt-3">

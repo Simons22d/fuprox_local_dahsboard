@@ -25,8 +25,8 @@ teller_schema = TellerSchema()
 tellers_schema = TellerSchema(many=True)
 
 
-socket_link = "http://localhost:5000/"
-# socket_link = "http://159.65.144.235:5000/"
+# socket_link = "http://localhost:5000/"
+socket_link = "http://159.65.144.235:5000/"
 local_socket = "http://localhost:5500/"
 
 sio = socketio.Client()
@@ -492,9 +492,9 @@ def add_company():
             code = service.code.data
             icon = service.icon.data
             visible = True if service.visible.data == "True" else False
+            active = True if service.active.data == "True" else False
             # service emit service made
-            final = create_service(name, teller, branch_id, code, icon, visible)
-            log(final)
+            final = create_service(name, teller, branch_id, code, icon, visible,active)
             if final:
                 try:
                     key = final["key"]
@@ -909,6 +909,7 @@ def edit_branch(id):
         this_service.code = service.code.data
         this_service.icon = service.icon.data
         this_service.medical_active = True if service.visible.data == "True" else False
+        this_service.active = True if service.active.data == "True" else False
         db.session.commit()
 
         # prefilling the form with the empty fields
@@ -919,7 +920,6 @@ def edit_branch(id):
         final = service_offered_schema.dump(this_service)
         this_branch= Branch.query.first()
         sio.emit("sync_edit_service" ,final )
-        log(f">>>>>>>>>{final}")
         flash("Service Successfully Updated", "success")
         return redirect(url_for("add_company"))
 
