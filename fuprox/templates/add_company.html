@@ -81,9 +81,6 @@
               <li class="nav-item">
                 <a class="nav-link active" href="{{ url_for('add_company') }}" id="add branch">Add Service</a>
               </li>
-{#              <li class="nav-item">#}
-{#                <a class="nav-link" href="{{ url_for('view_company' )}}" id="branches">Services</a>#}
-{#              </li>#}
         </ul>
         </div>
     </div>
@@ -92,7 +89,6 @@
 {% endblock%}
 {% block content %}
      <!--/ Property Grid Star /-->
-
     <div class="row">
       <div class="col-lg-6 ">
          {% for field in form.errors %}
@@ -102,7 +98,6 @@
              </div>
          {% endfor %}
          {% endfor %}
-<!--        <div class="row container mb-3"><div class="text-muted">Companies</div>-->
         <br>
       </div>
       </div>
@@ -110,13 +105,6 @@
         <div class="col-md-4">
           <form action="" method="POST" >
          {{ form.hidden_tag() }}
-{#             {% for field in form.errors %}#}
-{#             {% for error in form.errors[field] %}#}
-{#                 <div class="alert alert-danger">#}
-{#                     <strong>Error!</strong> {{error}}#}
-{#                 </div>#}
-{#             {% endfor %}#}
-{#         {% endfor %}#}
         <div class="row mb-3">
           <div class="col-lg-12">
             {{ form.name.label(class='form-control-label') }}
@@ -197,23 +185,40 @@
           </div>
         </div>
 
-          <div class="row mb-3">
+        <div class="row mb-3">
           <div class="col-lg-12">
             {{ form.visible.label(class='form-control-label') }}
             {% if form.visible.errors %}
-            {{ form.visible(class="form-control form-control-sm is-invalid", id="brpens",autocomplete="off")}}
+            {{ form.visible(class="form-check-input is-invalid", id="brpens",autocomplete="off")}}
             <div class="invalid-feedback">
                 {% for error in form.visible.errors %}
                 <span>{{ error }}</span>
                 {% endfor %}
             </div>
             {% else %}
-                {{ form.visible(class="form-control form-control-sm ", id="bpens",autocomplete="off")}}
+                {{ form.visible(class="form-check-input", id="bpens",autocomplete="off")}}
             {% endif %}
             <small class="form-text text-muted"></small>
           </div>
         </div>
 
+
+        <div class="row mb-3">
+          <div class="col-lg-12">
+            {{ form.active.label(class='form-control-label') }}
+            {% if form.active.errors %}
+            {{ form.active(class="form-check-input is-invalid", id="brpens",autocomplete="off")}}
+            <div class="invalid-feedback">
+                {% for error in form.active.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+                {{ form.active(class="form-check-input", id="bpens",autocomplete="off")}}
+            {% endif %}
+            <small class="form-text text-muted"></small>
+          </div>
+        </div>
 
           <div class="row mb-3">
           <div class="col-lg-12">
@@ -222,21 +227,6 @@
         </div>
         </form>
       </div>
-
-{#       <div class="col-lg-6 mt-4">#}
-{#            <form action="" enctype="multipart/form-data" name="upload_icon" id="form_upload_icon">#}
-{#                <h5 class="header text-muted">Add Icon</h5>#}
-{#                <div id="message_icon"></div>#}
-{#                <label for="icon_name">Icon Name</label>#}
-{#                <input type="text" id="icon_name" name ="icon_name" class="form-control form-control-sm">#}
-{##}
-{#                <label for="icon_file_icon" class="mt-2">Icon File</label>#}
-{#                <input type="file" id="icon_file_icon" name ="icon" class="form-control form-control-sm " accept="image/* ">#}
-{#                <input class="btn btn-primary btn-sm col-lg-12 mt-4"   name="submit" id="upload_icon" onclick="upload_icon_()" value="upload Icon">#}
-{#            </form>#}
-{#        </div>#}
-
-
         <div class="col-md-8">
             <table class="table table-sm table-hover table-bordered" style="font-size:12px;">
         <thead>

@@ -25,8 +25,8 @@ teller_schema = TellerSchema()
 tellers_schema = TellerSchema(many=True)
 
 
-# socket_link = "http://localhost:5000/"
-socket_link = "http://159.65.144.235:5000/"
+socket_link = "http://localhost:5000/"
+# socket_link = "http://159.65.144.235:5000/"
 local_socket = "http://localhost:5500/"
 
 sio = socketio.Client()
@@ -500,7 +500,6 @@ def add_company():
                     key = final["key"]
                     flash("Service Added Successfully", "success")
                     sio.emit("sync_service", final)
-                    log(f">>>>>>>>>{final}")
                     local.emit("update_services", final)
                 except KeyError :
                     flash(final['msg'],"danger")
@@ -551,7 +550,8 @@ def extras():
             key = form.key.data
             if len(key) > 20:
                 try:
-                    data = requests.post(f"http://159.65.144.235:4000/branch/activate", json={"key": key})
+                    data = requests.post(f"http://0.0.0.0:4000/branch/activate", json={"key": key})
+                    log(data.json())
                     if (data.ok):
                         activate_branch(data.json())
                         flash("Success! Applcations Activated", "success")

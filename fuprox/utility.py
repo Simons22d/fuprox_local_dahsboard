@@ -161,7 +161,7 @@ def add_teller(teller_number, branch_id, service_name, branch_unique_id):
                 # adding the key
                 final = teller_schema.dump(lookup)
                 final.update({"key_": branch.key_})
-
+                
         else:
             final = dict(), 500
 

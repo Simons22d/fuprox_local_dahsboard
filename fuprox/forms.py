@@ -89,15 +89,8 @@ class ServiceForm(FlaskForm):
     code = StringField("Initials", validators=[DataRequired()])
     icon = StringField('Service Icon', validators=[DataRequired()])
     visible = RadioField('Available Online', choices=[('True', 'Yes'), ('False', 'No')])
-    # active = RadioField('Active for booking', choices=[('True', 'Yes'), ('False', 'No')])
+    active = RadioField('Active For booking', choices=[('True', 'Yes'), ('False', 'No')])
     submit = SubmitField("Add Service")
-
-
-# class ServiceForm(FlaskForm):
-#     name = StringField("Name", validators=[DataRequired()])
-#     service = StringField("Description", validators=[DataRequired()])
-#     visible = RadioField('Available Online', choices=[('True', 'Yes'), ('False', 'No')])
-#     submit = SubmitField("Add Service")
 
 
 class SolutionForm(FlaskForm):
