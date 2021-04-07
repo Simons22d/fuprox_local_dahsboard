@@ -1,0 +1,25 @@
+
+{% extends 'layout.html'%}
+{% block status%}
+  <section class="intro-single">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12 col-lg-8">
+          <div class="title-single-box">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock%}
+{% block content %}
+   <div class="h2 text-muted bold" style="margin-top:-30px">
+       <img src="{{ url_for('static', filename='images/error.png') }}" alt="Error" height="70px;">
+        <div class="mt-3 h2 font-weight-bold" style="color:red">Error!</div>
+        <div class="mt-1 h2 font-weight-bold" style="color:red">Internal System Error</div>
+        <div class="row col-lg-12">
+            <a class="mt-4 btn btn-success" href="{{ url_for('home') }}">Back to safety.</a>
+            <a class="btn btn-outline-success ml-4 mt-4 " href="#">Report Issue.</a>
+        </div>
+   </div>
+{% endblock %}

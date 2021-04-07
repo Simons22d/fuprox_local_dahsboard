@@ -263,8 +263,6 @@ def payments_card():
     # get date from the database 
     lookup = Mpesa.query.all()
     data = mpesas_schema.dump(lookup)
-    # print("><>>>>>XX>>XXXXX")
-    # print("mpesa", data)
     # work on the payments templates
     return render_template("payment_card.html", transactions=data)
 
@@ -274,6 +272,26 @@ def payments_card():
 def payments_report():
     # work on the payments templates
     return render_template("payments_reports.html")
+
+
+
+
+@app.route("/404")
+def review_404():
+    # work on the payments templates
+    return render_template("payments_reports.html")
+
+
+@app.errorhandler(500)
+def interanal_error(e):
+    return render_template('500.html'), 404
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    return render_template('404.html'), 404
+
 
 
 @app.route("/tellers", methods=["POST", "GET"])
