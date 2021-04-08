@@ -938,7 +938,7 @@ def edit_branch(id):
         final = service_offered_schema.dump(this_service)
         this_branch= Branch.query.first()
         sio.emit("sync_edit_service" ,final )
-        sio.emit("update_services","")
+        local.emit("update_services","")
         flash("Service Successfully Updated", "success")
         return redirect(url_for("add_company"))
 
