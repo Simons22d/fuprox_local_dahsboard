@@ -6,15 +6,15 @@
             <a class="nav-link" href="{{ url_for('home') }}">Home</a>
           </li>
           <li class="nav-item ">
-            <a class="nav-link" href="{{ url_for('tellers') }}">Bookings</a>
+            <a class="nav-link" href="{{ url_for('tellers') }}">Manage</a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('payments') }}">Manage</a>
+            <a class="nav-link" href="{{ url_for('payments') }}">Bookings</a>
           </li>
 
         <li class="nav-item">
-            <a class="nav-link active" href="{{ url_for('extras') }}">Apps</a>
+            <a class="nav-link active" href="{{ url_for('extras') }}">Extras</a>
           </li>
 
           <li class="nav-item">
@@ -45,14 +45,12 @@
 {% endblock status %}
 {% block content %}
 <!--    desktop application link -->
-        <div class="col-lg-12">
-           {% if branch %}
-                <div class="mt-2 h6 text-muted row ">{{ branch.name }}</div>
-                <div class="mt-2 h6 text-muted row"><code class="small">{{ branch.key_ }}</code></div>
-           {% else %}
-               <div class="mt-2 h6 text-muted ">Oops! No Key added</div>
-           {% endif %}
-        </div>
+{% if branch %}
+    <div class="mt-2 h6 text-muted row ">{{ branch.name }}</div>
+    <div class="mt-2 h6 text-muted row"><code class="small">{{ branch.key_ }}</code></div>
+{% else %}
+   <div class="mt-2 alert alert-primary col-md-5 ">Application Not Activated.</div>
+{% endif %}
 
 
 
@@ -77,61 +75,7 @@
             {{ form.submit(class="btn btn-sm btn-success btn-block mt-4 col-lg-3")}}
         </div>
     </form>
-        <div class="row col-lg-12 mt-3">
-                <div class="text-muted  font-weight-bold h5 mb-4"><u>Reset Tickets</u></div>
 
-        </div>
-        <div class="row col-lg-12 mt-3">
-         <h6 style="color:red">
-                <b>Please be sure you intend to reset tickets.</b><br>
-                <b >This is not revesable!!!</b>
-            </h6>
-          <br><br>
-          </div>
-        <div class="btn btn-sm btn-danger mt-3 font-weight-bold  mb-4">Reset Branch Tickets</div>
-
-
-
-{#        <form action="" method="POST" class=" mt-5 mb-5" name="phrase">#}
-{#            <h5 class="text-muted  font-weight-bold h5 mb-4"><u>Customize Voice over phrase</u></h5>#}
-{#                {{ phrase.hidden_tag() }}#}
-{#                <div class="form-group">#}
-{#                     <small class="font-weight-bold h6 mb-4"><b>WHAT EXISTS: </b>TICKET NUMBER XXX</small><br>#}
-{#                    <small class="font-weight-bold h6 mb-4"><b>TEXT REQUIRED: </b><mark>PROCEED TO ... | GO TO ..#}
-{#                        .</mark></small> <br><br>#}
-{#                    {{ phrase.phrase.label(class='form-control-label mb-3')}}<br>#}
-{#                    {% if phrase.phrase.errors %}#}
-{#                    {{ phrase.phrase(class="form-control  form-control-sm is-invalid col-lg-8")}}#}
-{#                    <div class="invalid-feedback">#}
-{#                        {% for error in phrase.key.errors %}#}
-{#                        <span>{{ error }}</span>#}
-{#                        {% endfor %}#}
-{#                    </div>#}
-{#                    {% else %}#}
-{#                    {{ phrase.phrase(class="form-control form-control-sm col-lg-8")}}#}
-{#                    {% endif %}#}
-{#                </div>#}
-{##}
-{#            <div class="form-group mt-2 mb-4">#}
-{#                    {{ phrase.type.label(class='form-control-label')}}#}
-{#                    {% if phrase.type.errors %}#}
-{##}
-{#                    {{ phrase.type(class="form-check-input is-invalid")}}#}
-{#                    <div class="invalid-feedback">#}
-{#                        {% for error in phrase.type.errors %}#}
-{#                        <span>{{ error }}</span>#}
-{#                        {% endfor %}#}
-{#                    </div>#}
-{#                    {% else %}#}
-{#                    {{ phrase.type(class="form-check-input")}}#}
-{#                    {% endif %}#}
-{#                </div>#}
-{#                <br>#}
-{#                <div class="form-group mt-5">#}
-{##}
-{#                    {{ phrase.submit(class="btn btn-sm btn-success btn-block mt-4 col-lg-6")}}#}
-{#                </div>#}
-{#            </form>#}
     <form action="" name="phrase" id="phrase" class="mb-5">
                 <h5 class="text-muted  font-weight-bold h5 mb-4"><u>Customize Voice over phrase</u></h5>
 
@@ -158,15 +102,13 @@
         <div class="btn btn-primary btn-sm col-lg-3 modalInfo mt-4" id="upload_icon_" onclick="phrase_()">Change
             Phrase</div>
     </form>
-
         <h5 class="text-muted font-weight-bold h5 mb-4"><u>Download Applications.</u></h5>
-      <div class="row">
+        <div class="row">
             <div class="row col-lg-12 mt-2">
 
                 <div class="col-lg-4">
     <!--                desktop application-->
                 <div class="icon mt-2">
-                <img src="{{url_for('static',filename='images/personal-computer.svg')}}" alt="Desktop app" height="80px">
                 </div>
                 <h5 class="text-muted text-small mt-2"> Applications.</h5>
 
@@ -177,7 +119,7 @@
                 <div>
                 <div id="status_message"></div>
 
-                <div class="row col-lg-12">
+                <div class="row ml-1">
                     <div class="btn-group mt-4" role="group">
                     <select  class="form-control form-control-sm mr-3" id="application">
                     <option class="dropdown-item btn-sm " id="1001" value="1001">Desktop Teller App</option>
@@ -201,38 +143,48 @@
             </div>
         </div>
 
-    <!--    more info about a div-->
-            <h5 class="text-muted mt-2 mb-3 ml-3 mt-5 font-weight-bold h5 mb-4 h5"><u>Manage Users.</u></h5><br>
-            <div class="row  col-lg-12 mt-1">
-                <div class="col-lg-4">
-    <!--                desktop application-->
-                <div class="icon mb-3 mt-3">
-                    <img src="{{url_for('static',filename='images/user.png')}}" alt="Desktop app" height="60px">
-                </div>
+    <h5 class="text-muted mt-2 mb-3 ml-3 mt-5 font-weight-bold h5 mb-4 h5"><u>Manage Users.</u></h5><br>
+    <div class="row  col-lg-12 mt-1">
+        <div class="col-lg-4">
                 <h5 class="text-muted text-small">Add users.</h5>
-
                 <div>Add and manage user information. These users will be able to login to the backend.</div>
-                <div>
-                    <a href="{{url_for('add_users')}}"><button class="btn-sm btn-primary btn col-lg-6 mt-3">Add
-                        Users</button></a>
+                    <div>
+                     <a href="{{url_for('add_users')}}"><button class="btn-sm btn-primary btn col-lg-6 mt-3">Add Users</button></a>
+                    </div>
                 </div>
-                </div>
-{#                <div class="col-lg-5">#}
-{#    <!--                mobile application-->#}
-{#                    <div class="icon mb-3 mt-3">#}
-{#                        <img src="{{url_for('static',filename='images/solution.png')}}" alt="Desktop app" height="60px">#}
-{#                    </div>#}
-{#                    <h5 class="text-muted">Add Solution.</h5>#}
-{##}
-{#                    <div>Add a solution to a common problem here. The solutions will be visible to you clients.</div>#}
-{#                    <div>#}
-{#                        <a href="{{url_for('add_solution')}}"><button class="btn-sm btn  col-lg-6 btn-primary  mt-3">Add#}
-{#                            Users</button></a>#}
-{#                    </div>#}
-{#                </div>#}
             </div>
     </div>
 
+
+
+      <form action="" name="phrase" id="phrase" class="mb-5">
+        <p class="text-muted mt-3  bold mt-2 font-weight-bold h5 mb-2"><u>Reset Tickets</u></p>
+            <div>Customize tickets reset frequency. <mark>By default ticket reset occures every midnight. Time is
+                based on the backend servers time.
+             </mark>.</div><br>
+          <div id="reset_message" class="col-lg-12 row"></div>
+
+          <div class="mt-2 col-lg-7 row mb-4">
+           <label for="">Ticket Reset Selection .</label>
+
+
+            <select class="custom-select custom-select-sm" id="options_reset" onchange="statusChange(this)">
+          <option value="1" selected>Tickets Should Reset</option>
+          <option value="2" >Tickets should not reset</option>
+        </select>
+       </div>
+          <div id="tickets_reset_div">
+
+        <label for="icon_name">Reset time</label>
+        <input type="text" id="reset_time" name ="reset_time" readonly class="form-control form-control-sm col-lg-2">
+
+          </div>
+
+
+        <div class="btn btn-primary btn-sm col-lg-3 modalInfo mt-4" id="upload_icon_" onclick="update_reset_settings()
+">Update
+            Reset Settings</div>
+    </form>
 
         </div> <!-- END DIV-->
     <br><br><br><br>

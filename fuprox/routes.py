@@ -1,10 +1,11 @@
 from flask import render_template, url_for, flash, redirect, request, abort, jsonify, send_file, send_from_directory
 from fuprox import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required,current_user
-from fuprox.forms import (RegisterForm, LoginForm, TellerForm, ServiceForm, SolutionForm, ReportForm, ActivateForm,PhraseForm)
+from fuprox.forms import (RegisterForm, LoginForm, TellerForm, ServiceForm, SolutionForm,
+                          ReportForm, ActivateForm,PhraseForm,TicketResetForm)
 from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, CompanySchema, ServiceSchema, Mpesa, \
     MpesaSchema, Booking, BookingSchema, ImageCompany, ImageCompanySchema, Teller, TellerSchema,ServiceOffered,Icon,\
-    IconSchema,PhraseSchema,Phrase,ServiceOfferedSchema, VideoSchema,Video
+    IconSchema,PhraseSchema,Phrase,ServiceOfferedSchema, VideoSchema,Video,ResetOption,ResetOptionSchema
 from fuprox.utility import reverse,add_teller,services_exist,services_exist,branch_exist,create_service,upload_video,\
     get_single_video,get_all_videos, get_active_videos, save_mp4, make_video_active,make_video_inactive,\
     toggle_status,validate_link,upload_link,delete_video,save_icon_to_service
@@ -54,6 +55,8 @@ comapny_image_schemas = ImageCompanySchema(many=True)
 videos_schema =VideoSchema(many=True)
 
 phrase_schema = PhraseSchema()
+reset_option_schema = ResetOptionSchema()
+
 
 def get_part_of_day(hour):
     return (
@@ -559,9 +562,8 @@ def extras():
     current = Branch.query.first()
     form  = ActivateForm()
     phrase = Phrase.query.first()
-    default = "Proceed to counte number"
+    default = "Proceed to room number"
     phrase = ( phrase.phrase if phrase.phrase else default) if  phrase else default
-    # ss = PhraseForm()
     current_phrase = Phrase.query.first()
     if request.method == "POST":
         if form.validate_on_submit() and form.submit.data:
@@ -569,18 +571,19 @@ def extras():
             if len(key) > 20:
                 try:
                     data = requests.post(f"http://159.65.144.235:4000/branch/activate", json={"key": key})
-                    log(data.json())
                     if (data.ok):
-                        activate_branch(data.json())
-                        flash("Success! Applcations Activated", "success")
-                        return redirect(url_for("home"))
+                        data = activate_branch(data.json())
+                        if not data:
+                            flash("Success! Application Activated", "success")
+                            return redirect(url_for("home"))
+                        else:
+                            flash(data["msg"],"warning")
                     else:
                         flash("Error! Please confirm the key", "warning")
                         return redirect(url_for("extras"))
                 except requests.exceptions.ConnectionError:
                     flash("Error! Activatation Server Not Reachable", "danger")
             else:
-                # flash("Error! Database not empty. Data was cleared", "warning")
                 flash("Error! Key too short", "danger")
     return render_template("extras.html",branch=current,form=form,current_phrase=current_phrase, phrase=phrase)
 
@@ -588,6 +591,7 @@ def extras():
 @app.route("/reset/tickets",methods=["POST"])
 def reset_tickets():
     req = request.post("http://159.65.144.235:4000/ticket/reset")
+
 
 @app.route("/phrase", methods=["POST"])
 def re():
@@ -598,6 +602,27 @@ def re():
     lookup = Phrase(phrase, is_teller)
     db.session.add(lookup)
     db.session.commit()
+    flash("Phrase Successfully Set", "success")
+    return jsonify(phrase_schema.dump(lookup))
+
+@app.route('/get/reset/details')
+def reset_request():
+    lookup = ResetOption.query.first()
+    return jsonify(reset_option_schema.dump(lookup))
+
+
+@app.route("/reset/settings", methods=["POST"])
+def reset_settings():
+    option = request.json["option"]
+    time = request.json["time"]
+
+    db.session.execute("DELETE FROM reset_option")
+
+    lookup = ResetOption(time, option)
+    db.session.add(lookup)
+    db.session.commit()
+
+    flash("Success, Reset details Updated", "success")
     return jsonify(phrase_schema.dump(lookup))
 
 
@@ -608,30 +633,33 @@ def this_branch():
 
 def activate_branch(data):
     if data:
-        if data["service"] and data["branch"] and data["company"]:
-            # if  not there_are_bookings():
-            try:
-                branch = data["branch"]
-                service = data["service"]
-                company = data["company"]
-                clean_db()
-                prepare_db(branch["key_"])
+        try:
+            if data:
+                if data["service"] and data["branch"] and data["company"]:
+                    try:
+                        branch = data["branch"]
+                        service = data["service"]
+                        company = data["company"]
+                        clean_db()
+                        prepare_db(branch["key_"])
 
-                add_service(service["name"],service["service"],service["is_medical"])
-                add_company(company["name"],company["service"])
-                add_branch(branch["name"],branch["company"],branch["longitude"],branch["latitude"],branch["opens"],
-                           branch["closes"],branch["service"],branch["description"],branch["key_"],branch["unique_id"])
-            except sqlalchemy.exc.InvalidRequestError as e :
-                log(f"Error! {e}")
-            # else:
-            #     log("Database ned to cleared. There are bookings there already")
-            #     return {"msg" : "Database need to cleared. There are booking there already."}
-        else:
+                        add_service(service["name"],service["service"],service["is_medical"])
+                        add_company(company["name"],company["service"])
+                        add_branch(branch["name"],branch["company"],branch["longitude"],branch["latitude"],branch["opens"],
+                                   branch["closes"],branch["service"],branch["description"],branch["key_"],branch["unique_id"])
+                        return False
+                    except sqlalchemy.exc.InvalidRequestError as e :
+                        log(f"Error! {e}")
 
-            return {'msg' : "Data incomplete"},500
+                else:
+
+                    return {'msg' : "Data incomplete"},500
+            else:
+                return {"msg" : "Error! Key not valid. Please confirm the key and retry."}
+        except json.decoder.JSONDecodeError:
+            return {"msg": "Error! Key not valid. Please confirm the key and retry."}
     else:
-        return {"msg" : "Error! Key is invalid"}
-
+        return {"msg": "Error! Key not valid. Please confirm the key and retry."}
 
 def there_are_bookings():
     bookings = Booking.query.all()

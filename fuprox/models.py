@@ -2,6 +2,7 @@ from datetime import datetime
 from flask_login import UserMixin
 import secrets
 from fuprox import db, ma, login_manager
+from dateutil import parser
 
 
 def ticket_unique() -> int:
@@ -11,6 +12,10 @@ def ticket_unique() -> int:
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+def midnight():
+    return parser.parse("00:00")
 
 
 # we are going to create the model from a user class
@@ -231,7 +236,7 @@ class Teller(db.Model):
 class TellerSchema(ma.Schema):
     class Meta:
         fields = (
-        "id", "number", "date_added", "branch", "service", "is_synced", "unique_id", "branch_unique_id", "active")
+            "id", "number", "date_added", "branch", "service", "is_synced", "unique_id", "branch_unique_id", "active")
 
 
 def ticket_unique() -> int:
@@ -316,3 +321,20 @@ class Phrase(db.Model):
 class PhraseSchema(ma.Schema):
     class Meta:
         fields = ("id", "name", "phrase", "date_added", "active", "use_teller")
+
+
+class ResetOption(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    time = db.Column(db.String(length=250), unique=midnight)
+    branch = db.ForeignKey("branch.key_", nullable=False, unique=True)
+    date_added = db.Column(db.DateTime, default=datetime.now)
+    active = db.Column(db.Boolean, default=True)
+
+    def __init__(self, time, option):
+        self.time = time
+        self.active = option
+
+
+class ResetOptionSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "time", "branch", "date_added", "active")

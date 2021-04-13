@@ -267,16 +267,9 @@ const phrase_ = () => {
     let phrase  = $("#new_phrase").val();
     console.log(phrase);
     console.log(options);
-    // $.ajax({
-    //     "url" : `http://${loc}:9000/phrase`,
-    //     "method" : "POST",
-    //     "data" : {"phrase" : phrase,"options" : options},
-    //     "success" : (data)=>{
-    //         console.log(data)
-    //     }
-    // })
     getData(`http://${loc}:9000/phrase`,"POST",{"phrase" : phrase,"options" : options},(data)=>{
         console.log(data)
-        window.loc.href = `http://${loc}:9000/extras`
+        window.location.href = `http://${loc}:9000/extras`
     })
 }
+

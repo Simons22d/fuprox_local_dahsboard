@@ -269,6 +269,52 @@ $('#generate').on("click",()=>{
         }
     }
 });
-	console.log("xxxcxcxcxcxcxx")
 // Here we are going to update the graphs
 
+const statusChange = (me)=>{
+    let option = me.value
+    let timer = $("#tickets_reset_div")
+    $("#reset_message").html("")
+    if(Number(option) === 1){
+        timer.show()
+    }else if(Number){
+        timer.hide()
+    }
+}
+
+
+$("#reset_message").html("")
+const update_reset_settings = () =>{
+    let options_reset = $("#options_reset").val();
+    let reset_time= $("#reset_time").val();
+    console.log(options_reset,reset_time,reset_time.trim().length)
+    if (Number(options_reset) === 1) {
+        if(reset_time.trim().length === 5){
+            $("#reset_message").html("")
+            let option = Number(options_reset) === 1  ? true : false;
+            let time = reset_time
+            console.log(option,time)
+            getData(`http://${loc}:9000/reset/settings`,"POST",{"option" : option,"time" : time},(data)=>{
+                console.log(data)
+                window.location.href = `http://${loc}:9000/extras`
+            })
+        }else{
+            $("#reset_message").html(`<div class="alert alert-warning" role="alert">Error! Time is
+                  required</div>`)
+        }
+    }else if(Number(options_reset) === 2){
+        // we can work without reseting the tickets
+        getData(`http://${loc}:9000/reset/settings`,"POST",{"option" : false,"time" :'00:00'},(data)=>{
+                window.location.href = `http://${loc}:9000/extras`
+        })
+    }
+
+}
+
+
+setTimeout(()=>{
+        $('#reset_time').clockpicker({
+			placement: 'top',
+			donetext : "Select Time"
+		});
+    },2000)

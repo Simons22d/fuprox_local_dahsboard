@@ -106,6 +106,13 @@ class ActivateForm(FlaskForm):
     submit = SubmitField("Activate Branch Applications")
 
 
+class TicketResetForm(FlaskForm):
+    # address = StringField("Server Address", validators=[DataRequired()])
+    Time = StringField("Key", validators=[DataRequired()])
+    reset = RadioField('Should the tickets reset?', choices=[('True', 'Yes'), ('False', 'No')])
+    submit = SubmitField("Activate Branch Applications")
+
+
 class PhraseForm(FlaskForm):
     phrase = StringField("Phrase", validators=[DataRequired()])
     type = RadioField("Callout final phrase", validators=[DataRequired()], choices=["Service Name",
