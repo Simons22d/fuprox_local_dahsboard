@@ -522,6 +522,7 @@ def add_company():
                     flash("Service Added Successfully", "success")
                     sio.emit("sync_service", final)
                     local.emit("update_services", final)
+                    return redirect("add_company")
                 except KeyError :
                     flash(final['msg'],"danger")
         else:
