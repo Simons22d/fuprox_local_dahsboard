@@ -50,7 +50,7 @@
     {% if branch %}
         {{ branch.name }}
     {% else %}
-        Oops, Application not activated. <a href="{{ url_for('extras') }}">activate here</a>
+        Oops, Application not activated. <a href="{{ url_for('extras') }}"class="text-primary">activate here</a>
     {% endif %}
 </h6>
 <h5 class="text-muted">Good {{ dash_data.statement }} {{ dash_data.user }},</h5>

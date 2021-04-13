@@ -607,8 +607,14 @@ def re():
 
 @app.route('/get/reset/details')
 def reset_request():
-    lookup = ResetOption.query.first()
-    return jsonify(reset_option_schema.dump(lookup))
+    branch  = Branch.query.first()
+    if branch:
+        lookup = ResetOption.query.first()
+        final = reset_option_schema.dump(lookup)
+        final["key_"] = branch.key_
+    else:
+        final = {}
+    return jsonify(final)
 
 
 @app.route("/reset/settings", methods=["POST"])

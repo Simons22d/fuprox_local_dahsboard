@@ -326,7 +326,6 @@ class PhraseSchema(ma.Schema):
 class ResetOption(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     time = db.Column(db.String(length=250), unique=midnight)
-    branch = db.ForeignKey("branch.key_", nullable=False, unique=True)
     date_added = db.Column(db.DateTime, default=datetime.now)
     active = db.Column(db.Boolean, default=True)
 
@@ -337,4 +336,4 @@ class ResetOption(db.Model):
 
 class ResetOptionSchema(ma.Schema):
     class Meta:
-        fields = ("id", "time", "branch", "date_added", "active")
+        fields = ("id", "time", "date_added", "active")
