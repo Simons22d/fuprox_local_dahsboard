@@ -821,7 +821,7 @@ def activate():
         key = register.key.data
         if len(key) > 20:
             try:
-                data = requests.post(f"http://localhost:4000/branch/activate", json={"key": key})
+                data = requests.post(f"http://159.65.144.235:4000/branch/activate", json={"key": key})
                 if (data.ok):
                     activate_data = data.json()
                     data = activate_branch(activate_data)
