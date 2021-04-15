@@ -8,12 +8,12 @@ from flask import flash
 
 
 class RegisterForm(FlaskForm):
+    key = StringField("Activation Key")
     username = StringField("Username", validators=[DataRequired(), Length(min=2, max=12), ])
-    email = StringField("Email", validators=[DataRequired(), Email()])
-    password = PasswordField("Password",
-                             validators=[DataRequired(), EqualTo('confirm_password', message='Passwords must match')])
+    password = PasswordField("Password",validators=[DataRequired(), EqualTo('confirm_password', message='Passwords do '
+                                                                                                        'not match')])
     confirm_password = PasswordField("Confirm Password")
-    submit = SubmitField("Register")
+    submit = SubmitField("Activate Application")
 
     # validation  for checking if the username
     def validate_username(self, username):
@@ -22,10 +22,10 @@ class RegisterForm(FlaskForm):
             raise ValidationError("Username Already Taken. Please Choose Another One")
 
     # validation from checking the email
-    def validate_email(self, email):
-        email = User.query.filter_by(email=email.data).first()
-        if email:
-            raise ValidationError("Email Already Taken. Please Choose Another One")
+    # def validate_email(self, email):
+    #     email = User.query.filter_by(email=email.data).first()
+    #     if email:
+    #         raise ValidationError("Email Already Taken. Please Choose Another One")
 
 
 class LoginForm(FlaskForm):

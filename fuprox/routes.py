@@ -74,6 +74,13 @@ from datetime import datetime
 time = int(datetime.now().strftime("%H"))
 
 
+def app_is_activated():
+    lookup = Branch.query.first()
+    return lookup
+
+
+
+
 @app.route("/")
 @app.route("/dashboard")
 @login_required
@@ -657,7 +664,6 @@ def activate_branch(data):
                         return False
                     except sqlalchemy.exc.InvalidRequestError as e :
                         log(f"Error! {e}")
-
                 else:
 
                     return {'msg' : "Data incomplete"},500
@@ -780,9 +786,11 @@ def logout():
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
+    if(not app_is_activated()):
+        return redirect(url_for("activate"))
+
     if current_user.is_authenticated:
         return redirect(url_for("home"))
-
     # loading the form
     login = LoginForm()
     # checking the form data status
@@ -798,27 +806,50 @@ def login():
             flash("Login unsuccessful Please Check Email and Password", "danger")
     return render_template("login.html", form=login)
 
-@app.route("/register", methods=["GET", "POST"])
-# @login_required
-def register():
+
+@app.route("/activate", methods=["GET", "POST"])
+def activate():
     # checking if the current user is logged
     if current_user.is_authenticated:
         return redirect(url_for("home"))
 
+    if (app_is_activated()):
+        return redirect(url_for("login"))
+
     register = RegisterForm()
     if register.validate_on_submit():
-        # hashing the password
-        hashed_password = bcrypt.generate_password_hash(register.password.data).decode("utf-8")
-        # adding the password to the database
-        try:
-            user = User(username=register.username.data, email=register.email.data, password=hashed_password)
-            db.session.add(user)
-            db.session.commit()
-            db.session.close()
-        except sqlalchemy.exc.IntegrityError:
-            flash("User By That Username Exists", "warning")
-        flash(f"Account Created successfully", "success")
-        return redirect(url_for('login'))
+        key = register.key.data
+        if len(key) > 20:
+            try:
+                data = requests.post(f"http://localhost:4000/branch/activate", json={"key": key})
+                if (data.ok):
+                    activate_data = data.json()
+                    data = activate_branch(activate_data)
+                    log(data)
+                    # flash("Success! Application Activated", "success")
+                    try:
+                        hashed_password = bcrypt.generate_password_hash(register.password.data).decode("utf-8")
+
+                        user = User(username=register.username.data, email=activate_data["branch"]["description"],
+                                    password=hashed_password)
+                        log(user)
+                        db.session.add(user)
+                        db.session.commit()
+                        db.session.close()
+                        return redirect(url_for("login"))
+                    except sqlalchemy.exc.IntegrityError:
+                        flash("User By That Username Exists", "warning")
+                    flash(f"Account Created successfully", "success")
+                    return redirect(url_for('login'))
+
+                else:
+                    flash("Error! Please confirm the key", "warning")
+                    return redirect(url_for("extras"))
+            except requests.exceptions.ConnectionError:
+                flash("Error! Activatation Server Not Reachable", "danger")
+        else:
+            flash("Error! Key too short", "danger")
+
     return render_template("register.html", form=register)
 
 
