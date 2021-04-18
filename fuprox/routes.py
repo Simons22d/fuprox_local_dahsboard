@@ -129,7 +129,8 @@ dir = str()
 def upload_link_():
     link_ = request.json["link"]
     type_ = request.json["type"]
-    return upload_link(link_, type_)
+    msg = upload_link(link_, type_)
+    return msg
 
 
 @app.route("/dashboard/reports", methods=["POST"])
@@ -398,6 +399,7 @@ def get_all_videos_():
 @app.route("/video/toggle", methods=["POST"])
 def activate_video():
     id = request.json["id"]
+    local.emit("video_refresh","")
     return toggle_status(id)
 
 
