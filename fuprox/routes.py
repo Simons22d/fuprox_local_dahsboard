@@ -5,7 +5,7 @@ from fuprox.forms import (RegisterForm, LoginForm, TellerForm, ServiceForm, Solu
                           ReportForm, ActivateForm,PhraseForm,TicketResetForm)
 from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, CompanySchema, ServiceSchema, Mpesa, \
     MpesaSchema, Booking, BookingSchema, ImageCompany, ImageCompanySchema, Teller, TellerSchema,ServiceOffered,Icon,\
-    IconSchema,PhraseSchema,Phrase,ServiceOfferedSchema, VideoSchema,Video,ResetOption,ResetOptionSchema
+    IconSchema,PhraseSchema,Phrase,ServiceOfferedSchema, VideoSchema,Video,ResetOption,ResetOptionSchema,TellerBooking
 from fuprox.utility import reverse,add_teller,services_exist,services_exist,branch_exist,create_service,upload_video,\
     get_single_video,get_all_videos, get_active_videos, save_mp4, make_video_active,make_video_inactive,\
     toggle_status,validate_link,upload_link,delete_video,save_icon_to_service
@@ -221,6 +221,19 @@ def get_issue_count():
 def payments():
     bookings = Booking.query.all()
     return render_template("payment.html", bookings=bookings)
+
+
+@app.route("/bookings/details/<int:id>")
+@login_required
+def booking_info(id):
+    booking = Booking.query.get(id)
+    history = TellerBooking.query.filter_by(booking_id=id).order_by(TellerBooking.date_added.asc()).all()
+    statements = list()
+    for x in history:
+        from_ = "—" if x.teller_from == 0 else f" From teller {x.teller_from} "
+        preq = "with no madatory teller" if x.pre_req == 0 else f" with mandatory to teller {x.pre_req} "
+        statements.append(f"{from_} to teller {x.teller_to} on {x.date_added} {preq}")
+    return render_template("payment_card.html", booking=booking,statements=statements)
 
 
 @app.route("/reverse", methods=["POST"])

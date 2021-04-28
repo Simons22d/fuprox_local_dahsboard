@@ -9,6 +9,10 @@ def ticket_unique() -> int:
     return secrets.token_hex(16)
 
 
+def default_preq_date():
+    return parser.parse("01/01/1970")
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -337,3 +341,30 @@ class ResetOption(db.Model):
 class ResetOptionSchema(ma.Schema):
     class Meta:
         fields = ("id", "time", "date_added", "active")
+
+
+class TellerBooking(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    teller_to = db.Column(db.Integer, nullable=False)
+    booking_id = db.Column(db.Integer, nullable=False)
+    teller_from = db.Column(db.Integer)
+    remarks = db.Column(db.Text, nullable=False)
+    active = db.Column(db.Boolean, nullable=False, default=True)
+    date_added = db.Column(db.DateTime, default=datetime.now)
+    is_synced = db.Column(db.Boolean, default=False)
+    pre_req = db.Column(db.Integer, default=0)
+    preq_date_servived = db.Column(db.DateTime, default=default_preq_date)
+
+    def __init__(self, teller_to, booking_id, teller_from, remarks, active):
+        self.teller_to = teller_to
+        self.teller_from = teller_from
+        self.booking_id = booking_id
+        self.remarks = remarks
+        self.active = active
+
+
+class TellerBookingSchema(ma.Schema):
+    class Meta:
+        fields = (
+        "id", "teller_to", "booking_id", "teller_from", "remarks", "active", "date_added", "pre_req", "is_synced",
+        "preq_date_servived")
