@@ -227,8 +227,17 @@ def payments():
 @login_required
 def booking_info(id):
     booking = Booking.query.get(id)
+    booking.is_instant_ = "Instant" if booking.is_instant else  "Not Instant"
+    booking.is_synced_ = "Synced" if booking.is_synced else  "Not Synced"
+    booking.serviced_ = "Closed" if booking.serviced else  "Open"
+    booking.forwarded_ = "Forwarded" if booking.forwarded else  "Not Forwarded"
+
     history = TellerBooking.query.filter_by(booking_id=id).order_by(TellerBooking.date_added.asc()).all()
     statements = list()
+    service = ServiceOffered.query.filter_by(name=booking.service_name).first()
+    icon = Icon.query.get(service.icon)
+    booking.service = service
+    booking.icon = icon
     for x in history:
         from_ = "—" if x.teller_from == 0 else f" From teller {x.teller_from} "
         preq = "with no madatory teller" if x.pre_req == 0 else f" with mandatory to teller {x.pre_req} "

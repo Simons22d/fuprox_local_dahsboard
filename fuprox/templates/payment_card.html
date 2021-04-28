@@ -50,19 +50,32 @@
     <h5 class="text-muted row">Booking ID : </h5>
     <h6 class="text-muted row">Service : </h6>
     <h6 class="text-muted row">Ticket : </h6>
-    <h6 class="text-muted row">unique ID : </h6>
+    <h6 class="text-muted row">Icon : </h6>
+    <h6 class="text-muted row">Unique ID : </h6>
     <h6 class="text-muted row">Booking Date : </h6>
-    <h6 class="text-muted row">served : </h6>
-    <h6 class="text-muted row">unique teller : </h6>
+    <h6 class="text-muted row">Served : </h6>
+    <h6 class="text-muted row">Teller : </h6>
+    <h6 class="text-muted row">Synced : </h6>
+    <h6 class="text-muted row">Instant : </h6>
+    <h6 class="text-muted row">Forwarded : </h6>
 </div>
+
+{#      booking.is_instant_ = "Instant" if booking.is_instant else  "Not Instant"
+{#    booking.is_synced_ = "Synced" if booking.is_synced else  "Not Synced"
+{#    booking.serviced_ = "Closed" if booking.serviced else  "Open"
+{#    booking.is_synced_ = "Forwarded" if booking.forwarded else  "Not Forwarded"#}
 <div class="col-4">
     <h5 class="text-muted row">{{ booking.id }}</h5>
     <h6 class="text-muted row">{{ booking.service_name }}</h6>
-    <h6 class="text-muted row">{{ booking.ticket }}</h6>
+    <h6 class="text-muted row">{{ booking.service.code }}{{ booking.ticket }}</h6>
+    <h6 class="text-muted row"><img src="{{ booking.icon.icon }}" alt="icon" height="20px"></h6>
     <h6 class="text-muted row">{{ booking.unique_id }}</h6>
     <h6 class="text-muted row">{{ booking.date_added }}</h6>
-    <h6 class="text-muted row">{{ booking.serviceds }}</h6>
-    <h6 class="text-muted row">{{ booking.unique_teller }}</h6>
+    <h6 class="text-muted row">{{ booking.serviced_ }}</h6>
+    <h6 class="text-muted row">{{ booking.teller }}</h6>
+    <h6 class="text-muted row">{{ booking.is_synced_ }}</h6>
+    <h6 class="text-muted row">{{ booking.is_instant_ }}</h6>
+    <h6 class="text-muted row">{{ booking.forwarded_}}</h6>
 
 </div>
 
