@@ -38,19 +38,6 @@
           </div>
         </div>
       </div>
-<!--      body-->
-{#      <div class="col-lg-12 row mt-4">#}
-{#        <div class="btn-group row  col-lg-4" role="group" aria-label="Basic example">#}
-{#          <button type="button" class="btn  btn-sm btn-primary" id="mpesa">Mpesa#}
-{#              Payments</button>#}
-{#          <button type="button" class="btn btn-sm  btn-outline-primary"  id="card">Card#}
-{#              Payments</button>#}
-{#          <button type="button" class="btn btn-sm  btn-outline-primary "#}
-{#                  id="reports">Reports#}
-{#          </button>#}
-{#        </div>#}
-{#      </div>#}
-{#    </div>#}
   </section>
 {% endblock%}
 
@@ -74,12 +61,12 @@
           {% for booking in bookings%}
           <tr>
             <td>{{ booking.id }}</td>
-            <td>{{ booking.ticket }}</td>
+            <td>{{ booking.start }}{{ booking.ticket }}</td>
             <td>{{ booking.service_name }}</td>
             <td>{{ booking.teller }}</td>
-            <td>{{ booking.serviced }}</td>
-            <td>{{ booking.is_synced }}</td>
-            <td>{{ booking.forwarded }}</td>
+            <td>{% if  booking.serviced %} {{ "Serviced" }} {% else %} {{ "Not Serviced" }}{% endif %}</td>
+            <td>{% if  booking.is_synced %} {{ "Synced" }} {% else %} {{ "Not Synced" }}{% endif %}</td>
+            <td>{% if  booking.forwarded %} {{ "Forwarded" }} {% else %} {{ "Not Forwarded" }}{% endif %}</td>
             <td>{{ booking.date_added }}</td>
             <td><a href="{{ url_for('booking_info',id=booking.id)}}">Details</a></td>
 

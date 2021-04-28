@@ -219,7 +219,13 @@ def get_issue_count():
 @app.route("/bookings")
 @login_required
 def payments():
-    bookings = Booking.query.all()
+    bookings_ = Booking.query.all()
+    bookings = list()
+    for booking in bookings_:
+        service = ServiceOffered.query.filter_by(name=booking.service_name).first()
+        booking.start = service.code
+        bookings.append(booking)
+
     return render_template("payment.html", bookings=bookings)
 
 
