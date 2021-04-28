@@ -2,7 +2,7 @@ from flask import render_template, url_for, flash, redirect, request, abort, jso
 from fuprox import app, db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required,current_user
 from fuprox.forms import (RegisterForm, LoginForm, TellerForm, ServiceForm, SolutionForm,
-                          ReportForm, ActivateForm,PhraseForm,TicketResetForm)
+                          ReportForm, ActivateForm,PhraseForm,TicketResetForm,AddUser)
 from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, CompanySchema, ServiceSchema, Mpesa, \
     MpesaSchema, Booking, BookingSchema, ImageCompany, ImageCompanySchema, Teller, TellerSchema,ServiceOffered,Icon,\
     IconSchema,PhraseSchema,Phrase,ServiceOfferedSchema, VideoSchema,Video,ResetOption,ResetOptionSchema,TellerBooking
@@ -931,7 +931,7 @@ def add_users():
     # getting user data from the database
     user_data = User.query.all()
     # return form to add a user
-    register = RegisterForm()
+    register = AddUser()
     if register.validate_on_submit():
         # hashing the password
         hashed_password = bcrypt.generate_password_hash(register.password.data).decode("utf-8")
@@ -940,7 +940,6 @@ def add_users():
             user = User(username=register.username.data, email=register.email.data, password=hashed_password)
             db.session.add(user)
             db.session.commit()
-            db.session.close()
         except sqlalchemy.exc.IntegrityError:
             flash("User By That Name Exists", "warning")
         flash(f"Account Created successfully", "success")

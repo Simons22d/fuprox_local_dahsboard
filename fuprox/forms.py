@@ -152,3 +152,25 @@ class ReportForm(FlaskForm):
 #         email = User.query.filter_by(email=email.data).first()
 #         if email:
 #             raise ValidationError("Email Already Taken. Please Choose Another One")
+
+
+
+class AddUser(FlaskForm):
+    username = StringField("Username", validators=[DataRequired(), Length(min=2, max=12), ])
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    password = PasswordField("Password",
+                             validators=[DataRequired(), EqualTo('confirm_password', message='Passwords must match')])
+    confirm_password = PasswordField("Confirm Password")
+    submit = SubmitField("Register")
+
+    # validation  for checking if the username
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user:
+            raise ValidationError("Username Already Taken. Please Choose Another One")
+
+    # validation from checking the email
+    def validate_email(self, email):
+        email = User.query.filter_by(email=email.data).first()
+        if email:
+            raise ValidationError("Email Already Taken. Please Choose Another One")
