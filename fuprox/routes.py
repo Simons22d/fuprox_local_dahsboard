@@ -1,30 +1,31 @@
-from flask import render_template, url_for, flash, redirect, request, abort, jsonify, send_file, send_from_directory
-from fuprox import app, db, bcrypt
-from flask_login import login_user, current_user, logout_user, login_required,current_user
-from fuprox.forms import (RegisterForm, LoginForm, TellerForm, ServiceForm, SolutionForm,
-                          ReportForm, ActivateForm,PhraseForm,TicketResetForm,AddUser)
-from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, CompanySchema, ServiceSchema, Mpesa, \
-    MpesaSchema, Booking, BookingSchema, ImageCompany, ImageCompanySchema, Teller, TellerSchema,ServiceOffered,Icon,\
-    IconSchema,PhraseSchema,Phrase,ServiceOfferedSchema, VideoSchema,Video,ResetOption,ResetOptionSchema,TellerBooking
-from fuprox.utility import reverse,add_teller,services_exist,services_exist,branch_exist,create_service,upload_video,\
-    get_single_video,get_all_videos, get_active_videos, save_mp4, make_video_active,make_video_inactive,\
-    toggle_status,validate_link,upload_link,delete_video,save_icon_to_service
-import tablib
-from datetime import datetime
-import time
-from PIL import Image
-
-from datetime import datetime
-import secrets
-import socketio
-from fuprox.utility import email
-from flask_sqlalchemy import sqlalchemy
-import os
 import logging
+import os
+import secrets
+import time
+from datetime import timedelta
+
 import requests
+import socketio
+from PIL import Image
+from dateutil import parser
+from flask import render_template, url_for, flash, redirect, request, abort, jsonify, send_from_directory
+from flask_login import login_user, logout_user, login_required, current_user
+from flask_sqlalchemy import sqlalchemy
+
+from fuprox import app, db, bcrypt
+from fuprox.forms import (RegisterForm, LoginForm, TellerForm, ServiceForm, SolutionForm,
+                          ActivateForm, AddUser)
+from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, CompanySchema, ServiceSchema, Mpesa, \
+    MpesaSchema, Booking, BookingSchema, ImageCompanySchema, Teller, TellerSchema, ServiceOffered, Icon, \
+    PhraseSchema, Phrase, ServiceOfferedSchema, VideoSchema, Video, ResetOption, ResetOptionSchema, \
+    TellerBooking
+from fuprox.utility import email
+from fuprox.utility import reverse, add_teller, create_service, \
+    upload_video, \
+    get_single_video, get_all_videos, get_active_videos, toggle_status, upload_link, delete_video, save_icon_to_service
+
 teller_schema = TellerSchema()
 tellers_schema = TellerSchema(many=True)
-
 
 # socket_link = "http://localhost:5000/"
 socket_link = "http://159.65.144.235:5000/"
@@ -52,7 +53,7 @@ bookings_schema = BookingSchema(many=True)
 comapny_image_schema = ImageCompanySchema()
 comapny_image_schemas = ImageCompanySchema(many=True)
 
-videos_schema =VideoSchema(many=True)
+videos_schema = VideoSchema(many=True)
 
 phrase_schema = PhraseSchema()
 reset_option_schema = ResetOptionSchema()
@@ -68,7 +69,6 @@ def get_part_of_day(hour):
     )
 
 
-
 from datetime import datetime
 
 time = int(datetime.now().strftime("%H"))
@@ -77,8 +77,6 @@ time = int(datetime.now().strftime("%H"))
 def app_is_activated():
     lookup = Branch.query.first()
     return lookup
-
-
 
 
 @app.route("/")
@@ -91,19 +89,20 @@ def home():
     bookings = len(Booking.query.all())
     tellers = len(Teller.query.all())
     service_offered = len(ServiceOffered.query.all())
-    videos  = len(videos_schema.dump(Video.query.all()))
+    videos = len(videos_schema.dump(Video.query.all()))
     dash_data = {
-        "bookings" : f"{bookings} {'booking' if bookings == 1 else 'Bookings'}" if bookings else "No Bookings" ,
-        "tellers" : f"{tellers} {'Teller' if tellers <= 1 else 'Tellers'}" if tellers else "No Tellers",
-        "services" : f"{service_offered} {'Service' if service_offered <= 1 else 'Services'}" if service_offered else
+        "bookings": f"{bookings} {'booking' if bookings == 1 else 'Bookings'}" if bookings else "No Bookings",
+        "tellers": f"{tellers} {'Teller' if tellers <= 1 else 'Tellers'}" if tellers else "No Tellers",
+        "services": f"{service_offered} {'Service' if service_offered <= 1 else 'Services'}" if service_offered else
         "No Services",
-        "statement" : get_part_of_day(time).capitalize(),
-        "user" : (current_user.username).capitalize(),
-        "video" : f"{videos} {'Video' if tellers <= 1 else 'Videos'}" if tellers else "No Videos"
+        "statement": get_part_of_day(time).capitalize(),
+        "user": (current_user.username).capitalize(),
+        "video": f"{videos} {'Video' if tellers <= 1 else 'Videos'}" if tellers else "No Videos"
     }
     branch = Branch.query.first()
     log(dash_data)
-    return render_template("dashboard.html", today=date,dash_data = dash_data,branch=branch)
+    return render_template("dashboard.html", today=date, dash_data=dash_data, branch=branch)
+
 
 @app.route("/doughnut/data", methods=["GET"])
 def _doughnut_data():
@@ -227,34 +226,86 @@ def payments():
         bookings.append(booking)
     return render_template("payment.html", bookings=bookings)
 
-@app.route("/booking/search/ticket",methods=["POST"])
-def search():
+
+@app.route("/booking/search/ticket", methods=["POST"])
+def search__():
     ticket = request.json["ticket"]
     # asssume LNS43 
     # get the service first 
     service = ServiceOffered.query.filter_by(code=ticket[:3]).first()
-    booking_code  = ticket[3:]
+    booking_code = ticket[3:]
     bookings = list()
-    if service :
-        bookings  = Booking.query.filter_by(service_name=service.name).filter_by(ticket=booking_code).all()
+    if service:
+        bookings = Booking.query.filter_by(service_name=service.name).filter_by(ticket=booking_code).all()
     return jsonify(bookings)
 
 
-
-@app.route("/booking/search/filters", methods=["POST","GET"])
+@app.route("/booking/search/filters", methods=["POST"])
 def filters():
     pass
+
+
+def get_service(name):
+    return ServiceOffered.query.filter_by(name=name).first()
+
+
+@app.route("/booking/search/name", methods=["POST"])
+def search_by_service_name():
+    service_name = request.json["service"]
+    data = get_service(service_name)
+    bookings = list()
+    if data:
+        bookings = Booking.query.filter_by(service_namee=data.name).all()
+
+    return jsonify(bookings_schema.dump(bookings))
+
+
+@app.route("/bookings/search/service/date", methods=["POST"])
+def search_by_service_name_date():
+    service_name = request.json["service"]
+    dates = request.json["dates"]
+    data = get_service(service_name)
+    bookings = list()
+    if data :
+        bookings = get_bookings_by_date(data.name, dates)
+    return bookings
+
+
+def parse_date(date):
+    try:
+        final = parser.parse(date)
+    except Exception:
+        final = None
+    return final
+
+
+def get_bookings_by_date(service_name, date):
+    dates = date.split("$$")
+    if len(dates) > 1:
+        # date ranges
+        start = parse_date(dates[0])
+        end = parse_date(dates[1])
+        bookings = Booking.query.filter_by(service_name=service_name).filter(Booking.date_added > start).filter(
+            Booking.date_added < end).all()
+    else:
+        # single date
+        start = parse_date(dates[0])
+        end = start + timedelta(hours=24)
+        bookings = Booking.query.filter_by(service_name=service_name).filter(Booking.date_added > start).filter(
+            Booking.date_added < end).all()
+
+    return bookings
 
 
 @app.route("/bookings/details/<int:id>")
 @login_required
 def booking_info(id):
-    try :
+    try:
         booking = Booking.query.get(id)
-        booking.is_instant_ = "Instant" if booking.is_instant else  "Not Instant"
-        booking.is_synced_ = "Synced" if booking.is_synced else  "Not Synced"
-        booking.serviced_ = "Closed" if booking.serviced else  "Open"
-        booking.forwarded_ = "Forwarded" if booking.forwarded else  "Not Forwarded"
+        booking.is_instant_ = "Instant" if booking.is_instant else "Not Instant"
+        booking.is_synced_ = "Synced" if booking.is_synced else "Not Synced"
+        booking.serviced_ = "Closed" if booking.serviced else "Open"
+        booking.forwarded_ = "Forwarded" if booking.forwarded else "Not Forwarded"
 
         history = TellerBooking.query.filter_by(booking_id=id).order_by(TellerBooking.date_added.asc()).all()
         statements = list()
@@ -268,7 +319,7 @@ def booking_info(id):
             statements.append(f"{from_} to teller {x.teller_to} on {x.date_added} {preq}")
     except AttributeError:
         abort(404)
-    return render_template("payment_card.html", booking=booking,statements=statements)
+    return render_template("payment_card.html", booking=booking, statements=statements)
 
 
 @app.route("/reverse", methods=["POST"])
@@ -299,11 +350,11 @@ def get_transaction(id):
     return mpesa_schema.dump(lookup)
 
 
-
 @app.route('/service/icon/upload', methods=['POST'])
 def upload_file():
     # print(request.data)
     return upload()
+
 
 @app.route('/service/icon', methods=['POST'])
 def upload_file_():
@@ -313,7 +364,6 @@ def upload_file_():
     branch_id = Branch.query.first().id
     current = save_icon_to_service(icon, name, branch_id)
     return current
-
 
 
 @app.route("/card")
@@ -333,8 +383,6 @@ def payments_report():
     return render_template("payments_reports.html")
 
 
-
-
 @app.route("/404")
 def review_404():
     # work on the payments templates
@@ -350,7 +398,6 @@ def interanal_error(e):
 def page_not_found(e):
     # note that we set the 404 status explicitly
     return render_template('404.html'), 404
-
 
 
 @app.route("/tellers", methods=["POST", "GET"])
@@ -380,7 +427,7 @@ def tellers():
             return redirect(url_for("tellers"))
         else:
             flash("Teller Already exists.", "danger")
-    return render_template("add_branch.html", form=teller, services=services ,tellers=tellers_)
+    return render_template("add_branch.html", form=teller, services=services, tellers=tellers_)
 
 
 def branch_exists_id(id):
@@ -395,9 +442,11 @@ def teller_exists(teller_number):
 
 """ not recommemded __check if current branch is in db"""
 
+
 def log(msg):
     print(f"{datetime.now().strftime('%d:%m:%Y %H:%M:%S')} — {msg}")
     return True
+
 
 def branch_exits(name):
     lookup = Branch.query.filter_by(name=name).first()
@@ -417,7 +466,6 @@ def more_info(key):
 @app.route("/video/upload", methods=["POST"])
 def upload_video_():
     return upload_video()
-
 
 
 # @app.route("/video/link", methods=["POST"])
@@ -447,7 +495,7 @@ def get_all_videos_():
 @app.route("/video/toggle", methods=["POST"])
 def activate_video():
     id = request.json["id"]
-    local.emit("video_refresh","")
+    local.emit("video_refresh", "")
     return toggle_status(id)
 
 
@@ -455,7 +503,6 @@ def activate_video():
 def video_delete():
     vid_id = request.json["id"]
     return jsonify(delete_video(vid_id))
-
 
 
 @app.route("/upload", methods=["POST", "GET", "PUT"])
@@ -466,7 +513,8 @@ def upload_video__():
 @app.route("/icons", methods=["POST", "GET", "PUT"])
 def upload_icon():
     icons = Icon.query.all()
-    return render_template("icon.html",icons=icons)
+    return render_template("icon.html", icons=icons)
+
 
 # view_branch
 @app.route("/teller/view")
@@ -504,11 +552,8 @@ def add_category():
         db.session.close()
         flash(f"Service Successfully Added", "success")
     else:
-        flash("Error! Make Sure all data is correct","error")
+        flash("Error! Make Sure all data is correct", "error")
     return render_template("add_category.html", form=company)
-
-
-
 
 
 def move_to_api(filename):
@@ -572,7 +617,7 @@ def add_company():
             visible = True if service.visible.data == "True" else False
             active = True if service.active.data == "True" else False
             # service emit service made
-            final = create_service(name, teller, branch_id, code, icon, visible,active)
+            final = create_service(name, teller, branch_id, code, icon, visible, active)
             if final:
                 try:
                     key = final["key"]
@@ -580,12 +625,12 @@ def add_company():
                     sio.emit("sync_service", final)
                     local.emit("update_services", final)
                     return redirect(url_for("add_company"))
-                except KeyError :
-                    flash(final['msg'],"danger")
+                except KeyError:
+                    flash(final['msg'], "danger")
         else:
             flash("Make sure all data is correct", "error")
-    return render_template("add_company.html", form=service, companies=service_data, tellers=tellers,icons=icons,
-                           services_offered = services_offered)
+    return render_template("add_company.html", form=service, companies=service_data, tellers=tellers, icons=icons,
+                           services_offered=services_offered)
 
 
 @app.route("/services/view")
@@ -614,14 +659,14 @@ def help():
     return render_template("help.html", data=solution_data)
 
 
-@app.route("/extras",methods=["GET","POST"])
+@app.route("/extras", methods=["GET", "POST"])
 @login_required
 def extras():
     current = Branch.query.first()
-    form  = ActivateForm()
+    form = ActivateForm()
     phrase = Phrase.query.first()
     default = "Proceed to room number"
-    phrase = ( phrase.phrase if phrase.phrase else default) if  phrase else default
+    phrase = (phrase.phrase if phrase.phrase else default) if phrase else default
     current_phrase = Phrase.query.first()
     if request.method == "POST":
         if form.validate_on_submit() and form.submit.data:
@@ -635,7 +680,7 @@ def extras():
                             flash("Success! Application Activated", "success")
                             return redirect(url_for("home"))
                         else:
-                            flash(data["msg"],"warning")
+                            flash(data["msg"], "warning")
                     else:
                         flash("Error! Please confirm the key", "warning")
                         return redirect(url_for("extras"))
@@ -643,10 +688,10 @@ def extras():
                     flash("Error! Activatation Server Not Reachable", "danger")
             else:
                 flash("Error! Key too short", "danger")
-    return render_template("extras.html",branch=current,form=form,current_phrase=current_phrase, phrase=phrase)
+    return render_template("extras.html", branch=current, form=form, current_phrase=current_phrase, phrase=phrase)
 
 
-@app.route("/reset/tickets",methods=["POST"])
+@app.route("/reset/tickets", methods=["POST"])
 def reset_tickets():
     req = request.post("http://159.65.144.235:4000/ticket/reset")
 
@@ -663,9 +708,10 @@ def re():
     flash("Phrase Successfully Set", "success")
     return jsonify(phrase_schema.dump(lookup))
 
+
 @app.route('/get/reset/details')
 def reset_request():
-    branch  = Branch.query.first()
+    branch = Branch.query.first()
     if branch:
         lookup = ResetOption.query.first()
         final = reset_option_schema.dump(lookup)
@@ -690,7 +736,7 @@ def reset_settings():
     return jsonify(phrase_schema.dump(lookup))
 
 
-@app.route("/this/branch",methods=["POST"])
+@app.route("/this/branch", methods=["POST"])
 def this_branch():
     return jsonify(branch_schema.dump(Branch.query.first()))
 
@@ -707,26 +753,31 @@ def activate_branch(data):
                         clean_db()
                         prepare_db(branch["key_"])
 
-                        add_service(service["name"],service["service"],service["is_medical"])
-                        add_company(company["name"],company["service"])
-                        add_branch(branch["name"],branch["company"],branch["longitude"],branch["latitude"],branch["opens"],
-                                   branch["closes"],branch["service"],branch["description"],branch["key_"],branch["unique_id"])
+                        add_service(service["name"], service["service"], service["is_medical"])
+                        add_company(company["name"], company["service"])
+                        add_branch(branch["name"], branch["company"], branch["longitude"], branch["latitude"],
+                                   branch["opens"],
+                                   branch["closes"], branch["service"], branch["description"], branch["key_"],
+                                   branch["unique_id"])
                         return False
-                    except sqlalchemy.exc.InvalidRequestError as e :
+                    except sqlalchemy.exc.InvalidRequestError as e:
                         log(f"Error! {e}")
                 else:
 
-                    return {'msg' : "Data incomplete"},500
+                    return {'msg': "Data incomplete"}, 500
             else:
-                return {"msg" : "Error! Key not valid. Please confirm the key and retry."}
+                return {"msg": "Error! Key not valid. Please confirm the key and retry."}
         except json.decoder.JSONDecodeError:
             return {"msg": "Error! Key not valid. Please confirm the key and retry."}
     else:
         return {"msg": "Error! Key not valid. Please confirm the key and retry."}
 
+
 def there_are_bookings():
     bookings = Booking.query.all()
     return bookings
+
+
 def prepare_db(key):
     bookings = there_are_bookings()
     if not bookings:
@@ -776,7 +827,6 @@ def add_branch(name, company, longitude, latitude, opens, closes, service, descr
         return dict()
 
 
-
 def add_company(name, service):
     if company_exists():
         db.session.execute("DELETE FROM company")
@@ -791,11 +841,14 @@ def add_company(name, service):
     lookup_data = company_schema.dump(lookup)
     return lookup_data
 
+
 def service_exists():
     return Service.query.first()
 
+
 def branch_exists_():
     return Branch.query.first()
+
 
 def company_exists():
     return Company.query.first()
@@ -827,7 +880,6 @@ def add_service(name, service, is_medical):
     return service_schema.dump(lookup)
 
 
-
 @app.route("/logout")
 def logout():
     logout_user()
@@ -836,7 +888,7 @@ def logout():
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
-    if(not app_is_activated()):
+    if (not app_is_activated()):
         return redirect(url_for("activate"))
 
     if current_user.is_authenticated:
@@ -1051,9 +1103,9 @@ def edit_branch(id):
         service.code.data = ""
         service.icon.data = ""
         final = service_offered_schema.dump(this_service)
-        this_branch= Branch.query.first()
-        sio.emit("sync_edit_service" ,final )
-        local.emit("update_services","")
+        this_branch = Branch.query.first()
+        sio.emit("sync_edit_service", final)
+        local.emit("update_services", "")
         flash("Service Successfully Updated", "success")
         return redirect(url_for("add_company"))
 
@@ -1064,8 +1116,8 @@ def edit_branch(id):
         service.icon.data = this_service.icon
     else:
         flash("Service Does Not exist. Add Service name first.", "danger")
-    return render_template("edit_company.html", form=service, services=services,tellers=tellers,icons=icons,
-                           services_offered = services_offered)
+    return render_template("edit_company.html", form=service, services=services, tellers=tellers, icons=icons,
+                           services_offered=services_offered)
 
 
 @app.route("/branch/delete/<int:id>", methods=["GET", "POST"])
@@ -1077,8 +1129,8 @@ def delete_branch(id):
         db.session.delete(branch_data)
         db.session.commit()
         db.session.close()
-        flash("Branch Deleted Sucessfully","success")
-    elif request.method == "GET" :
+        flash("Branch Deleted Sucessfully", "success")
+    elif request.method == "GET":
         # init the form
         branch = TellerForm()
     db.session.delete(branch_data)
@@ -1118,7 +1170,7 @@ def edit_teller(id):
         teller.service.data = teller_data.service
     else:
         flash("Service Does Not exist. Add Service name first.", "danger")
-    return render_template("edit_branch.html", form=teller,services_offered = teller_data,services=services)
+    return render_template("edit_branch.html", form=teller, services_offered=teller_data, services=services)
 
 
 @app.route("/email", methods=["POST"])
@@ -1161,7 +1213,6 @@ def edit_category(id):
     return render_template("edit_category.html", form=service)
 
 
-
 @sio.event
 def connect():
     log('online connection established')
@@ -1172,13 +1223,13 @@ def disconnect():
     log('online disconnected from server')
 
 
-
 '''working with sockets '''
 try:
     sio.connect(socket_link)
 except socketio.exceptions.ConnectionError:
     log("Error! Could not connect to online server.")
     # log("...")
+
 
 @local.event
 def connect():
