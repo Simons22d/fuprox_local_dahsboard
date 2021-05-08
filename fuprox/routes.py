@@ -225,8 +225,25 @@ def payments():
         service = ServiceOffered.query.filter_by(name=booking.service_name).first()
         booking.start = service.code
         bookings.append(booking)
-
     return render_template("payment.html", bookings=bookings)
+
+@app.route("/booking/search/ticket",methods=["POST"])
+def search():
+    ticket = request.json["ticket"]
+    # asssume LNS43 
+    # get the service first 
+    service = ServiceOffered.query.filter_by(code=ticket[:3]).first()
+    booking_code  = ticket[3:]
+    bookings = list()
+    if service :
+        bookings  = Booking.query.filter_by(service_name=service.name).filter_by(ticket=booking_code).all()
+    return jsonify(bookings)
+
+
+
+@app.route("/booking/search/filters", methods=["POST","GET"])
+def filters():
+    pass
 
 
 @app.route("/bookings/details/<int:id>")
@@ -978,7 +995,7 @@ def manage_users():
 
 # SEARCHING ROUTE
 @app.route("/help/solution/<int:id>", methods=["GET", "POST"])
-def search(id):
+def search__(id):
     # get data from the database based on the data provided
     data = Help.query.get(id)
     # there should be a solution database || FAQ
