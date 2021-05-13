@@ -300,9 +300,7 @@ def upload_video():
         try:
             # here wen need the file name
             filename = secure_filename(file.filename)
-
-            # move the file to an appropiate location for play back
-
+            # move the file to an appropriate location for play back
             # saving the video to the database
             video_lookup = Video(name=filename, type=1)
             db.session.add(video_lookup)

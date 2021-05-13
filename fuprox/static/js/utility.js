@@ -318,3 +318,14 @@ setTimeout(()=>{
 			donetext : "Select Time"
 		});
     },2000)
+
+
+
+
+$("#search_bookings").on("input",(e)=>{
+   let search_term = $("#search_bookings").val()
+	console.log(search_term)
+    getData(`http://${window.location.hostname}:9000/booking/search`,"POST",{"term" : search_term},(data)=>{
+        console.log(data)
+    })
+})
