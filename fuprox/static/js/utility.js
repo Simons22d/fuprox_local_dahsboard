@@ -110,7 +110,7 @@ if ([6, 0].indexOf(start.getDay()) !== -1) {
 // var minHours =;
 // var minDate = ;
 // minDate : today;
-$('#dailyCal').datepicker({
+$('#date_range').datepicker({
     language: 'en',
     startDate: start,
     maxDate: start,
@@ -326,6 +326,52 @@ $("#search_bookings").on("input",(e)=>{
    let search_term = $("#search_bookings").val()
 	console.log(search_term)
     getData(`http://${window.location.hostname}:9000/booking/search`,"POST",{"term" : search_term},(data)=>{
-        console.log(data)
+        
+        let item = ""
+
+        if(data.length){
+            data.map((booking,index)=>{
+                console.log(booking)
+                item += `<tr>
+                <td>${ booking.id }</td>
+                <td>${ booking.start }  ${ booking.ticket }</td>
+                <td>${ booking.service_name } </td>
+                <td>${ booking.teller } </td>
+                <td>${ booking.serviced  ? "Serviced" : "Not Serviced" }</td>
+                <td>${ booking.is_synced ?  "Synced"  : "Not Synced" }</td>
+                <td>${ booking.forwarded  ?  "Forwarded"  :  "Not Forwarded" }</td>
+                <td>${ booking.date_added }</td>
+                <td><a href="/bookings/details/${ booking.id }">Details</a></td>
+              </tr>`
+            })
+        }else{
+        //    get all
+            if(search_term.length){
+                item = ("<h5>Empty</h5><p>No records on the keyword.</p>")
+            }else{
+                let item_ = ""
+                getData(`http://${window.location.hostname}:9000/bookings/all`,"POST",{"term" : search_term},(data_)=>{
+                    data_.map((booking,index)=>{
+                        item_ += `<tr>
+                        <td>${ booking.id }</td>
+                        <td>${ booking.start }  ${ booking.ticket }</td>
+                        <td>${ booking.service_name } </td>
+                        <td>${ booking.teller } </td>
+                        <td>${ booking.serviced  ? "Serviced" : "Not Serviced" }</td>
+                        <td>${ booking.is_synced ?  "Synced"  : "Not Synced" }</td>
+                        <td>${ booking.forwarded  ?  "Forwarded"  :  "Not Forwarded" }</td>
+                        <td>${ booking.date_added }</td>
+                        <td><a href="/bookings/details/${ booking.id }">Details</a></td>
+                      </tr>`
+                    })
+                    $('#adminTableBody').html(item_)
+                 })
+            }
+        }
+        console.log(item)
+        $('#adminTableBody').html(item)
     })
 })
+
+
+

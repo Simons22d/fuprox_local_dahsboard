@@ -200,7 +200,7 @@ class Booking(db.Model):
 class BookingSchema(ma.Schema):
     class Meta:
         fields = ("id", "service_name", "start", "branch_id", "ticket", "active", "nxt", "serviced", "teller", \
-                  "kind", "user", "is_instant", "forwarded", "is_synced", "unique_id", "unique_teller")
+                  "kind", "user", "is_instant", "forwarded", "is_synced", "unique_id", "unique_teller","date_added")
 
 
 class ImageCompany(db.Model):

@@ -190,11 +190,8 @@ $("#file").change(function() {
 var icon_data;
 
 const upload_icon_ = (e)=>{
-    console.log(e);
 	let icon = icon_data;
-	console.log(icon);
 	let icon_name = $("#icon_name").val();
-    console.log(icon_name);
 	if (icon && icon_name){
 		getData(`http://${loc}:9000/service/icon`,"POST",{"icon" : icon, "name" : icon_name},(data)=>{
 			// updateIcons()

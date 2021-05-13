@@ -227,16 +227,32 @@ def payments():
     return render_template("payment.html", bookings=bookings)
 
 
+@app.route("/bookings/all", methods=["POST"])
+def all_bookings():
+    bookings_ = Booking.query.all()
+    bookings__ = bookings_schema.dump(bookings_)
+    bookings = list()
+    for booking in bookings__:
+        service = ServiceOffered.query.filter_by(name=booking["service_name"]).first()
+        booking["start"] = service.code
+        bookings.append(booking)
+    return jsonify(bookings)
+
+
 @app.route("/booking/search", methods=["POST"])
 def search__():
-    term = request.json["term"]
+    term = request.json["term"].upper()
     # asssume LNS43 
     # get the service first 
     service = ServiceOffered.query.filter_by(code=term[:3]).first() or ServiceOffered.query.filter_by(name=term).first()
+    print(service_offered_schema.dump(service))
+
     booking_code = term[3:]
     bookings = list()
     if service:
-        bookings = Booking.query.filter_by(service_name=service.name).filter_by(ticket=booking_code).all()
+        bookings = Booking.query.filter_by(service_name=service.name).filter_by(
+            ticket=booking_code).all() or Booking.query.filter_by(service_name=service.name).all()
+        bookings = bookings_schema.dump(bookings)
     return jsonify(bookings)
 
 
@@ -266,7 +282,7 @@ def search_by_service_name_date():
     dates = request.json["dates"]
     data = get_service(service_name)
     bookings = list()
-    if data :
+    if data:
         bookings = get_bookings_by_date(data.name, dates)
     return bookings
 
