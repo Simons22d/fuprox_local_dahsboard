@@ -54,11 +54,14 @@
     {% endif %}
 </h6>
 <h5 class="text-muted">Good {{ dash_data.statement }} {{ dash_data.user }},</h5>
-    <h6 class="text-muted mb-5">{{today}}</h6>
+    <h6 class="text-muted">{{today}}</h6>
+    <h6 class="text-info mb-5">Desktop Address — {{ server_address }}</h6>
+
 
 <h2><a href="{{ url_for('payments') }}">{{ dash_data.bookings }}</a></h2>
 <h2> <a href="{{  url_for('tellers') }}">{{ dash_data.tellers }}</a></h2>
 <h2><a href="{{ url_for('add_company') }}">{{ dash_data.services }}</a></h2>
 <h2><a href="{{ url_for('upload_video__') }}">{{ dash_data.video }}</a></h2>
 {% endblock %}
+
 

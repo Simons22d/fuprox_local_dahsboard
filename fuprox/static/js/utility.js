@@ -371,6 +371,8 @@ $("#search_bookings").on("input",(e)=>{
         console.log(item)
         $('#adminTableBody').html(item)
     })
+
+
 })
 
 

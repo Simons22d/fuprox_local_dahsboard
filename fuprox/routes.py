@@ -23,6 +23,7 @@ from fuprox.utility import email
 from fuprox.utility import reverse, add_teller, create_service, \
     upload_video, \
     get_single_video, get_all_videos, get_active_videos, toggle_status, upload_link, delete_video, save_icon_to_service
+import socket
 
 teller_schema = TellerSchema()
 tellers_schema = TellerSchema(many=True)
@@ -90,6 +91,11 @@ def home():
     tellers = len(Teller.query.all())
     service_offered = len(ServiceOffered.query.all())
     videos = len(videos_schema.dump(Video.query.all()))
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    server_address = (s.getsockname()[0])
+    s.close()
+
     dash_data = {
         "bookings": f"{bookings} {'booking' if bookings == 1 else 'Bookings'}" if bookings else "No Bookings",
         "tellers": f"{tellers} {'Teller' if tellers <= 1 else 'Tellers'}" if tellers else "No Tellers",
@@ -97,11 +103,12 @@ def home():
         "No Services",
         "statement": get_part_of_day(time).capitalize(),
         "user": (current_user.username).capitalize(),
-        "video": f"{videos} {'Video' if tellers <= 1 else 'Videos'}" if tellers else "No Videos"
+        "video": f"{videos} {'Video' if tellers <= 1 else 'Videos'}" if tellers else "No Videos",
+        "server_address" : server_address
     }
     branch = Branch.query.first()
     log(dash_data)
-    return render_template("dashboard.html", today=date, dash_data=dash_data, branch=branch)
+    return render_template("dashboard.html", today=date, dash_data=dash_data, branch=branch,server_address=server_address)
 
 
 @app.route("/doughnut/data", methods=["GET"])
