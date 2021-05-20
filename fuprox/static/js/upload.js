@@ -148,6 +148,7 @@ const changeView = (e)=> {
 function _(el){
 	return document.getElementById(el);
 }
+
 function uploadFile(){
 	var file = _("file1").files[0];
 	var formdata = new FormData();
@@ -160,6 +161,7 @@ function uploadFile(){
 	ajax.open("POST", `http://${loc}:9000/video/upload`);
 	ajax.send(formdata);
 }
+
 function progressHandler(event){
 	// _("loaded_n_total").innerHTML = "Uploaded "+event.loaded+" bytes of "+event.total;
 	var percent = (event.loaded / event.total) * 100;
@@ -237,7 +239,7 @@ function vidUrl(input) {
 			video_data = reader.result
 		}
 		reader.readAsDataURL(input.files[0]); // convert to base64 string
-		}
+	}
 }
 
 
