@@ -9,6 +9,7 @@ import sqlalchemy
 from werkzeug.utils import secure_filename
 import os
 from fuprox import app
+
 # mpesa
 
 teller_schema = TellerSchema()
@@ -22,7 +23,6 @@ branchs_schema = BranchSchema(many=True)
 
 video_schema = VideoSchema()
 videos_schema = VideoSchema(many=True)
-
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -135,9 +135,9 @@ def add_teller(teller_number, branch_id, service_name, branch_unique_id):
                 service_lookup.teller = teller_number
                 db.session.commit()
 
-                 #adding the key
+                # adding the key
                 final = teller_schema.dump(lookup)
-                final.update({"key_" : branch.key_})
+                final.update({"key_": branch.key_})
         else:
             final = dict()
     else:
@@ -161,7 +161,7 @@ def add_teller(teller_number, branch_id, service_name, branch_unique_id):
                 # adding the key
                 final = teller_schema.dump(lookup)
                 final.update({"key_": branch.key_})
-                
+
         else:
             final = dict(), 500
 
@@ -194,7 +194,13 @@ def branch_exist(branch_id):
     return branch_data
 
 
-def create_service(name, teller, branch_id, code, icon_id, visible,active):
+def has_vowels(term):
+    vowels = "aeiouAEIOU"
+    l = [v for v in term if v in vowels]
+    return False if len(l) else True
+
+
+def create_service(name, teller, branch_id, code, icon_id, visible, active):
     branch_data = branch_exist(branch_id)
     if branch_data:
         log("branch exists")
@@ -333,7 +339,6 @@ def delete_video(video_id):
     return video_schema.dump(vid)
 
 
-
 def save_icon_to_service(icon, name, branch):
     try:
         try:
@@ -348,7 +353,6 @@ def save_icon_to_service(icon, name, branch):
     except sqlalchemy.exc.IntegrityError:
         final = {"msg": f"Icon \"{name}\" Already Exists", "status": 500}
     return final
-
 
 
 def upload():
@@ -396,7 +400,6 @@ def save_icon_to_service(icon, name, branch):
     except sqlalchemy.exc.IntegrityError:
         final = {"msg": f"Icon \"{name}\" Already Exists", "status": 500}
     return final
-
 
 
 def upload_link(link, type):

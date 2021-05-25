@@ -148,6 +148,8 @@
           <div class="row mb-3">
           <div class="col-lg-12">
             {{ form.code.label(class='form-control-label') }}
+          <div class="text-success mb-3">Service code may not contain vowels and must be two characters.</div>
+
             {% if form.code.errors %}
             {{ form.code(class="form-control form-control-sm is-invalid", id="branchns",autocomplete="off")}}
             <div class="invalid-feedback">
@@ -161,7 +163,6 @@
             <small class="form-text text-muted"></small>
           </div>
         </div>
-
 
           <div class="row mb-3">
           <div class="col-lg-12">

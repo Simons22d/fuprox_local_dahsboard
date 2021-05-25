@@ -20,9 +20,8 @@ from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, Co
     PhraseSchema, Phrase, ServiceOfferedSchema, VideoSchema, Video, ResetOption, ResetOptionSchema, \
     TellerBooking
 from fuprox.utility import email
-from fuprox.utility import reverse, add_teller, create_service, \
-    upload_video, \
-    get_single_video, get_all_videos, get_active_videos, toggle_status, upload_link, delete_video, save_icon_to_service
+from fuprox.utility import reverse, add_teller, create_service,upload_video,get_single_video, get_all_videos, \
+    get_active_videos, toggle_status, upload_link, delete_video, save_icon_to_service,has_vowels
 import socket
 
 teller_schema = TellerSchema()
@@ -631,24 +630,28 @@ def add_company():
     services_offered = ServiceOffered.query.all()
     if request.method == "POST":
         if service.validate_on_submit():
-            name = service.name.data
-            teller = service.teller.data
-            branch_id = branch.id
             code = service.code.data
-            icon = service.icon.data
-            visible = True if service.visible.data == "True" else False
-            active = True if service.active.data == "True" else False
-            # service emit service made
-            final = create_service(name, teller, branch_id, code, icon, visible, active)
-            if final:
-                try:
-                    key = final["key"]
-                    flash("Service Added Successfully", "success")
-                    sio.emit("sync_service", final)
-                    local.emit("update_services", final)
-                    return redirect(url_for("add_company"))
-                except KeyError:
-                    flash(final['msg'], "danger")
+            if has_vowels(code) and len(code):
+                name = service.name.data
+                teller = service.teller.data
+                branch_id = branch.id
+                code = service.code.data
+                icon = service.icon.data
+                visible = True if service.visible.data == "True" else False
+                active = True if service.active.data == "True" else False
+                # service emit service made
+                final = create_service(name, teller, branch_id, code, icon, visible, active)
+                if final:
+                    try:
+                        key = final["key"]
+                        flash("Service Added Successfully", "success")
+                        sio.emit("sync_service", final)
+                        local.emit("update_services", final)
+                        return redirect(url_for("add_company"))
+                    except KeyError:
+                        flash(final['msg'], "danger")
+            else:
+                flash("Service code may not contain vowels and must be two characters.", "warning")
         else:
             flash("Make sure all data is correct", "error")
     return render_template("add_company.html", form=service, companies=service_data, tellers=tellers, icons=icons,
