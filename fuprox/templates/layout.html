@@ -211,64 +211,64 @@
       }
 
 
-      $("#download_apps").on("click",(e)=>{
-          let application = Number($("#application").val())
-          let platform = Number($("#platform").val())
+      // $("#download_apps").on("click",(e)=>{
+      //     let application = Number($("#application").val())
+      //     let platform = Number($("#platform").val())
 
-          if(application == 1004){
-            // android
-            message = "Android App"
-            link = "app"
-          }else if(application === 1001){
-            // teller
-            if(platform === 2001){
-              // windows
-            message = "Windows Teller App"
-            link = "teller/windows"
-            }else if(platform === 2002){
-              // mac
-             link = "teller/windows"
-             message = "Mac Teller App"
-            }else if(platform === 2003){
-              // linux
-              link = "teller/linux"
-              message = "Linux Teller App"
-            }
-          }else if(application === 1002){
-              // display
-              if(platform === 2001){
-                // windows
-                link = "display/windows"
-                message = "Windows Display App"
-              }else if(platform === 2002){
-                // mac
-                link = "display/mac"
-                message = "Mac Display App"
-              }else if(platform === 2003){
-                // linux
-                link = "display/linux"
-                message = "Linux Display App"
-              }
-          }else if(application === 1003){
-              // book
-              if(platform === 2001){
-                // windows
-                link = "book/windows"
-                message = "Windows Book App"
-              }else if(platform === 2002){
-                // mac
-                link = "book/mac"
-                message = "Mac Book App"
-              }else if(platform === 2003){
-                // linux
-                link = "book/linux"
-                message = "Linux Book App"
-              }
-          }
-          let domain = "localhost"
-          domain = "159.65.144.235"
-          window.location.href = `http://${domain}:3000/download/${link}`
-      })
+      //     if(application == 1004){
+      //       // android
+      //       message = "Android App"
+      //       link = "app"
+      //     }else if(application === 1001){
+      //       // teller
+      //       if(platform === 2001){
+      //         // windows
+      //       message = "Windows Teller App"
+      //       link = "teller/windows"
+      //       }else if(platform === 2002){
+      //         // mac
+      //        link = "teller/windows"
+      //        message = "Mac Teller App"
+      //       }else if(platform === 2003){
+      //         // linux
+      //         link = "teller/linux"
+      //         message = "Linux Teller App"
+      //       }
+      //     }else if(application === 1002){
+      //         // display
+      //         if(platform === 2001){
+      //           // windows
+      //           link = "display/windows"
+      //           message = "Windows Display App"
+      //         }else if(platform === 2002){
+      //           // mac
+      //           link = "display/mac"
+      //           message = "Mac Display App"
+      //         }else if(platform === 2003){
+      //           // linux
+      //           link = "display/linux"
+      //           message = "Linux Display App"
+      //         }
+      //     }else if(application === 1003){
+      //         // book
+      //         if(platform === 2001){
+      //           // windows
+      //           link = "book/windows"
+      //           message = "Windows Book App"
+      //         }else if(platform === 2002){
+      //           // mac
+      //           link = "book/mac"
+      //           message = "Mac Book App"
+      //         }else if(platform === 2003){
+      //           // linux
+      //           link = "book/linux"
+      //           message = "Linux Book App"
+      //         }
+      //     }
+      //     let domain = "localhost"
+      //     domain = "159.65.144.235"
+      //     window.location.href = `http://${domain}:3000/download/${link}`
+      // })
 
 
   </script>

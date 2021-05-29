@@ -376,4 +376,12 @@ $("#search_bookings").on("input",(e)=>{
 })
 
 
+$("#download_apps").on("click",()=>{
+    let applicaiton = $("#application").val()
+    let platform = $("#platform").val()
+    let filename = applicaiton+"_"+platform
+    window.location.href = `http://159.65.144.235:3000/download/${filename}`
+})
+
+
 

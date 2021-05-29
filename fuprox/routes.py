@@ -91,9 +91,25 @@ def home():
     service_offered = len(ServiceOffered.query.all())
     videos = len(videos_schema.dump(Video.query.all()))
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    server_address = (s.getsockname()[0])
+    # s.connect(("8.8.8.8", 80))
+    interim = (s.getsockname()[0])
     s.close()
+
+    server_address = ""
+    if interim == "0.0.0.0":
+        server_address = "127.0.0.1"
+
+    types = {"links": 0, "files": 0}
+    if videos:
+        videos_ =Video.query.all()
+        for video in videos_:
+            if video.type == 1:
+                types["files"] = types["files"] + 1
+            else:
+                types["links"] = types["links"] + 1
+
+    links = f"{types['links']} {'Link' if types['links'] == 1 else 'Links'}" if types['links'] else "No Link"
+    files = f"{types['files']} {'File' if types['files'] == 1 else 'Files'}" if types['files'] else "No File"
 
     dash_data = {
         "bookings": f"{bookings} {'booking' if bookings == 1 else 'Bookings'}" if bookings else "No Bookings",
@@ -102,8 +118,8 @@ def home():
         "No Services",
         "statement": get_part_of_day(time).capitalize(),
         "user": (current_user.username).capitalize(),
-        "video": f"{videos} {'Video' if tellers <= 1 else 'Videos'}" if tellers else "No Videos",
-        "server_address" : server_address
+        "video": f"{videos} {'Video' if videos <= 1 else 'Videos — '+links +' • '+ files}" if videos else "No Videos",
+"server_address" : server_address
     }
     branch = Branch.query.first()
     log(dash_data)
@@ -698,8 +714,8 @@ def extras():
             key = form.key.data
             if len(key) > 20:
                 try:
-                    data = requests.post(f"http://159.65.144.235:4000/branch/activate", json={"key": key})
-                    # data = requests.post(f"http://localhost:4000/branch/activate", json={"key": key})
+                    # data = requests.post(f"http://159.65.144.235:4000/branch/activate", json={"key": key})
+                    data = requests.post(f"http://localhost:4000/branch/activate", json={"key": key})
                     if (data.ok):
                         data = activate_branch(data.json())
                         if not data:
