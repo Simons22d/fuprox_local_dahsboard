@@ -714,8 +714,8 @@ def extras():
             key = form.key.data
             if len(key) > 20:
                 try:
-                    # data = requests.post(f"http://159.65.144.235:4000/branch/activate", json={"key": key})
-                    data = requests.post(f"http://localhost:4000/branch/activate", json={"key": key})
+                    data = requests.post(f"http://159.65.144.235:4000/branch/activate", json={"key": key})
+                    # data = requests.post(f"http://localhost:4000/branch/activate", json={"key": key})
                     if (data.ok):
                         data = activate_branch(data.json())
                         if not data:
