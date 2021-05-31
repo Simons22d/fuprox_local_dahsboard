@@ -37,8 +37,8 @@
             <span class="color-text-a"></span>
           </div>
         </div>
-          <div class="col-lg-3">
-{#              <input type="text" class="form-control form-control-sm" placeholder="Select date" id="date_range" readonly>#}
+          <div class="col-lg-2">
+{#              <div class="btn btn-outline-secondary btn-sm col-lg-12">< Back</div>#}
           </div>
           <div class="col-lg-4">
               <input type="text" class="form-control form-control-sm" placeholder="Search Bookings" id="search_bookings">
@@ -73,7 +73,8 @@
             <td>{% if  booking.serviced %} {{ "Serviced" }} {% else %} {{ "Not Serviced" }}{% endif %}</td>
             <td>{% if  booking.is_synced %} {{ "Synced" }} {% else %} {{ "Not Synced" }}{% endif %}</td>
             <td>{% if  booking.forwarded %} {{ "Forwarded" }} {% else %} {{ "Not Forwarded" }}{% endif %}</td>
-            <td>{{ booking.date_added }}</td>
+            <td title="{{booking.date_added}}">{{ booking.date_term }}</td>
+
             <td><a href="{{ url_for('booking_info',id=booking.id)}}">Details</a></td>
           </tr>
         {% endfor %}

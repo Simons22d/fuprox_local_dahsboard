@@ -2,7 +2,7 @@ import logging
 import os
 import secrets
 import time
-from datetime import timedelta
+from datetime import timedelta,timezone,datetime
 
 import requests
 import socketio
@@ -22,7 +22,7 @@ from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, Co
 from fuprox.utility import email
 from fuprox.utility import reverse, add_teller, create_service,upload_video,get_single_video, get_all_videos, \
     get_active_videos, toggle_status, upload_link, delete_video, save_icon_to_service,has_vowels
-import socket
+import socket,timeago,pytz
 
 teller_schema = TellerSchema()
 tellers_schema = TellerSchema(many=True)
@@ -57,7 +57,6 @@ videos_schema = VideoSchema(many=True)
 
 phrase_schema = PhraseSchema()
 reset_option_schema = ResetOptionSchema()
-
 
 def get_part_of_day(hour):
     return (
@@ -245,6 +244,7 @@ def payments():
     for booking in bookings_:
         service = ServiceOffered.query.filter_by(name=booking.service_name).first()
         booking.start = service.code
+        booking.date_term = timeago.format(booking.date_added, datetime.now())
         bookings.append(booking)
     return render_template("payment.html", bookings=bookings)
 
@@ -257,6 +257,11 @@ def all_bookings():
     for booking in bookings__:
         service = ServiceOffered.query.filter_by(name=booking["service_name"]).first()
         booking["start"] = service.code
+        for booking in bookings:
+            booking["start"] = service.code
+            for lookup in lookups:
+                if booking["unique_id"] == lookup.unique_id:
+                    booking["date_term"] = timeago.format(lookup.date_added,datetime.now())
         bookings.append(booking)
     return jsonify(bookings)
 
@@ -264,18 +269,22 @@ def all_bookings():
 @app.route("/booking/search", methods=["POST"])
 def search__():
     term = request.json["term"].upper()
-    # asssume LNS43 
+    # asssume LN43
     # get the service first 
-    service = ServiceOffered.query.filter_by(code=term[:3]).first() or ServiceOffered.query.filter_by(name=term).first()
-    print(service_offered_schema.dump(service))
-
-    booking_code = term[3:]
-    bookings = list()
+    service = ServiceOffered.query.filter_by(code=term[:2]).first() or ServiceOffered.query.filter_by(name=term).first()
+    booking_code = term[2:]
+    final = list()
     if service:
-        bookings = Booking.query.filter_by(service_name=service.name).filter_by(
+        lookups = Booking.query.filter_by(service_name=service.name).filter_by(
             ticket=booking_code).all() or Booking.query.filter_by(service_name=service.name).all()
-        bookings = bookings_schema.dump(bookings)
-    return jsonify(bookings)
+        bookings = bookings_schema.dump(lookups)
+        for booking in bookings:
+            booking["start"] = service.code
+            for lookup in lookups:
+                if booking["unique_id"] == lookup.unique_id:
+                    booking["date_term"] = timeago.format(lookup.date_added,datetime.now())
+            final.append(booking)
+    return jsonify(final)
 
 
 @app.route("/booking/search/filters", methods=["POST"])

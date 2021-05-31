@@ -340,7 +340,7 @@ $("#search_bookings").on("input",(e)=>{
                 <td>${ booking.serviced  ? "Serviced" : "Not Serviced" }</td>
                 <td>${ booking.is_synced ?  "Synced"  : "Not Synced" }</td>
                 <td>${ booking.forwarded  ?  "Forwarded"  :  "Not Forwarded" }</td>
-                <td>${ booking.date_added }</td>
+                <td title="${booking.date_added}">${ booking.date_term }</td>
                 <td><a href="/bookings/details/${ booking.id }">Details</a></td>
               </tr>`
             })
@@ -352,15 +352,16 @@ $("#search_bookings").on("input",(e)=>{
                 let item_ = ""
                 getData(`http://${window.location.hostname}:9000/bookings/all`,"POST",{"term" : search_term},(data_)=>{
                     data_.map((booking,index)=>{
+                        console.log(booking)
                         item_ += `<tr>
                         <td>${ booking.id }</td>
                         <td>${ booking.start }  ${ booking.ticket }</td>
                         <td>${ booking.service_name } </td>
                         <td>${ booking.teller } </td>
                         <td>${ booking.serviced  ? "Serviced" : "Not Serviced" }</td>
-                        <td>${ booking.is_synced ?  "Synced"  : "Not Synced" }</td>
                         <td>${ booking.forwarded  ?  "Forwarded"  :  "Not Forwarded" }</td>
-                        <td>${ booking.date_added }</td>
+                        <td>${ booking.is_synced ?  "Synced"  : "Not Synced" }</td>
+                        <td title="${booking.date_added}">${ booking.date_term }</td>
                         <td><a href="/bookings/details/${ booking.id }">Details</a></td>
                       </tr>`
                     })
@@ -368,7 +369,6 @@ $("#search_bookings").on("input",(e)=>{
                  })
             }
         }
-        console.log(item)
         $('#adminTableBody').html(item)
     })
 
@@ -377,10 +377,10 @@ $("#search_bookings").on("input",(e)=>{
 
 
 $("#download_apps").on("click",()=>{
-    let applicaiton = $("#application").val()
-    let platform = $("#platform").val()
-    let filename = applicaiton+"_"+platform
-    window.location.href = `http://159.65.144.235:3000/download/${filename}`
+    let application = $("#application").val()
+    // let platform = $("#platform").val()
+    let filename = "Windows_"+application
+    window.location.href = `http://159.65.144.235:3000/app/download/${filename}.msi`
 })
 
 

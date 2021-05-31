@@ -31,19 +31,25 @@
   <section class="intro-single">
     <div class="container">
       <div class="row">
-        <div class="col-md-12 col-lg-8">
-          <div class="title-single-box">
+        <div class="col-md-12 col-lg-">
+          <div class="title-single-box col-lg-8">
             <h5 style="font-size:15px;">Booking Details</h5>
             <span class="color-text-a"></span>
           </div>
         </div>
+
       </div>
 <!--      body-->
     </div>
   </section>
 {% endblock%}
 {% block content %}
-    <div class="col-lg-12 row mb-3"><h5>Booking Info</h5></div>
+    <div class="row mb-3">
+        <h5 class="col-lg-11">Booking Info</h5>
+        <div class="col-lg-1">
+            <a class="btn btn-warning btn-sm col-lg-12" href="{{ url_for('payments') }}">Back</a>
+        </div>
+    </div>
 
 <div class="col-lg-12 row">
 <div class="col-2">
