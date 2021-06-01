@@ -90,14 +90,10 @@ def home():
     service_offered = len(ServiceOffered.query.all())
     videos = len(videos_schema.dump(Video.query.all()))
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    # s.connect(("8.8.8.8", 80))
-    interim = (s.getsockname()[0])
+    s.connect(("8.8.8.8", 80))
+    server_address = (s.getsockname()[0])
     s.close()
-
-    server_address = ""
-    if interim == "0.0.0.0":
-        server_address = "127.0.0.1"
-
+    
     types = {"links": 0, "files": 0}
     if videos:
         videos_ =Video.query.all()
