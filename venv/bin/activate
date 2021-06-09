@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/jasytine/Documents/Coding/fuprox_local_dahsboard/venv"
+VIRTUAL_ENV="/Users/denis/Documents/coding/Python/fuprox_local_dashboard/venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

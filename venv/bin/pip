@@ -1,4 +1,4 @@
-#!/Users/jasytine/Documents/Coding/fuprox_local_dahsboard/venv/bin/python
+#!/Users/denis/Documents/coding/Python/fuprox_local_dashboard/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys

@@ -1270,12 +1270,6 @@ def disconnect():
     log('online disconnected from server')
 
 
-'''working with sockets '''
-try:
-    sio.connect(socket_link)
-except socketio.exceptions.ConnectionError:
-    log("Error! Could not connect to online server.")
-    # log("...")
 
 
 @local.event
@@ -1287,12 +1281,13 @@ def connect():
 def disconnect():
     print('offline disconnected from server')
 
+try:
+    sio.connect(socket_link)
+except socketio.exceptions.ConnectionError as a:
+    log(f"[online] -> {a}")
 
-'''working with sockets '''
 try:
     local.connect(local_socket)
-except socketio.exceptions.ConnectionError:
-    print("Error! Could not connect offline server.")
-    # print("...")
-
+except socketio.exceptions.ConnectionError as a:
+    log(f"[offline] -> {a}")
 # TODO : app Issues
