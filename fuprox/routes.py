@@ -235,7 +235,7 @@ def get_issue_count():
 @app.route("/bookings")
 @login_required
 def payments():
-    bookings_ = Booking.query.all()
+    bookings_ = Booking.query.order_by(Booking.date_added.desc()).all()
     bookings = list()
     for booking in bookings_:
         service = ServiceOffered.query.filter_by(name=booking.service_name).first()
@@ -247,15 +247,16 @@ def payments():
 
 @app.route("/bookings/all", methods=["POST"])
 def all_bookings():
-    bookings_ = Booking.query.all()
+    bookings_ = Booking.query.order_by(Booking.date_added.desc()).all()
     bookings__ = bookings_schema.dump(bookings_)
+    print(bookings__)
     bookings = list()
     for booking in bookings__:
         service = ServiceOffered.query.filter_by(name=booking["service_name"]).first()
         booking["start"] = service.code
         for booking in bookings:
             booking["start"] = service.code
-            for lookup in lookups:
+            for lookup in bookings_:
                 if booking["unique_id"] == lookup.unique_id:
                     booking["date_term"] = timeago.format(lookup.date_added,datetime.now())
         bookings.append(booking)
@@ -267,12 +268,12 @@ def search__():
     term = request.json["term"].upper()
     # asssume LN43
     # get the service first 
-    service = ServiceOffered.query.filter_by(code=term[:2]).first() or ServiceOffered.query.filter_by(name=term).first()
+    service = ServiceOffered.query.filter_by(code=term[:1]).first() or ServiceOffered.query.filter_by(name=term).first()
     booking_code = term[2:]
     final = list()
     if service:
         lookups = Booking.query.filter_by(service_name=service.name).filter_by(
-            ticket=booking_code).all() or Booking.query.filter_by(service_name=service.name).all()
+            ticket=booking_code).order_by(Booking.date_added.desc()).all() or Booking.query.filter_by(service_name=service.name).order_by(Booking.date_added.desc()).all()
         bookings = bookings_schema.dump(lookups)
         for booking in bookings:
             booking["start"] = service.code
