@@ -21,8 +21,10 @@ from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, Co
     TellerBooking
 from fuprox.utility import email
 from fuprox.utility import reverse, add_teller, create_service,upload_video,get_single_video, get_all_videos, \
-    get_active_videos, toggle_status, upload_link, delete_video, save_icon_to_service,has_vowels
+    get_active_videos, toggle_status, upload_link, delete_video, save_icon_to_service,has_vowels,get_youtube_links
 import socket,timeago,pytz
+import json
+
 
 teller_schema = TellerSchema()
 tellers_schema = TellerSchema(many=True)
@@ -67,16 +69,20 @@ def get_part_of_day(hour):
         "evening"
     )
 
-
 from datetime import datetime
 
 time = int(datetime.now().strftime("%H"))
-
 
 def app_is_activated():
     lookup = Branch.query.first()
     return lookup
 
+
+@app.route("/seed/vids",methods=["POST"])
+def seed_videos():
+    terms = request.json["terms"]
+    data = get_youtube_links(terms)
+    return jsonify(data)
 
 @app.route("/")
 @app.route("/dashboard")
@@ -89,10 +95,13 @@ def home():
     tellers = len(Teller.query.all())
     service_offered = len(ServiceOffered.query.all())
     videos = len(videos_schema.dump(Video.query.all()))
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    server_address = (s.getsockname()[0])
-    s.close()
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        server_address = (s.getsockname()[0])
+        s.close()
+    except Exception:
+        server_address = "127.0.0.1"
     
     types = {"links": 0, "files": 0}
     if videos:
@@ -904,6 +913,7 @@ def company_exists():
 
 def clean_db():
     db.session.execute("DELETE FROM video;")
+    # db.session.execute("DELETE FROM department_service;")
     db.session.execute("DELETE FROM teller_booking;")
     db.session.execute("DELETE FROM booking_times;")
     db.session.execute("DELETE FROM service_offered;")
@@ -936,7 +946,7 @@ def logout():
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
-    if (not app_is_activated()):
+    if not app_is_activated():
         return redirect(url_for("activate"))
 
     if current_user.is_authenticated:
@@ -963,7 +973,7 @@ def activate():
     if current_user.is_authenticated:
         return redirect(url_for("home"))
 
-    if (app_is_activated()):
+    if app_is_activated():
         return redirect(url_for("login"))
 
     register = RegisterForm()

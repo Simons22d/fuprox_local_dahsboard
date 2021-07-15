@@ -9,6 +9,8 @@ import sqlalchemy
 from werkzeug.utils import secure_filename
 import os
 from fuprox import app
+from youtube_search import YoutubeSearch
+import json
 
 # mpesa
 
@@ -402,19 +404,26 @@ def save_icon_to_service(icon, name, branch):
     return final
 
 
+def get_youtube_links(term):
+    type = 2
+    results = YoutubeSearch(term, max_results=100).to_json()
+    links = json.loads(results)["videos"]
+    for link in links:
+        try:
+            video_lookup = Video(name=f"http://www.youtube.com{link['url_suffix']}", type=type)
+            video_lookup.active = True
+            db.session.add(video_lookup)
+            db.session.commit()
+        except Exception:
+            pass
+    return links
+
+
 def upload_link(link, type):
-    """
-    :param link:
-    :param type:
-    :return:
-    """
     try:
         video_lookup = Video(name=link.strip(), type=type)
-        # print("local videos type",type)
         db.session.add(video_lookup)
         db.session.commit()
-
-        video_data = video_schema.dump(video_lookup)
         return final_html({"msg": "Link successfully uploaded"})
     except sqlalchemy.exc.IntegrityError:
         return final_html({"msg": "Error! File by that name exists"})
