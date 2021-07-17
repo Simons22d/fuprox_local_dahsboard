@@ -155,6 +155,7 @@ def upload_link_():
     link_ = request.json["link"]
     type_ = request.json["type"]
     msg = upload_link(link_, type_)
+    local.emit("update_vids", {})
     return msg
 
 
