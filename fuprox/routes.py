@@ -517,7 +517,9 @@ def more_info(key):
 
 @app.route("/video/upload", methods=["POST"])
 def upload_video_():
-    return upload_video()
+    data = upload_video()
+    local.emit("update_vids", {})
+    return data
 
 
 # @app.route("/video/link", methods=["POST"])
@@ -547,14 +549,16 @@ def get_all_videos_():
 @app.route("/video/toggle", methods=["POST"])
 def activate_video():
     id = request.json["id"]
-    local.emit("video_refresh", "")
+    local.emit("update_vids",{})
     return toggle_status(id)
 
 
 @app.route("/video/delete", methods=["POST"])
 def video_delete():
     vid_id = request.json["id"]
-    return jsonify(delete_video(vid_id))
+    data = delete_video(vid_id)
+    local.emit("update_vids",{})
+    return jsonify(data)
 
 
 @app.route("/upload", methods=["POST", "GET", "PUT"])
@@ -583,7 +587,7 @@ def view_branch():
 @login_required
 def add_category():
     company = ServiceForm()
-    # checkinf the mentioed  comapany exists
+    # checking the mentioned  comapany exists
     if company.validate_on_submit():
         final = bool()
         # medical
