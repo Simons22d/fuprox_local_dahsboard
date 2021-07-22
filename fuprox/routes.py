@@ -1,8 +1,14 @@
+import json
 import logging
 import os
+import re
 import secrets
+import socket
 import time
-from datetime import timedelta,timezone,datetime
+from copy import copy, deepcopy
+
+import timeago
+from datetime import timedelta
 
 import requests
 import socketio
@@ -20,11 +26,8 @@ from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, Co
     PhraseSchema, Phrase, ServiceOfferedSchema, VideoSchema, Video, ResetOption, ResetOptionSchema, \
     TellerBooking
 from fuprox.utility import email
-from fuprox.utility import reverse, add_teller, create_service,upload_video,get_single_video, get_all_videos, \
-    get_active_videos, toggle_status, upload_link, delete_video, save_icon_to_service,has_vowels,get_youtube_links
-import socket,timeago,pytz
-import json
-
+from fuprox.utility import reverse, add_teller, create_service, upload_video, get_single_video, get_all_videos, \
+    get_active_videos, toggle_status, upload_link, delete_video, save_icon_to_service, has_vowels, get_youtube_links
 
 teller_schema = TellerSchema()
 tellers_schema = TellerSchema(many=True)
@@ -60,6 +63,7 @@ videos_schema = VideoSchema(many=True)
 phrase_schema = PhraseSchema()
 reset_option_schema = ResetOptionSchema()
 
+
 def get_part_of_day(hour):
     return (
         "morning" if 5 <= hour <= 11
@@ -69,20 +73,23 @@ def get_part_of_day(hour):
         "evening"
     )
 
+
 from datetime import datetime
 
 time = int(datetime.now().strftime("%H"))
+
 
 def app_is_activated():
     lookup = Branch.query.first()
     return lookup
 
 
-@app.route("/seed/vids",methods=["POST"])
+@app.route("/seed/vids", methods=["POST"])
 def seed_videos():
     terms = request.json["terms"]
     data = get_youtube_links(terms)
     return jsonify(data)
+
 
 @app.route("/")
 @app.route("/dashboard")
@@ -102,10 +109,10 @@ def home():
         s.close()
     except Exception:
         server_address = "127.0.0.1"
-    
+
     types = {"links": 0, "files": 0}
     if videos:
-        videos_ =Video.query.all()
+        videos_ = Video.query.all()
         for video in videos_:
             if video.type == 1:
                 types["files"] = types["files"] + 1
@@ -122,12 +129,13 @@ def home():
         "No Services",
         "statement": get_part_of_day(time).capitalize(),
         "user": (current_user.username).capitalize(),
-        "video": f"{videos} {'Video' if videos <= 1 else 'Videos — '+links +' • '+ files}" if videos else "No Videos",
-"server_address" : server_address
+        "video": f"{videos} {'Video' if videos <= 1 else 'Videos — ' + links + ' • ' + files}" if videos else "No Videos",
+        "server_address": server_address
     }
     branch = Branch.query.first()
     log(dash_data)
-    return render_template("dashboard.html", today=date, dash_data=dash_data, branch=branch,server_address=server_address)
+    return render_template("dashboard.html", today=date, dash_data=dash_data, branch=branch,
+                           server_address=server_address)
 
 
 @app.route("/doughnut/data", methods=["GET"])
@@ -252,6 +260,7 @@ def payments():
         booking.start = service.code
         booking.date_term = timeago.format(booking.date_added, datetime.now())
         bookings.append(booking)
+    log(f"SELLERE {bookings}")
     return render_template("payment.html", bookings=bookings)
 
 
@@ -268,35 +277,77 @@ def all_bookings():
             booking["start"] = service.code
             for lookup in bookings_:
                 if booking["unique_id"] == lookup.unique_id:
-                    booking["date_term"] = timeago.format(lookup.date_added,datetime.now())
+                    booking["date_term"] = timeago.format(lookup.date_added, datetime.now())
         bookings.append(booking)
     return jsonify(bookings)
 
 
 @app.route("/booking/search", methods=["POST"])
 def search__():
-    term = request.json["term"].upper()
-    # asssume LN43
-    # get the service first 
-    service = ServiceOffered.query.filter_by(code=term[:1]).first() or ServiceOffered.query.filter_by(name=term).first()
-    booking_code = term[2:]
+    term = request.json["term"]
+    lst = re.findall(r'\d+', term)
+    ss = list(term)
+    try :
+        ints  = [x for x in lst[0]]
+    except IndexError:
+        ints = []
+
+    final = [x for x in ss if x not in ints]
+    real_code = "".join(final)
+    numbers = "".join(lst)
+    code = f"SELECT * FROM service_offered WHERE code LIKE '{real_code}%'"
+    name = f"SELECT * FROM service_offered WHERE name LIKE '{term}%'"
+    code_ = [dict(x) for x in db.session.execute(code)]
+    name_ = [dict(x) for x in db.session.execute(name)]
+    service_one = code_ if code_ else name_
+
     final = list()
-    if service:
-        lookups = Booking.query.filter_by(service_name=service.name).filter_by(
-            ticket=booking_code).order_by(Booking.date_added.desc()).all() or Booking.query.filter_by(service_name=service.name).order_by(Booking.date_added.desc()).all()
-        bookings = bookings_schema.dump(lookups)
-        for booking in bookings:
-            booking["start"] = service.code
-            for lookup in lookups:
-                if booking["unique_id"] == lookup.unique_id:
-                    booking["date_term"] = timeago.format(lookup.date_added,datetime.now())
-            final.append(booking)
+    log(f"SERVICE >>>> {service_one},{real_code}")
+    if service_one:
+        service = service_one[0]
+        code = service['code']
+        name = service['name']
+        bnk_number = is_ticket(term)
+        log("x"*100)
+        print(bnk_number)
+        log("x"*100)
+        if ints:
+            log("1111")
+            query_offline = f"SELECT * FROM booking WHERE service_name='{name}' and ticket={numbers} ORDER BY date_added DESC"
+            query_online = f"SELECT * FROM booking WHERE service_name='{name}' and kind={numbers} ORDER BY date_added DESC"
+            log(query_offline)
+            log(query_online)
+            online = [dict(zip(x.keys(), x)) for x in db.session.execute(query_online)]
+            offline = [dict(zip(x.keys(), x)) for x in db.session.execute(query_offline)]
+            q_final = online if online else offline
+            log(f"HOOMAA {q_final}")
+
+            for booking in q_final:
+                booking["start"] = service['code']
+                booking["date_term"] = timeago.format(booking["date_added"], datetime.now())
+                final.append(booking)
+        else:
+            # log(f"Denis ... {bnk_number}")
+            query_offline = f"SELECT * FROM booking WHERE service_name='{name}' ORDER BY date_added DESC"
+            offline = [dict(zip(x.keys(), x)) for x in db.session.execute(query_offline)]
+            for booking in offline:
+                booking["start"] = service['code']
+                booking["date_term"] = timeago.format(booking["date_added"], datetime.now())
+                final.append(booking)
+    log(f"final .... {final}")
     return jsonify(final)
 
 
 @app.route("/booking/search/filters", methods=["POST"])
 def filters():
     pass
+
+
+def is_ticket(term):
+    log(f"in function {term}")
+    lst = re.findall(r'\d+', term)
+    final = "".join(lst)
+    return final
 
 
 def get_service(name):
@@ -550,7 +601,7 @@ def get_all_videos_():
 @app.route("/video/toggle", methods=["POST"])
 def activate_video():
     id = request.json["id"]
-    local.emit("update_vids",{})
+    local.emit("update_vids", {})
     return toggle_status(id)
 
 
@@ -558,7 +609,7 @@ def activate_video():
 def video_delete():
     vid_id = request.json["id"]
     data = delete_video(vid_id)
-    local.emit("update_vids",{})
+    local.emit("update_vids", {})
     return jsonify(data)
 
 
@@ -759,7 +810,7 @@ def reset_tickets():
 
 
 @app.route("/phrase", methods=["POST"])
-def re():
+def phrase_():
     phrase = request.json["phrase"]
     option = request.json["options"]
     db.session.execute("DELETE FROM phrase")
@@ -990,14 +1041,12 @@ def activate():
                 if (data.ok):
                     activate_data = data.json()
                     data = activate_branch(activate_data)
-                    log(data)
                     # flash("Success! Application Activated", "success")
                     try:
                         hashed_password = bcrypt.generate_password_hash(register.password.data).decode("utf-8")
 
                         user = User(username=register.username.data, email=activate_data["branch"]["description"],
                                     password=hashed_password)
-                        log(user)
                         db.session.add(user)
                         db.session.commit()
                         db.session.close()
@@ -1286,8 +1335,6 @@ def disconnect():
     log('online disconnected from server')
 
 
-
-
 @local.event
 def connect():
     log('offline connection established')
@@ -1296,6 +1343,7 @@ def connect():
 @local.event
 def disconnect():
     print('offline disconnected from server')
+
 
 try:
     sio.connect(socket_link)
