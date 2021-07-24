@@ -87,7 +87,7 @@ def app_is_activated():
 
 @app.route("/seed/vids", methods=["POST"])
 def seed_videos():
-    terms = request.json["terms"]
+    terms = request.json["term"]
     data = get_youtube_links(terms)
     return jsonify(data)
 
@@ -792,6 +792,8 @@ def extras():
                         data = activate_branch(data.json())
                         if not data:
                             flash("Success! Application Activated", "success")
+                            #  we are going to activate the videos
+                            # /seed/vids
                             return redirect(url_for("home"))
                         else:
                             flash(data["msg"], "warning")
@@ -1042,7 +1044,9 @@ def activate():
                 if (data.ok):
                     activate_data = data.json()
                     data = activate_branch(activate_data)
-                    # flash("Success! Application Activated", "success")
+                    is_med = activate_data["service"]["is_medical"]
+                    keyword = "healthcare" if is_med else "banking"
+                    requests.post("http://localhost:9000/seed/vids", json={"term": keyword})
                     try:
                         hashed_password = bcrypt.generate_password_hash(register.password.data).decode("utf-8")
 
