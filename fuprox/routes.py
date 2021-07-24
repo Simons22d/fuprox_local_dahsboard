@@ -27,7 +27,8 @@ from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, Co
     TellerBooking
 from fuprox.utility import email
 from fuprox.utility import reverse, add_teller, create_service, upload_video, get_single_video, get_all_videos, \
-    get_active_videos, toggle_status, upload_link, delete_video, save_icon_to_service, has_vowels, get_youtube_links
+    get_active_videos, toggle_status, upload_link, delete_video, save_icon_to_service, has_vowels, get_youtube_links, \
+    save_code
 
 teller_schema = TellerSchema()
 tellers_schema = TellerSchema(many=True)
@@ -287,8 +288,8 @@ def search__():
     term = request.json["term"]
     lst = re.findall(r'\d+', term)
     ss = list(term)
-    try :
-        ints  = [x for x in lst[0]]
+    try:
+        ints = [x for x in lst[0]]
     except IndexError:
         ints = []
 
@@ -308,9 +309,9 @@ def search__():
         code = service['code']
         name = service['name']
         bnk_number = is_ticket(term)
-        log("x"*100)
+        log("x" * 100)
         print(bnk_number)
-        log("x"*100)
+        log("x" * 100)
         if ints:
             log("1111")
             query_offline = f"SELECT * FROM booking WHERE service_name='{name}' and ticket={numbers} ORDER BY date_added DESC"
@@ -1285,13 +1286,20 @@ def edit_teller(id):
     return render_template("edit_branch.html", form=teller, services_offered=teller_data, services=services)
 
 
-@app.route("/email", methods=["POST"])
-def send_email():
+@app.route("/password/request/change", methods=["POST"])
+def password_code_request():
     to = request.json["email"]
     subject = request.json["subject"]
-    body = request.json["body"]
-    print("to", to)
-    return email(to, subject, body)
+    user = request.json["user"]
+
+    info = save_code(user)
+    data = {
+        "to": to,
+        "subject": subject,
+        "code": info["code"]
+    }
+    requests.post("http://159.65.144.235:4000/send/email", json=data)
+    return dict()
 
 
 # edit company

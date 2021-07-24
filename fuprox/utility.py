@@ -2,7 +2,7 @@ import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from fuprox.models import Teller, TellerSchema, Service, ServiceOffered, ServiceOfferedSchema, Branch, BranchSchema, \
-    Icon, IconSchema, Video, VideoSchema
+    Icon, IconSchema, Video, VideoSchema, Recovery,RecoverySchema
 from fuprox import db
 from flask import jsonify, request
 import sqlalchemy
@@ -11,6 +11,11 @@ import os
 from fuprox import app
 from youtube_search import YoutubeSearch
 import json
+import random
+import requests
+from requests.auth import HTTPBasicAuth
+from base64 import b64encode
+from datetime import datetime
 
 # mpesa
 
@@ -26,10 +31,9 @@ branchs_schema = BranchSchema(many=True)
 video_schema = VideoSchema()
 videos_schema = VideoSchema(many=True)
 
-import requests
-from requests.auth import HTTPBasicAuth
-from base64 import b64encode
-from datetime import datetime
+recovery_schema = RecoverySchema()
+recoveries_schema = RecoverySchema(many=True)
+
 
 consumer_key = "vK3FkmwDOHAcX8UPt1Ek0njU9iE5plHG"
 consumer_secret = "vqB3jnDyqP1umewH"
@@ -494,4 +498,19 @@ def get_active_videos():
     return jsonify(video_data)
 
 
+def random_four():
+    rand = random.getrandbits(30)
+    numbers = str(rand)
+    final = [numbers[i:i + 4] for i in range(0, len(numbers), 4)]
+    final = f"{final[0]}-{final[1]}"
+    return final
+
+
+def save_code(user):
+    code = random_four()
+    lookup = Recovery(user,code)
+    db.session.add(lookup)
+    db.session.commit()
+    code = recovery_schema.dump(lookup)
+    return code
 """:::::END:::::"""

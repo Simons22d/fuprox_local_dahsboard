@@ -38,9 +38,6 @@
         </div>
           <div class="col-lg-4 col-md-12 ">
               <div class="dropdown">
-{#  <button class="btn btn-secondary btn-sm dropdown-toggle float-right" id="choice" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">#}
-{#    Choose Action#}
-{#  </button>#}
 <style>
 .dropdown-item{
     font-size:14px;
@@ -244,8 +241,20 @@
             <td>{{item.name}}</td>
             <td>{{item.teller}}</td>
             <td>{{item.code}}</td>
-            <td>{{item.active}}</td>
-            <td>{{item.medical_active}}</td>
+            <td>
+                {% if item.active%}
+                    Yes
+                {% else %}
+                    No
+                {% endif %}
+            </td>
+            <td>
+                {% if item.medical_active %}
+                    Yes
+                {% else %}
+                    No
+                {% endif %}
+            </td>
             <td><a href="{{ url_for('edit_branch',id=item.id)}}">edit</a></td>
           </tr>
         {% endfor %}

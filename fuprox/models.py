@@ -368,3 +368,19 @@ class TellerBookingSchema(ma.Schema):
         fields = (
         "id", "teller_to", "booking_id", "teller_from", "remarks", "active", "date_added", "pre_req", "is_synced",
         "preq_date_servived")
+
+
+class Recovery(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.ForeignKey("user.id"), nullable=False)
+    code = db.Column(db.String(length=50), nullable=False)
+    used = db.Column(db.Boolean, nullable=False, default=False)
+
+    def __init__(self, user, code):
+        self.user = user
+        self.code = code
+
+
+class RecoverySchema(ma.Schema):
+    class Meta:
+        fields = ("id", "user", "code", "used")
