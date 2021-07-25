@@ -410,6 +410,7 @@ def save_icon_to_service(icon, name, branch):
     return final
 
 
+
 def get_youtube_links(term):
     type = 2
     results = YoutubeSearch(term, max_results=100).to_json()
@@ -526,10 +527,9 @@ def save_code(user):
 
 def blur_image(filename):
     image = Image.open(filename)
-    f_name = filename.split(".",filename)
-    # Applying GaussianBlur filter
-    gaussImage = image.filter(ImageFilter.GaussianBlur(5))
-    gaussImage.save(f"{f_name}_blur.{f_name[1]}")
+    f_name = filename.split(".")
+    gaussImage = image.filter(ImageFilter.GaussianBlur(60))
+    gaussImage.save(os.path.join(os.getcwd(),"fuprox","icons",f"wallpaper.{f_name[1]}"))
     return dict()
 
 

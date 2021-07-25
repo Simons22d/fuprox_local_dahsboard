@@ -46,27 +46,9 @@ class Passwords(FlaskForm):
 
 
 
-class UpdateForm(FlaskForm):
-    username = StringField("Username", validators=[DataRequired(), Length(min=2, max=12)])
-    email = StringField("Email", validators=[DataRequired(), Email()])
-    picture = FileField("Profile Picture", validators=[FileAllowed(["jpg", "png"])])
-    submit = SubmitField("Update")
-
-    # validation  for checking if the username
-
-    def validate_username(self, username):
-        if username.data != current_user.username:
-            user = User.query.filter_by(username=username.data).first()
-            if user:
-                raise ValidationError("Username Already Taken. Please Choose Another One")
-
-    # validation from checking the email
-    def validate_email(self, email):
-        if email.data != current_user.email:
-            user = User.query.filter_by(email=email.data).first()
-            if user:
-                raise ValidationError("Email Already Taken. Please Choose Another One")
-
+class WallpaperForm(FlaskForm):
+    picture = FileField("Wallpaper", validators=[FileAllowed(["jpg", "png"])])
+    submit = SubmitField("Upload Wallpaper")
 
 # form for request user toe nter email for reset 
 class ResetRequest(FlaskForm):

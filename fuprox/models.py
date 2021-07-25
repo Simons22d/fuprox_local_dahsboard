@@ -200,7 +200,7 @@ class Booking(db.Model):
 class BookingSchema(ma.Schema):
     class Meta:
         fields = ("id", "service_name", "start", "branch_id", "ticket", "active", "nxt", "serviced", "teller", \
-                  "kind", "user", "is_instant", "forwarded", "is_synced", "unique_id", "unique_teller","date_added")
+                  "kind", "user", "is_instant", "forwarded", "is_synced", "unique_id", "unique_teller", "date_added")
 
 
 class ImageCompany(db.Model):
@@ -294,6 +294,21 @@ class IconSchema(ma.Schema):
         fields = ("id", "name", "date_added", "branch", "icon")
 
 
+class Wallpaper(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(length=50), nullable=False, default="wallpaper")
+    date_added = db.Column(db.DateTime, default=datetime.now)
+    wallpaper = db.Column(db.Text)
+
+    def __init__(self, wallpaper):
+        self.wallpaper = wallpaper
+
+
+class WallpaperSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "name", "date_added", "wallpaper")
+
+
 class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(length=250), unique=True)
@@ -366,8 +381,8 @@ class TellerBooking(db.Model):
 class TellerBookingSchema(ma.Schema):
     class Meta:
         fields = (
-        "id", "teller_to", "booking_id", "teller_from", "remarks", "active", "date_added", "pre_req", "is_synced",
-        "preq_date_servived")
+            "id", "teller_to", "booking_id", "teller_from", "remarks", "active", "date_added", "pre_req", "is_synced",
+            "preq_date_servived")
 
 
 class Recovery(db.Model):

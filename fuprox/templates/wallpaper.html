@@ -33,7 +33,7 @@
       <div class="row">
         <div class="col-md-12 col-lg-8">
           <div class="title-single-box">
-            <h5 style="font-size:15px;">Manage Icons<span style="color:grey;"></span> </h5>
+            <h5 style="font-size:15px;">Manage Wallapers<span style="color:grey;"></span> </h5>
             <span class="color-text-a"></span>
           </div>
         </div>
@@ -83,11 +83,8 @@
         <div class="col-lg-12">
         <ul class="nav nav-tabs " style="font-size:12px; pading-top:0px;">
               <li class="nav-item">
-                <a class="nav-link active" href="{{ url_for('tellers') }}" id="add branch">Add Icon</a>
+                <a class="nav-link active" href="{{ url_for('tellers') }}" id="add branch">Add Wallpaper</a>
               </li>
-{#              <li class="nav-item">#}
-{#                <a class="nav-link" href="{{ url_for('view_branch') }}" id="branches">Icons</a>#}
-{#              </li>#}
         </ul>
         </div>
     </div>
@@ -95,53 +92,38 @@
 <br>
 {% endblock%}
 {% block content %}
-     <!--/ Property Grid Star /-->
-    <div class="row">
+       <div class="row">
+       <div class="col-lg-5">
+           <form action="" method="POST" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                        {% for category,message in messages %}
+                        <div class="alert alert-{{ category }}">{{message}}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <div class="form-group">
+                    {{ form.picture.label(class="form-control-label")}}
+                    {% if form.picture.errors %}
+                    {{ form.picture(class="form-control-file  form-control-sm is-invalid")}}
+                    <div class="invalid-feedback">
+                        {% for error in form.picture.errors %}
+                        <span>{{error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.picture(class="form-control-file form-control-sm") }}
+                    {% endif %}
+                </div>
+                <div class="form-group mt-3">
+                    {{ form.submit(class="btn btn-sm btn-success btn-block mt-4")}}
+                </div>
 
-            <div class="col-lg-6 mt-4">
-								<form action="" enctype="multipart/form-data" name="upload_icon" id="form_upload_icon">
-									<h5 class="header text-muted">Add Icon</h5>
-									<div id="message_icon"></div>
-									<label for="icon_name">Icon Name</label>
-									<input type="text" id="icon_name" name ="icon_name" class="form-control form-control-sm">
-
-									<label for="icon_file_icon" class="mt-2">Icon File</label>
-									<input type="file" id="icon_file_icon" name ="icon" class="form-control-file " accept="image/* ">
-									<input class="btn btn-primary btn-sm col-lg-6 modalInfo mt-4"   name="submit"
-                                           id="upload_icon" onclick="upload_icon_()" value="upload Icon">
-								</form>
-      </div>
-        <div class="col-md-6 mt-5">
-            <table class="table table-sm table-hover table-bordered" style="font-size:12px;">
-        <thead>
-          <tr>
-            <th scope="col">Number</th>
-            <th scope="col">Name</th>
-            <th scope="col">icon</th>
-{#            <th scope="col">Action</th>#}
-          </tr>
-        </thead>
-        <tbody>
-
-         {% if icons %}
-        {% for item in icons %}
-          <tr>
-            <td>{{item.id}}</td>
-            <td>{{item.name}}</td>
-            <td><img src="{{ item.icon }}" height=30 width=30/></td>
-{#            <td><a href="{{ url_for('edit_teller',id=item.id)}}">edit</a></td>#}
-          </tr>
-        {% endfor %}
-        {% else %}
-        <tr>
-            <th scope="row" colspan="5" color="red"><h3 class="mt-3">Oops!, No Data Here :(</h3> </th>
-          </tr>
-
-        {% endif %}
-
-        </tbody>
-      </table>
-        </div>
-    </div>
-    <script src="{{ url_for('static',filename='js/upload.js') }}"></script>
+            </form>
+       </div>
+       <div class="col-lg-7">
+           <img src="/Users/denis/Documents/coding/Python/fuprox/v1/fuprox_local_dashboard/fuprox/icons/wallpaper.jpg" alt="">
+       </div>
+       </div>
 {% endblock %}

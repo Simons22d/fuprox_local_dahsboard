@@ -12,22 +12,21 @@ from datetime import timedelta
 
 import requests
 import socketio
-from PIL import Image
 from dateutil import parser
 from flask import render_template, url_for, flash, redirect, request, abort, jsonify, send_from_directory
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import sqlalchemy
-
+from PIL import Image, ImageFilter
 from fuprox import app, db, bcrypt
 from fuprox.forms import (RegisterForm, LoginForm, TellerForm, ServiceForm, SolutionForm,
-                          ActivateForm, AddUser, PasswordCode, Passwords, Code)
+                          ActivateForm, AddUser, PasswordCode, Passwords, Code,WallpaperForm)
 from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, CompanySchema, ServiceSchema, Mpesa, \
     MpesaSchema, Booking, BookingSchema, ImageCompanySchema, Teller, TellerSchema, ServiceOffered, Icon, \
     PhraseSchema, Phrase, ServiceOfferedSchema, VideoSchema, Video, ResetOption, ResetOptionSchema, \
-    TellerBooking,Recovery
+    TellerBooking,Recovery,Wallpaper,WallpaperSchema
 from fuprox.utility import reverse, add_teller, create_service, upload_video, get_single_video, get_all_videos, \
     get_active_videos, toggle_status, upload_link, delete_video, save_icon_to_service, has_vowels, get_youtube_links, \
-    save_code, code_exists, email, password_code_request
+    save_code, code_exists, email, password_code_request,blur_image
 
 teller_schema = TellerSchema()
 tellers_schema = TellerSchema(many=True)
@@ -49,6 +48,8 @@ service_offered_schema = ServiceOfferedSchema()
 services_offered_schema = ServiceOfferedSchema(many=True)
 
 company_schema = CompanySchema()
+
+wallpaper_schema = WallpaperSchema()
 
 mpesa_schema = MpesaSchema()
 mpesas_schema = MpesaSchema(many=True)
@@ -480,6 +481,17 @@ def payments_card():
     return render_template("payment_card.html", transactions=data)
 
 
+
+@app.route("/wallpaper",methods=["GET","POST"])
+@login_required
+def wallpaper__():
+    form = WallpaperForm()
+    if form.validate_on_submit():
+        image = form.picture.data
+        save_picture(image)
+    return render_template("wallpaper.html", form=form)
+
+
 @app.route("/reports")
 @login_required
 def payments_report():
@@ -690,20 +702,23 @@ def ticket_unique() -> int:
 
 
 def save_picture(picture):
-    pic_name = secrets.token_hex(8)
+    pic_name = "wallpaper"
     # getting the name and the extension of the image
     _, ext = os.path.splitext(picture.filename)
     final_name = pic_name + ext
     picture_path = os.path.join(app.root_path, "icons", final_name)
-    # resizing the file
-    size = (125, 125)
     i = Image.open(picture)
-    i.thumbnail(size)
-    # saving the thumbnail
     i.save(picture_path)
-    move_to_api(final_name)
+    blur_image(picture_path)
+    wallie_to_db(picture_path)
     return final_name
 
+def wallie_to_db(path):
+    # final = bytes(path, encoding='utf8')
+    lookup = Wallpaper(path)
+    db.session.add(lookup)
+    db.session.commit()
+    return dict()
 
 @app.route("/service", methods=["POST", "GET"])
 @login_required
@@ -770,6 +785,10 @@ def help():
     solution_data = Help.query.all()
     return render_template("help.html", data=solution_data)
 
+@app.route("/get/wallpaper")
+def get_wallpaper():
+    wallie = Wallpaper.query.first()
+    return wallpaper_schema.dump(wallie)
 
 @app.route("/extras", methods=["GET", "POST"])
 @login_required
