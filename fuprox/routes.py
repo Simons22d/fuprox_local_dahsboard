@@ -20,15 +20,14 @@ from flask_sqlalchemy import sqlalchemy
 
 from fuprox import app, db, bcrypt
 from fuprox.forms import (RegisterForm, LoginForm, TellerForm, ServiceForm, SolutionForm,
-                          ActivateForm, AddUser)
+                          ActivateForm, AddUser, PasswordCode, Passwords, Code)
 from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, CompanySchema, ServiceSchema, Mpesa, \
     MpesaSchema, Booking, BookingSchema, ImageCompanySchema, Teller, TellerSchema, ServiceOffered, Icon, \
     PhraseSchema, Phrase, ServiceOfferedSchema, VideoSchema, Video, ResetOption, ResetOptionSchema, \
-    TellerBooking
-from fuprox.utility import email
+    TellerBooking,Recovery
 from fuprox.utility import reverse, add_teller, create_service, upload_video, get_single_video, get_all_videos, \
     get_active_videos, toggle_status, upload_link, delete_video, save_icon_to_service, has_vowels, get_youtube_links, \
-    save_code
+    save_code, code_exists, email, password_code_request
 
 teller_schema = TellerSchema()
 tellers_schema = TellerSchema(many=True)
@@ -1026,6 +1025,57 @@ def login():
     return render_template("login.html", form=login)
 
 
+@app.route("/password/code", methods=["POST", "GET"])
+def send_password_code():
+    code = PasswordCode()
+    # checking the form data status
+    if code.validate_on_submit():
+        email = code.email.data
+        user = User.query.filter_by(email=code.email.data).first()
+        if user:
+            password_code_request(email,"Password Reset Request Code")
+            flash("Code sent to email", "success")
+            return redirect(url_for('enter_code', email=email))
+        else:
+            flash("Error! Please confirm data", "danger")
+    return render_template("send_password_code.html", form=code)
+
+
+@app.route("/password/code/<email>", methods=["POST", "GET"])
+def enter_code(email):
+    print("EMAIL",email)
+    code = Code()
+    if code.validate_on_submit():
+        exists = code_exists(email, code.code.data)
+        if exists:
+            flash("Valid Code", "success")
+            return redirect(url_for('verify_passwords', email=email))
+        else:
+            flash("Code not valid", "danger")
+    return render_template("verify_code.html", form=code)
+
+
+@app.route("/password/passwords/<email>", methods=["POST", "GET"])
+def verify_passwords(email):
+    passwords = Passwords()
+    # checking the form data status
+    if passwords.validate_on_submit():
+        user = User.query.filter_by(email=email).first()
+        hash = bcrypt.generate_password_hash(passwords.password.data).decode("utf-8")
+        user.password = hash
+        db.session.commit()
+        if user:
+            flash("Password changed successfully", "success")
+            codes = Recovery.query.filter_by(user=user.id).all()
+            for code in codes:
+                db.session.delete(code)
+                db.session.commit()
+            return redirect(url_for('login'))
+        else:
+            flash("Passwords do not match", "danger")
+    return render_template("new_passwords.html", form=passwords)
+
+
 @app.route("/activate", methods=["GET", "POST"])
 def activate():
     # checking if the current user is logged
@@ -1291,19 +1341,10 @@ def edit_teller(id):
 
 
 @app.route("/password/request/change", methods=["POST"])
-def password_code_request():
+def password_code_request_():
     to = request.json["email"]
     subject = request.json["subject"]
-    user = request.json["user"]
-
-    info = save_code(user)
-    data = {
-        "to": to,
-        "subject": subject,
-        "code": info["code"]
-    }
-    requests.post("http://159.65.144.235:4000/send/email", json=data)
-    return dict()
+    return password_code_request(to, subject)
 
 
 # edit company

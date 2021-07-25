@@ -2,7 +2,7 @@ import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from fuprox.models import Teller, TellerSchema, Service, ServiceOffered, ServiceOfferedSchema, Branch, BranchSchema, \
-    Icon, IconSchema, Video, VideoSchema, Recovery,RecoverySchema
+    Icon, IconSchema, Video, VideoSchema, Recovery,RecoverySchema,User
 from fuprox import db
 from flask import jsonify, request
 import sqlalchemy
@@ -16,6 +16,8 @@ import requests
 from requests.auth import HTTPBasicAuth
 from base64 import b64encode
 from datetime import datetime
+from PIL import Image, ImageFilter
+import re
 
 # mpesa
 
@@ -506,11 +508,55 @@ def random_four():
     return final
 
 
+def delete_old_codes(user_id):
+    codes =  Recovery.query.filter_by(user=user_id).all()
+    for code in codes:
+        db.session.delete(code)
+        db.session.commit()
+    return dict()
+
 def save_code(user):
     code = random_four()
+    delete_old_codes(user)
     lookup = Recovery(user,code)
     db.session.add(lookup)
     db.session.commit()
     code = recovery_schema.dump(lookup)
     return code
+
+def blur_image(filename):
+    image = Image.open(filename)
+    f_name = filename.split(".",filename)
+    # Applying GaussianBlur filter
+    gaussImage = image.filter(ImageFilter.GaussianBlur(5))
+    gaussImage.save(f"{f_name}_blur.{f_name[1]}")
+    return dict()
+
+
+def code_exists(email,code):
+    user_ = User.query.filter_by(email=email).first()
+    code = Recovery.query.filter_by(code=code).filter_by(user=user_.id).first() if user_ else False
+    print("*"*100,user_,code)
+    return True if code else False
+
+def password_code_request(to,subject):
+    if re.fullmatch("[^@]+@[^@]+\.[^@]+",to):
+        user_info = User.query.filter_by(email=to).first()
+        final = True
+        if user_info:
+            user = user_info
+            info = save_code(user.id)
+            data = {
+                "to": to,
+                "subject": subject,
+                "code": info["code"]
+            }
+            res = requests.post("http://159.65.144.235:3000/send/email/code", json=data)
+            final = True
+        else:
+            final = False
+    else:
+        final = False
+    return {"msg" : final }
+
 """:::::END:::::"""

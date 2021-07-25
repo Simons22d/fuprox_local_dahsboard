@@ -21,18 +21,29 @@ class RegisterForm(FlaskForm):
         if user:
             raise ValidationError("Username Already Taken. Please Choose Another One")
 
-    # validation from checking the email
-    # def validate_email(self, email):
-    #     email = User.query.filter_by(email=email.data).first()
-    #     if email:
-    #         raise ValidationError("Email Already Taken. Please Choose Another One")
-
 
 class LoginForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired(), Email()])
     password = PasswordField("Password", validators=[DataRequired()])
     remmember = BooleanField("Remmember me")
     submit = SubmitField("Login")
+
+
+class PasswordCode(FlaskForm):
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    submit = SubmitField("Send Verification Code")
+
+
+class Code(FlaskForm):
+    code = StringField("Enter Code", validators=[DataRequired()])
+    submit = SubmitField("Send Verification Code")
+
+class Passwords(FlaskForm):
+    password = PasswordField("Password",validators=[DataRequired(), EqualTo('confirm_password', message='Passwords do '
+                                                                                                        'not match')])
+    confirm_password = PasswordField("Confirm Password")
+    submit = SubmitField("Change Password")
+
 
 
 class UpdateForm(FlaskForm):
