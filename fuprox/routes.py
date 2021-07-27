@@ -19,11 +19,11 @@ from flask_sqlalchemy import sqlalchemy
 from PIL import Image, ImageFilter
 from fuprox import app, db, bcrypt
 from fuprox.forms import (RegisterForm, LoginForm, TellerForm, ServiceForm, SolutionForm,
-                          ActivateForm, AddUser, PasswordCode, Passwords, Code, WallpaperForm,LogoForm)
+                          ActivateForm, AddUser, PasswordCode, Passwords, Code, WallpaperForm, LogoForm)
 from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, CompanySchema, ServiceSchema, Mpesa, \
     MpesaSchema, Booking, BookingSchema, ImageCompanySchema, Teller, TellerSchema, ServiceOffered, Icon, \
     PhraseSchema, Phrase, ServiceOfferedSchema, VideoSchema, Video, ResetOption, ResetOptionSchema, \
-    TellerBooking, Recovery, Wallpaper, WallpaperSchema,LogoSchema,Logo
+    TellerBooking, Recovery, Wallpaper, WallpaperSchema, LogoSchema, Logo
 from fuprox.utility import reverse, add_teller, create_service, upload_video, get_single_video, get_all_videos, \
     get_active_videos, toggle_status, upload_link, delete_video, save_icon_to_service, has_vowels, get_youtube_links, \
     save_code, code_exists, email, password_code_request, blur_image
@@ -488,9 +488,10 @@ def wallpaper__():
     form = WallpaperForm()
     if form.validate_on_submit():
         image = form.picture.data
-        save_picture(image,"wallpaper")
+        save_picture(image, "wallpaper")
 
     return render_template("wallpaper.html", form=form)
+
 
 @app.route("/logo", methods=["GET", "POST"])
 @login_required
@@ -498,7 +499,7 @@ def logo__():
     logo = LogoForm()
     if logo.validate_on_submit():
         logo_ = logo.logo.data
-        save_picture(logo_,"company_logo")
+        save_picture(logo_, "company_logo")
     return render_template("logo.html", logo=logo)
 
 
@@ -711,7 +712,7 @@ def ticket_unique() -> int:
     return secrets.token_hex(16)
 
 
-def save_picture(picture,filename):
+def save_picture(picture, filename):
     pic_name = filename
     # getting the name and the extension of the image
     _, ext = os.path.splitext(picture.filename)
@@ -798,16 +799,17 @@ def help():
     return render_template("help.html", data=solution_data)
 
 
-@app.route("/get/wallpaper",methods=["POST"])
+@app.route("/get/wallpaper", methods=["POST"])
 def get_wallpaper():
     wallie = Wallpaper.query.order_by(Wallpaper.date_added.desc()).first()
     return wallpaper_schema.dump(wallie)
 
 
-@app.route("/get/logo",methods=["POST"])
+@app.route("/get/logo", methods=["POST"])
 def get_logo():
     logo = Logo.query.order_by(Logo.date_added.desc()).first()
     return logo_schema.dump(logo)
+
 
 @app.route("/extras", methods=["GET", "POST"])
 @login_required
