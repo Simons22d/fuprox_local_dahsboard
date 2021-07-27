@@ -19,14 +19,14 @@ from flask_sqlalchemy import sqlalchemy
 from PIL import Image, ImageFilter
 from fuprox import app, db, bcrypt
 from fuprox.forms import (RegisterForm, LoginForm, TellerForm, ServiceForm, SolutionForm,
-                          ActivateForm, AddUser, PasswordCode, Passwords, Code,WallpaperForm)
+                          ActivateForm, AddUser, PasswordCode, Passwords, Code, WallpaperForm,LogoForm)
 from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, CompanySchema, ServiceSchema, Mpesa, \
     MpesaSchema, Booking, BookingSchema, ImageCompanySchema, Teller, TellerSchema, ServiceOffered, Icon, \
     PhraseSchema, Phrase, ServiceOfferedSchema, VideoSchema, Video, ResetOption, ResetOptionSchema, \
-    TellerBooking,Recovery,Wallpaper,WallpaperSchema
+    TellerBooking, Recovery, Wallpaper, WallpaperSchema,LogoSchema,Logo
 from fuprox.utility import reverse, add_teller, create_service, upload_video, get_single_video, get_all_videos, \
     get_active_videos, toggle_status, upload_link, delete_video, save_icon_to_service, has_vowels, get_youtube_links, \
-    save_code, code_exists, email, password_code_request,blur_image
+    save_code, code_exists, email, password_code_request, blur_image
 
 teller_schema = TellerSchema()
 tellers_schema = TellerSchema(many=True)
@@ -50,6 +50,7 @@ services_offered_schema = ServiceOfferedSchema(many=True)
 company_schema = CompanySchema()
 
 wallpaper_schema = WallpaperSchema()
+logo_schema = LogoSchema()
 
 mpesa_schema = MpesaSchema()
 mpesas_schema = MpesaSchema(many=True)
@@ -481,15 +482,24 @@ def payments_card():
     return render_template("payment_card.html", transactions=data)
 
 
-
-@app.route("/wallpaper",methods=["GET","POST"])
+@app.route("/wallpaper", methods=["GET", "POST"])
 @login_required
 def wallpaper__():
     form = WallpaperForm()
     if form.validate_on_submit():
         image = form.picture.data
-        save_picture(image)
+        save_picture(image,"wallpaper")
+
     return render_template("wallpaper.html", form=form)
+
+@app.route("/logo", methods=["GET", "POST"])
+@login_required
+def logo__():
+    logo = LogoForm()
+    if logo.validate_on_submit():
+        logo_ = logo.logo.data
+        save_picture(logo_,"company_logo")
+    return render_template("logo.html", logo=logo)
 
 
 @app.route("/reports")
@@ -680,9 +690,9 @@ def move_to_api(filename):
     from pathlib import Path
     import shutil
     home = str(Path.home())
-    from_ = os.path.join(app.root_path, "icons", filename)
-    upload_path = os.path.join(home, "fuprox_api", "fuprox", "icons", filename)
-    upload_pth = os.path.join(home, "fuprox_api", "fuprox", "icons")
+    from_ = os.path.join(app.root_path, "static/images/icons", filename)
+    upload_path = os.path.join(home, "fuprox_api", "fuprox", "static/images/icons", filename)
+    upload_pth = os.path.join(home, "fuprox_api", "fuprox", "static/images/icons")
     if not os.path.exists(f"{home}/fuprox_api/fuprox/icons"):
         try:
             new_dir = Path(upload_path)
@@ -701,17 +711,18 @@ def ticket_unique() -> int:
     return secrets.token_hex(16)
 
 
-def save_picture(picture):
-    pic_name = "wallpaper"
+def save_picture(picture,filename):
+    pic_name = filename
     # getting the name and the extension of the image
     _, ext = os.path.splitext(picture.filename)
     final_name = pic_name + ext
-    picture_path = os.path.join(app.root_path, "icons", final_name)
+    picture_path = os.path.join(app.root_path, "static/images/", final_name)
     i = Image.open(picture)
     i.save(picture_path)
     blur_image(picture_path)
     wallie_to_db(picture_path)
     return final_name
+
 
 def wallie_to_db(path):
     # final = bytes(path, encoding='utf8')
@@ -719,6 +730,7 @@ def wallie_to_db(path):
     db.session.add(lookup)
     db.session.commit()
     return dict()
+
 
 @app.route("/service", methods=["POST", "GET"])
 @login_required
@@ -785,10 +797,17 @@ def help():
     solution_data = Help.query.all()
     return render_template("help.html", data=solution_data)
 
-@app.route("/get/wallpaper")
+
+@app.route("/get/wallpaper",methods=["POST"])
 def get_wallpaper():
-    wallie = Wallpaper.query.first()
+    wallie = Wallpaper.query.order_by(Wallpaper.date_added.desc()).first()
     return wallpaper_schema.dump(wallie)
+
+
+@app.route("/get/logo",methods=["POST"])
+def get_logo():
+    logo = Logo.query.order_by(Logo.date_added.desc()).first()
+    return logo_schema.dump(logo)
 
 @app.route("/extras", methods=["GET", "POST"])
 @login_required
@@ -1052,7 +1071,7 @@ def send_password_code():
         email = code.email.data
         user = User.query.filter_by(email=code.email.data).first()
         if user:
-            password_code_request(email,"Password Reset Request Code")
+            password_code_request(email, "Password Reset Request Code")
             flash("Code sent to email", "success")
             return redirect(url_for('enter_code', email=email))
         else:
@@ -1062,7 +1081,7 @@ def send_password_code():
 
 @app.route("/password/code/<email>", methods=["POST", "GET"])
 def enter_code(email):
-    print("EMAIL",email)
+    print("EMAIL", email)
     code = Code()
     if code.validate_on_submit():
         exists = code_exists(email, code.code.data)

@@ -353,6 +353,21 @@ class ResetOption(db.Model):
         self.active = option
 
 
+
+class Logo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    path = db.Column(db.Text)
+    date_added = db.Column(db.DateTime, default=datetime.now)
+
+    def __init__(self, path):
+        self.path = path
+
+
+class LogoSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "path", "date_added")
+
+
 class ResetOptionSchema(ma.Schema):
     class Meta:
         fields = ("id", "time", "date_added", "active")

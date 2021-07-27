@@ -529,7 +529,8 @@ def blur_image(filename):
     image = Image.open(filename)
     f_name = filename.split(".")
     gaussImage = image.filter(ImageFilter.GaussianBlur(60))
-    gaussImage.save(os.path.join(os.getcwd(),"fuprox","icons",f"wallpaper.{f_name[1]}"))
+    gaussImage.rotate(-180)
+    gaussImage.save(os.path.join(os.getcwd(),"fuprox", "static/images", f"wallpaper.{f_name[1]}"))
     return dict()
 
 

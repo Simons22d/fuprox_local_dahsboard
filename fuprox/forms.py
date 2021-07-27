@@ -50,6 +50,11 @@ class WallpaperForm(FlaskForm):
     picture = FileField("Wallpaper", validators=[FileAllowed(["jpg", "png"])])
     submit = SubmitField("Upload Wallpaper")
 
+
+class LogoForm(FlaskForm):
+    logo = FileField("Logo", validators=[FileAllowed(["jpg", "png"])])
+    upload = SubmitField("Upload Logo")
+
 # form for request user toe nter email for reset 
 class ResetRequest(FlaskForm):
     email = StringField("Email", validators=[DataRequired()])

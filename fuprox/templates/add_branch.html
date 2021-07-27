@@ -31,34 +31,13 @@
   <section class="intro-single">
     <div class="container">
       <div class="row">
-        <div class="col-md-12 col-lg-8">
+        <div class="col-md-12 col-lg-7">
           <div class="title-single-box">
             <h5 style="font-size:15px;">Manage Tellers<span style="color:grey;"></span> </h5>
             <span class="color-text-a"></span>
           </div>
         </div>
-          <div class="col-lg-4 col-md-12 ">
-              <div class="dropdown col-12">
-{#  <button class="btn btn-secondary btn-sm dropdown-toggle float-right " id="choice" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">#}
-{#    Choose Action#}
-{#  </button>#}
-<style>
-.dropdown-item{
-    font-size:14px;
-}
-</style>
-<script>
-  {#$("#choice").html("Teller");#}
-
-</script>
-{#  <div class="dropdown-menu " aria-labelledby="dropdownMenuButton">#}
-{#    <a class="dropdown-item" href="{{ url_for('tellers') }}">Teller</a>#}
-{#    <a class="dropdown-item" href="{{ url_for('add_company') }}">Service</a>#}
-{#    <a class="dropdown-item" href="{{ url_for('upload_icon') }}">Icon</a>#}
-{#    <a class="dropdown-item" href="{{ url_for('upload_video__') }}">Video</a>#}
-{#  </div>#}
-
-</div>
+          <div class="col-lg-5 col-md-12 ">
   <ul class="nav  nav-pills justify-content-end">
   <li class="nav-item">
     <a class="nav-link active" aria-current="page" href="{{ url_for('tellers') }}">Teller</a>
@@ -71,6 +50,12 @@
   </li>
   <li class="nav-item">
     <a class="nav-link" href="{{ url_for('upload_video__') }}">Video</a>
+  </li>
+   <li class="nav-item">
+    <a class="nav-link " href="{{ url_for('wallpaper__') }}">Wallpaper</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{{ url_for('logo__') }}">Logo</a>
   </li>
 
 </ul>
