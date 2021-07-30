@@ -7,6 +7,7 @@ from flask_login import LoginManager
 from decouple import config
 from dotenv import load_dotenv
 import os
+from os import getenv
 
 load_dotenv()
 
@@ -15,6 +16,7 @@ from pathlib import Path
 
 home = str(Path.home())
 current_dir = os.getcwd()
+
 
 # making the directory for the files
 os.chdir(home)
@@ -39,6 +41,8 @@ db_pass = os.getenv('DBPASS')
 db_user = os.getenv("DBUSER")
 db_host = os.getenv("DBHOST")
 db = os.getenv("DB")
+project_dir = os.getenv("PROJECT_DIR")
+print(project_dir)
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = '2345'

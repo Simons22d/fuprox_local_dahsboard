@@ -3,7 +3,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from fuprox.models import Teller, TellerSchema, Service, ServiceOffered, ServiceOfferedSchema, Branch, BranchSchema, \
     Icon, IconSchema, Video, VideoSchema, Recovery,RecoverySchema,User
-from fuprox import db
+from fuprox import db,project_dir
 from flask import jsonify, request
 import sqlalchemy
 from werkzeug.utils import secure_filename
@@ -530,7 +530,7 @@ def blur_image(filename):
     f_name = filename.split(".")
     gaussImage = image.filter(ImageFilter.GaussianBlur(60))
     gaussImage.rotate(-180)
-    gaussImage.save(os.path.join(os.getcwd(),"fuprox", "static/images", f"wallpaper.{f_name[1]}"))
+    gaussImage.save(os.path.join(project_dir,"fuprox", "static/images", f"wallpaper.{f_name[1]}"))
     return dict()
 
 
