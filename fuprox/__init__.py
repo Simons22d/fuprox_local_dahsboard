@@ -75,4 +75,5 @@ app.config["MAIL_PORT"] = 587
 
 mail = Mail()
 
+print(app.instance_path)
 from fuprox import routes
