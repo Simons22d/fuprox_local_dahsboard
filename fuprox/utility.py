@@ -2,8 +2,8 @@ import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from fuprox.models import Teller, TellerSchema, Service, ServiceOffered, ServiceOfferedSchema, Branch, BranchSchema, \
-    Icon, IconSchema, Video, VideoSchema, Recovery,RecoverySchema,User
-from fuprox import db,project_dir
+    Icon, IconSchema, Video, VideoSchema, Recovery, RecoverySchema, User
+from fuprox import db, project_dir
 from flask import jsonify, request
 import sqlalchemy
 from werkzeug.utils import secure_filename
@@ -35,7 +35,6 @@ videos_schema = VideoSchema(many=True)
 
 recovery_schema = RecoverySchema()
 recoveries_schema = RecoverySchema(many=True)
-
 
 consumer_key = "vK3FkmwDOHAcX8UPt1Ek0njU9iE5plHG"
 consumer_secret = "vqB3jnDyqP1umewH"
@@ -410,7 +409,6 @@ def save_icon_to_service(icon, name, branch):
     return final
 
 
-
 def get_youtube_links(term):
     type = 2
     results = YoutubeSearch(term, max_results=100).to_json()
@@ -510,38 +508,41 @@ def random_four():
 
 
 def delete_old_codes(user_id):
-    codes =  Recovery.query.filter_by(user=user_id).all()
+    codes = Recovery.query.filter_by(user=user_id).all()
     for code in codes:
         db.session.delete(code)
         db.session.commit()
     return dict()
 
+
 def save_code(user):
     code = random_four()
     delete_old_codes(user)
-    lookup = Recovery(user,code)
+    lookup = Recovery(user, code)
     db.session.add(lookup)
     db.session.commit()
     code = recovery_schema.dump(lookup)
     return code
+
 
 def blur_image(filename):
     image = Image.open(filename)
     f_name = filename.split(".")
     gaussImage = image.filter(ImageFilter.GaussianBlur(60))
     gaussImage.rotate(-180)
-    gaussImage.save(os.path.join(project_dir,"fuprox", "static/images", f"wallpaper.{f_name[1]}"))
+    gaussImage.save(os.path.join(app.instance_path, "fuprox", "static/images", f"wallpaper.{f_name[1]}"))
     return dict()
 
 
-def code_exists(email,code):
+def code_exists(email, code):
     user_ = User.query.filter_by(email=email).first()
     code = Recovery.query.filter_by(code=code).filter_by(user=user_.id).first() if user_ else False
-    print("*"*100,user_,code)
+    print("*" * 100, user_, code)
     return True if code else False
 
-def password_code_request(to,subject):
-    if re.fullmatch("[^@]+@[^@]+\.[^@]+",to):
+
+def password_code_request(to, subject):
+    if re.fullmatch("[^@]+@[^@]+\.[^@]+", to):
         user_info = User.query.filter_by(email=to).first()
         final = True
         if user_info:
@@ -558,6 +559,7 @@ def password_code_request(to,subject):
             final = False
     else:
         final = False
-    return {"msg" : final }
+    return {"msg": final}
+
 
 """:::::END:::::"""
