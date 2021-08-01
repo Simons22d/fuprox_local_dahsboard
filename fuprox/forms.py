@@ -118,6 +118,10 @@ class PhraseForm(FlaskForm):
     submit = SubmitField("Add Phrase")
 
 
+class DeleteWallpaper(FlaskForm):
+    submit = SubmitField("Delete Wallpaper")
+
+
 class ReportForm(FlaskForm):
     format = RadioField("Format", validators=[DataRequired()], Type=str, choices=["PDF", "Excel"])
     type = SelectField("Type", validators=[DataRequired()], Type=str, choices=["Bookings", "Branch", "Payments", "All"])

@@ -1,13 +1,13 @@
-from flask import Flask, request, jsonify
+import logging
+
+from flask import Flask
 from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy, sqlalchemy
 from flask_mail import Mail
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
-from decouple import config
 from dotenv import load_dotenv
 import os
-from os import getenv
 
 load_dotenv()
 
@@ -21,7 +21,6 @@ current_dir = os.getcwd()
 # making the directory for the files
 os.chdir(home)
 
-# mkdir
 # check if home dir exists
 if not os.path.exists(f"{home}/noqueue/uploads"):
     try:
@@ -42,6 +41,8 @@ db_user = os.getenv("DBUSER")
 db_host = os.getenv("DBHOST")
 db = os.getenv("DB")
 project_dir = os.getenv("PROJECT_DIR")
+image_path = os.getenv("IMAGE_PATH")
+
 print(project_dir)
 
 app = Flask(__name__)
@@ -75,5 +76,5 @@ app.config["MAIL_PORT"] = 587
 
 mail = Mail()
 
-print(app.instance_path)
+# print(app.instance_path)
 from fuprox import routes

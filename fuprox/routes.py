@@ -5,11 +5,8 @@ import re
 import secrets
 import socket
 import time
-from copy import copy, deepcopy
-
 import timeago
 from datetime import timedelta
-
 import requests
 import socketio
 from dateutil import parser
@@ -17,9 +14,9 @@ from flask import render_template, url_for, flash, redirect, request, abort, jso
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import sqlalchemy
 from PIL import Image, ImageFilter
-from fuprox import app, db, bcrypt
+from fuprox import app, db, bcrypt,image_path
 from fuprox.forms import (RegisterForm, LoginForm, TellerForm, ServiceForm, SolutionForm,
-                          ActivateForm, AddUser, PasswordCode, Passwords, Code, WallpaperForm, LogoForm)
+                          ActivateForm, AddUser, PasswordCode, Passwords, Code, WallpaperForm, LogoForm,DeleteWallpaper)
 from fuprox.models import User, Company, Branch, Service, Help, BranchSchema, CompanySchema, ServiceSchema, Mpesa, \
     MpesaSchema, Booking, BookingSchema, ImageCompanySchema, Teller, TellerSchema, ServiceOffered, Icon, \
     PhraseSchema, Phrase, ServiceOfferedSchema, VideoSchema, Video, ResetOption, ResetOptionSchema, \
@@ -228,7 +225,7 @@ def mpesa_reports():
     if int(kind) == 1:
         lookup = Mpesa.query.filter(Mpesa.amount.contains(5.0)).all()
     elif int(kind) == 2:
-        lookup = Mpsa.query.filter(Mpesa.amount.contains(10.0)).all()
+        lookup = Mpesa.query.filter(Mpesa.amount.contains(10.0)).all()
     elif int(kind) == 3:
         lookup = Mpesa.query.all()
     return jsonify(mpesas_schema.dump(lookup))
@@ -486,10 +483,10 @@ def payments_card():
 @login_required
 def wallpaper__():
     form = WallpaperForm()
-    if form.validate_on_submit():
-        image = form.picture.data
-        save_picture(image, "wallpaper")
-
+    if form.validate_on_submit() :
+        if form.picture.data:
+            image = form.picture.data
+            save_picture(image, "wallpaper")
     return render_template("wallpaper.html", form=form)
 
 
@@ -502,6 +499,19 @@ def logo__():
         save_picture(logo_, "company_logo")
     return render_template("logo.html", logo=logo)
 
+
+@app.route("/delete/wallpaper",methods=["POST"])
+def delete_wallpaper():
+    try:
+        jpg = f"{image_path}wallpaper.png"
+        png = f"{image_path}wallpaper.jpg"
+        os.remove(jpg) if os.remove(png) else os.remove(jpg)
+        flash("Wallpaper Successfully removed", "success")
+        final = True
+    except  FileNotFoundError:
+        flash("Wallpaper does not exist.", "warning")
+        final = False
+    return jsonify({'msg': final})
 
 @app.route("/reports")
 @login_required

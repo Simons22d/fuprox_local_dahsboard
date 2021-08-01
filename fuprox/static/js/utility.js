@@ -383,5 +383,16 @@ $("#download_apps").on("click",()=>{
     window.location.href = `http://159.65.144.235:3000/app/download/${filename}.msi`
 })
 
-
+const DeleteWallpaper = () => {
+    $.ajax({
+            url: `http://localhost:9000/delete/wallpaper`,
+            method: "POST",
+            contentType:"application/json; charset=utf-8",
+            dataType:"json",
+            data: {},
+            success: function (result) {
+                window.location.href = "http://localhost:9000/wallpaper"
+            }
+        });
+}
 

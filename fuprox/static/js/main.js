@@ -300,6 +300,4 @@ updatePage()
     },2000)
 
 
-
-
 })(jQuery);

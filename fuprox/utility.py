@@ -525,14 +525,15 @@ def save_code(user):
     return code
 
 
+
 def blur_image(filename):
     image = Image.open(filename)
     f_name = filename.split(".")
     gaussImage = image.filter(ImageFilter.GaussianBlur(60))
-    gaussImage.rotate(-180)
+    rotated = gaussImage.transpose(Image.ROTATE_90)
     try:
-
-        gaussImage.save(os.path.join("fuprox", "static","images", f"wallpaper.{f_name[1]}"))
+        path_ = os.path.join("fuprox", "static","images", f"wallpaper.{f_name[1]}")
+        rotated.save(path_)
     except Exception:
         pass
 
