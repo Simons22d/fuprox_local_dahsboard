@@ -494,9 +494,12 @@ def wallpaper__():
 @login_required
 def logo__():
     logo = LogoForm()
-    if logo.validate_on_submit():
-        logo_ = logo.logo.data
-        save_picture(logo_, "company_logo")
+    try:
+        if logo.validate_on_submit():
+            logo_ = logo.logo.data
+            save_picture(logo_, "company_logo")
+    except Exception:
+        pass
     return render_template("logo.html", logo=logo)
 
 
