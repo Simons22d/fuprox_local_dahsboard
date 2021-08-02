@@ -723,15 +723,19 @@ def ticket_unique() -> int:
 
 
 def save_picture(picture, filename):
-    pic_name = filename
-    # getting the name and the extension of the image
-    _, ext = os.path.splitext(picture.filename)
-    final_name = pic_name + ext
-    picture_path = os.path.join(app.root_path, "static/images/", final_name)
-    i = Image.open(picture)
-    i.save(picture_path)
-    blur_image(picture_path)
-    wallie_to_db(picture_path)
+    try:
+        pic_name = filename
+        # getting the name and the extension of the image
+        _, ext = os.path.splitext(picture.filename)
+        final_name = pic_name + ext
+
+        picture_path = os.path.join(app.root_path, "static/images/", final_name)
+        i = Image.open(picture)
+        i.save(picture_path)
+        blur_image(picture_path)
+        wallie_to_db(picture_path)
+    except Exception:
+        final_name = "None"
     return final_name
 
 
