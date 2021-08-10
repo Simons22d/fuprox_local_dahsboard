@@ -763,7 +763,7 @@ def add_company():
     if request.method == "POST":
         if service.validate_on_submit():
             code = service.code.data
-            if has_vowels(code) and len(code):
+            if len(code):
                 name = service.name.data
                 teller = service.teller.data
                 branch_id = branch.id
@@ -1317,6 +1317,7 @@ def edit_branch(id):
         this_service.teller = service.teller.data
         this_service.code = service.code.data
         this_service.icon = service.icon.data
+        this_service.name = service.name.data
         this_service.medical_active = True if service.visible.data == "True" else False
         this_service.active = True if service.active.data == "True" else False
         db.session.commit()
