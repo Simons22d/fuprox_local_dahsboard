@@ -1371,24 +1371,23 @@ def delete_branch(id):
 @app.route("/teller/edit/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit_teller(id):
-    # init the form
     teller = TellerForm()
     teller_data = Teller.query.get(id)
-    tellers = Teller.query.all()
     services = ServiceOffered.query.all()
     if teller.validate_on_submit():
-        # update data in the database
         try:
             teller_data.number = teller.number.data
             teller_data.service = teller.service.data
-            # teller_data.active = True if teller.active.data == "True" else False
             db.session.commit()
+            final = teller_schema.dump(teller_data)
+            sio.emit("add_teller", {"teller_data": final})
+            local.emit("update_services", final)
         except sqlalchemy.exc.IntegrityError:
             flash("Branch By That Name Exists", "warning")
-        # prefilling the form with the empty fields
         teller.number.data = ""
         teller.service.data = ""
-        flash("Branch Successfully Updated", "success")
+
+        flash("Teller Successfully Updated", "success")
         return redirect(url_for("tellers"))
     elif request.method == "GET":
         teller.number.data = teller_data.number
