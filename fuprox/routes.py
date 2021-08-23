@@ -255,7 +255,7 @@ def payments():
     bookings_ = Booking.query.order_by(Booking.date_added.desc()).all()
     bookings = list()
     for booking in bookings_:
-        service = ServiceOffered.query.filter_by(name=booking.service_name).first()
+        service = ServiceOffered.query.filter_by(unique_id=booking.service_name).first()
         booking.start = service.code
         booking.date_term = timeago.format(booking.date_added, datetime.now())
         bookings.append(booking)
@@ -270,7 +270,7 @@ def all_bookings():
     print(bookings__)
     bookings = list()
     for booking in bookings__:
-        service = ServiceOffered.query.filter_by(name=booking["service_name"]).first()
+        service = ServiceOffered.query.filter_by(unique_id=booking["service_name"]).first()
         booking["start"] = service.code
         for booking in bookings:
             booking["start"] = service.code
@@ -359,7 +359,7 @@ def search_by_service_name():
     data = get_service(service_name)
     bookings = list()
     if data:
-        bookings = Booking.query.filter_by(service_namee=data.name).all()
+        bookings = Booking.query.filter_by(service_name=data.name).all()
 
     return jsonify(bookings_schema.dump(bookings))
 
@@ -412,7 +412,7 @@ def booking_info(id):
 
         history = TellerBooking.query.filter_by(booking_id=id).order_by(TellerBooking.date_added.asc()).all()
         statements = list()
-        service = ServiceOffered.query.filter_by(name=booking.service_name).first()
+        service = ServiceOffered.query.filter_by(unique_id=booking.service_name).first()
         icon = Icon.query.get(service.icon)
         booking.service = service
         booking.icon = icon
